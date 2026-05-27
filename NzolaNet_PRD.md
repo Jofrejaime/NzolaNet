@@ -49,7 +49,7 @@ A ausência de uma plataforma digital centralizada e comunitária que permita a 
 A NzolaNet é uma aplicação web de carácter académico desenvolvida no contexto da disciplina de Aplicações Web do ISPTEC. Funciona como uma rede social com funcionalidades similares a plataformas como Twitter/X e Instagram: publicações com multimédia, sistema de reacções ("bazes"), comentários, seguimento de utilizadores, feed de notícias e notificações em tempo real.
 
 ### 1.6 Resumo Executivo
-O sistema será uma Single Page Application (SPA) desenvolvida com Angular no frontend, e uma API RESTful no backend (ASP.NET Web API ou PHP Laravel/PHP). Os dados serão persistidos numa base de dados relacional (SQL Server, MySQL ou PostgreSQL). A arquitectura seguirá o padrão de separação de camadas (Repository, Service, Controller) com uso de DTOs para comunicação entre camadas. O projecto será entregue em duas fases: a primeira cobrindo Gestão de Utilizadores, Publicações e Comentários; a segunda cobrindo a aplicação completa com relatório técnico.
+O sistema será uma Single Page Application (SPA) desenvolvida com Angular no frontend, e uma API RESTful no backend (PHP Laravel). Os dados serão persistidos numa base de dados relacional MySQL. A arquitectura seguirá o padrão de separação de camadas (Repository, Service, Controller) com uso de DTOs para comunicação entre camadas. O projecto será entregue em duas fases: a primeira cobrindo Gestão de Utilizadores, Publicações e Comentários; a segunda cobrindo a aplicação completa com relatório técnico.
 
 ---
 
