@@ -1,0 +1,34 @@
+<?php
+
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\CommentController;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+
+// Rotas públicas (sem autenticação)
+Route::post('/register', [UserController::class, 'register']);
+Route::post('/login', [UserController::class, 'login']);
+Route::post('/recover-password', [UserController::class, 'recoverPassword']);
+Route::post('/reset-password', [UserController::class, 'resetPassword']);
+
+// Rotas protegidas (requerem token)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [UserController::class, 'logout']);
+    Route::get('/user', [UserController::class, 'user']);
+
+    // Gestão de Perfil e Seguidores
+    Route::put('/profile', [UserController::class, 'updateProfile']);
+    Route::post('/profile/photo', [UserController::class, 'updateProfilePhoto']);
+    Route::post('/users/{id}/follow', [UserController::class, 'follow']);
+    Route::delete('/users/{id}/follow', [UserController::class, 'unfollow']);
+
+    // Gestão de Publicações
+    Route::apiResource('posts', PostController::class);
+
+    // Gestão de Comentários
+    Route::get('/posts/{postId}/comments', [CommentController::class, 'index']);
+    Route::post('/posts/{postId}/comments', [CommentController::class, 'store']);
+    Route::put('/comments/{id}', [CommentController::class, 'update']);
+    Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
+});
