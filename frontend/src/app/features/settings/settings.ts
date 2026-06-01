@@ -1,0 +1,119 @@
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { ThemeService } from '../../core/services/theme.service';
+
+export interface SettingsItem {
+  id: string;
+  label: string;
+  description?: string;
+  icon: string;       // SVG path innerHTML
+  badge?: string;
+  routeTo?: string;
+}
+
+@Component({
+  selector: 'app-settings',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
+  templateUrl: './settings.html',
+  styleUrls: ['./settings.scss'],
+  host: { class: 'block w-full' },
+})
+export class SettingsComponent {
+
+  private router = inject(Router);
+  themeService = inject(ThemeService);
+
+  // Computed property for dark mode
+  get darkMode(): boolean {
+    return this.themeService.theme() === 'dark';
+  }
+
+  currentLanguage = 'Português';
+
+  // ── Itens — Conta ────────────────────────────────────
+  accountItems: SettingsItem[] = [
+    {
+      id: 'account',
+      label: 'Conta',
+      description: 'Username, email, telefone',
+      icon: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+      routeTo: '/settings/account',
+    },
+    {
+      id: 'privacy',
+      label: 'Privacidade',
+      description: 'Quem pode ver o teu perfil',
+      icon: '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+      routeTo: '/settings/privacy',
+    },
+    {
+      id: 'security',
+      label: 'Segurança',
+      description: 'Palavra-passe, 2FA',
+      icon: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+      routeTo: '/settings/security',
+    },
+  ];
+
+  // ── Itens — Preferências (sem aparência e idioma) ────
+  preferenceItems: SettingsItem[] = [
+    {
+      id: 'notifications-settings',
+      label: 'Notificações',
+      description: 'Bazes, comentários, seguidores',
+      icon: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
+      badge: '3',
+      routeTo: '/notifications',
+    },
+  ];
+
+  // ── Item idioma (separado para o template) ───────────
+  languageItem: SettingsItem = {
+    id: 'language',
+    label: 'Idioma',
+    description: this.currentLanguage,
+    icon: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
+    routeTo: '/settings/language',
+  };
+
+  // ── Itens — Suporte ──────────────────────────────────
+  supportItems: SettingsItem[] = [
+    {
+      id: 'help',
+      label: 'Ajuda',
+      description: 'FAQ e contacto de suporte',
+      icon: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+      routeTo: '/settings/help',
+    },
+    {
+      id: 'about',
+      label: 'Sobre o NzolaNet',
+      description: 'Versão, licenças, créditos',
+      icon: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+      routeTo: '/settings/about',
+    },
+  ];
+
+  // ── Acções ───────────────────────────────────────────
+  toggleDarkMode(): void {
+    this.themeService.toggle();
+  }
+
+  onRowClick(item: SettingsItem): void {
+    if (item.routeTo) {
+      this.router.navigate([item.routeTo]);
+    }
+  }
+
+  logout(): void {
+    // Limpar estado de autenticação e redirigir para login
+    // this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+
+  goBack(): void {
+    this.router.navigate(['/']);
+  }
+}

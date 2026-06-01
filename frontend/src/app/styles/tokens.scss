@@ -1,0 +1,125 @@
+// ============================================
+// NZOLANET — DESIGN TOKENS
+// ============================================
+
+:root {
+  // Typography
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-extrabold: 800;
+
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  // Spacing (4pt scale)
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  // Border Radius
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  // Layout
+  --container-feed: 600px;
+  --container-sidebar: 280px;
+  --container-page: 1280px;
+  --container-auth: 400px;
+  --navbar-height: 64px;
+  --bottom-nav-height: 56px;
+
+  // Motion
+  --duration-instant: 50ms;
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-moderate: 300ms;
+  --duration-slow: 400ms;
+  
+  --ease-linear: linear;
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+// Dark Mode (default)
+[data-theme="dark"], :root {
+  --bg-base: #0D0D0C;
+  --bg-surface: #141412;
+  --bg-elevated: #1C1C1A;
+  --bg-overlay: #252523;
+  --bg-brand: #E8550F;
+  --bg-brand-subtle: rgba(232, 85, 15, 0.12);
+
+  --border-subtle: #1F1F1D;
+  --border-default: #2C2C29;
+  --border-brand: #E8550F;
+
+  --text-primary: #F2F2F0;
+  --text-secondary: #A8A8A2;
+  --text-tertiary: #666663;
+  --text-brand: #FF7040;
+  --text-on-brand: #FFFFFF;
+
+  --state-hover: rgba(255, 255, 255, 0.05);
+  --state-focus: rgba(232, 85, 15, 0.20);
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+// Light Mode
+[data-theme="light"] {
+  --bg-base: #FAFAFA;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F5F5F4;
+  --bg-overlay: #EFEFED;
+  --bg-brand: #E8550F;
+  --bg-brand-subtle: rgba(232, 85, 15, 0.08);
+
+  --border-subtle: #EFEFED;
+  --border-default: #E8E8E5;
+  --border-brand: #E8550F;
+
+  --text-primary: #141412;
+  --text-secondary: #54544F;
+  --text-tertiary: #A8A8A2;
+  --text-brand: #C9460A;
+  --text-on-brand: #FFFFFF;
+
+  --state-hover: rgba(0, 0, 0, 0.04);
+  --state-focus: rgba(232, 85, 15, 0.15);
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10);
+}

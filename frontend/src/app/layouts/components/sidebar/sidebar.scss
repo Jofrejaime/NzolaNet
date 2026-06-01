@@ -1,0 +1,21 @@
+.sidebar-wrap {
+  background: var(--bg-base);
+  border-right: 1px solid var(--border-subtle);
+}
+
+.nav-item {
+  position: relative;
+
+  &.active {
+    color: var(--text-brand) !important;
+
+    svg {
+      color: var(--text-brand);
+      stroke: var(--text-brand);
+    }
+  }
+}
+
+.post-btn {
+  letter-spacing: 0.01em;
+}

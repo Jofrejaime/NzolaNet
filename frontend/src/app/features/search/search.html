@@ -1,0 +1,111 @@
+<div class="search-wrap">
+
+  <!-- Header com barra de pesquisa -->
+  <div class="search-header sticky top-0 z-10 px-4 py-3 border-b border-[var(--border-subtle)]">
+    <div class="flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-full px-4 py-2.5 focus-within:border-[var(--border-brand)] focus-within:bg-[var(--bg-surface)] transition">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--text-tertiary)] flex-shrink-0">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input
+        type="text"
+        placeholder="Pesquisar"
+        (input)="onSearch($event)"
+        class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
+      />
+    </div>
+  </div>
+
+  <!-- Conteúdo: estado vazio (sugestões) -->
+  @if (!searchQuery) {
+
+    <!-- Tendências -->
+    <div class="px-4 pt-5 pb-2">
+      <h2 class="text-base font-bold text-[var(--text-primary)] mb-4">Tendências</h2>
+      <div class="flex flex-col">
+        @for (trend of trends; track trend.tag) {
+          <div class="flex items-center justify-between py-3 border-b border-[var(--border-subtle)] hover:bg-[var(--state-hover)] px-1 rounded-lg transition cursor-pointer">
+            <div>
+              <p class="text-xs text-[var(--text-tertiary)] mb-0.5">{{ trend.category }} · Tendência</p>
+              <p class="font-bold text-[var(--text-primary)] text-sm">{{ trend.tag }}</p>
+              <p class="text-xs text-[var(--text-tertiary)] mt-0.5">{{ trend.posts }} posts</p>
+            </div>
+            <button class="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] p-1 rounded-full hover:bg-[var(--state-hover)] transition">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Sugestões de pessoas -->
+    <div class="px-4 pt-5 pb-2">
+      <h2 class="text-base font-bold text-[var(--text-primary)] mb-4">Sugerido para si</h2>
+      <div class="flex flex-col gap-1">
+        @for (user of suggestions; track user.handle) {
+          <div class="flex items-center gap-3 py-3 px-1 rounded-lg hover:bg-[var(--state-hover)] transition cursor-pointer">
+            <div class="w-11 h-11 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-sm font-bold text-[var(--text-secondary)] flex-shrink-0">
+              {{ user.initials }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-[var(--text-primary)] text-sm truncate">{{ user.name }}</p>
+              <p class="text-xs text-[var(--text-secondary)] truncate">&#64;{{ user.handle }}</p>
+              <p class="text-xs text-[var(--text-tertiary)] mt-0.5 truncate">{{ user.bio }}</p>
+            </div>
+            <button class="flex-shrink-0 border border-[var(--border-strong)] text-[var(--text-primary)] px-4 py-1.5 rounded-full text-xs font-bold hover:bg-[var(--state-hover)] transition whitespace-nowrap">
+              Seguir
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Grid de posts populares (estilo Instagram) -->
+    <div class="px-4 pt-5 pb-6">
+      <h2 class="text-base font-bold text-[var(--text-primary)] mb-4">Popular</h2>
+      <div class="grid grid-cols-3 gap-1">
+        @for (post of popularPosts; track post.id) {
+          <div class="popular-item aspect-square rounded-lg bg-[var(--bg-elevated)] relative overflow-hidden cursor-pointer hover:opacity-80 transition">
+            <div class="w-full h-full flex items-center justify-center text-2xl select-none">
+              {{ post.emoji }}
+            </div>
+            <div class="popular-overlay absolute inset-0 flex items-end p-2 opacity-0 hover:opacity-100 transition">
+              <div class="flex items-center gap-2 text-white text-xs">
+                <span>🔥 {{ post.likes }}</span>
+                <span>💬 {{ post.comments }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+  }
+
+  <!-- Resultados de pesquisa -->
+  @if (searchQuery) {
+    <div class="px-4 pt-4">
+      <p class="text-xs text-[var(--text-tertiary)] mb-4">Resultados para "<span class="text-[var(--text-primary)]">{{ searchQuery }}</span>"</p>
+      @for (user of filteredUsers; track user.handle) {
+        <div class="flex items-center gap-3 py-3 border-b border-[var(--border-subtle)] hover:bg-[var(--state-hover)] px-1 rounded-lg transition cursor-pointer">
+          <div class="w-11 h-11 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-sm font-bold text-[var(--text-secondary)] flex-shrink-0">
+            {{ user.initials }}
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="font-bold text-[var(--text-primary)] text-sm truncate">{{ user.name }}</p>
+            <p class="text-xs text-[var(--text-secondary)] truncate">&#64;{{ user.handle }}</p>
+          </div>
+          <button class="flex-shrink-0 border border-[var(--border-strong)] text-[var(--text-primary)] px-4 py-1.5 rounded-full text-xs font-bold hover:bg-[var(--state-hover)] transition">
+            Seguir
+          </button>
+        </div>
+      }
+      @if (filteredUsers.length === 0) {
+        <div class="text-center py-16 text-[var(--text-tertiary)]">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mx-auto mb-3 opacity-40"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <p class="text-sm">Nenhum resultado encontrado</p>
+        </div>
+      }
+    </div>
+  }
+
+</div>

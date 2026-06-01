@@ -1,0 +1,55 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.profile-wrap {
+  min-height: 100vh;
+  width: 100%;
+}
+
+.profile-header {
+  background: rgba(13, 13, 12, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.tab-item {
+  position: relative;
+  color: var(--text-secondary);
+
+  &.active {
+    color: var(--text-primary);
+    font-weight: 600;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 3px;
+      background: var(--bg-brand);
+      border-radius: var(--radius-full);
+    }
+  }
+}
+
+.post-action {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
+  border-radius: var(--radius-full);
+
+  &:hover {
+    background: var(--state-hover);
+  }
+}
+
+.post-image-placeholder {
+  width: 100%;
+  height: 240px;
+  background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-overlay) 100%);
+}

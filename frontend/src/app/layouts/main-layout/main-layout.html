@@ -1,0 +1,37 @@
+<div class="flex justify-center min-h-screen bg-[var(--bg-base)]">
+  <div class="flex w-full max-w-[1400px]">
+
+    <!-- Sidebar esquerda - Desktop -->
+    <div class="fixed left-0 top-0 h-screen w-[260px] hidden lg:block">
+      <nzola-sidebar />
+    </div>
+
+    <!-- Conteúdo principal -->
+    <div class="flex flex-1 lg:ml-[260px]">
+
+      <!-- Feed central -->
+      <div class="flex-1 min-w-0 pb-24 lg:pb-4">
+        <router-outlet />
+      </div>
+
+      <!-- Sidebar direita - Desktop apenas -->
+      <div class="w-[290px] shrink-0 border-l border-[var(--border-subtle)] px-4 py-4 hidden xl:block">
+        <nzola-right-sidebar />
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Navigation - Mobile -->
+<nzola-bottom-nav />
+
+<!-- Botão Post Flutuante - Mobile -->
+<a 
+  routerLink="/compose" 
+  class="fab-post lg:hidden"
+  aria-label="Nova publicação">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+    <path d="M12 5v14M5 12h14"/>
+  </svg>
+</a>
