@@ -42,7 +42,7 @@ export class LoginComponent {
     this.authService.login(this.loginForm).subscribe({
       next: () => this.router.navigate(['/home']),
       error: (error) => {
-        this.errorMessage = error?.error?.message || 'Nao foi possivel entrar. Verifica os dados e tenta novamente.';
+        this.errorMessage = error?.error?.message || this.firstValidationError(error) || 'Não foi possível entrar. Verifica os dados e tenta novamente.';
         this.isLoading = false;
       },
       complete: () => {
