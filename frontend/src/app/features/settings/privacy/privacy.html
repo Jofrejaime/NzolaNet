@@ -10,6 +10,7 @@
   </div>
 
   <div class="settings-form">
+    <!-- Visibilidade do Perfil -->
     <div class="form-group">
       <label>Quem pode ver o teu perfil</label>
       <select [(ngModel)]="privacySettings.profileVisibility" class="form-select">
@@ -19,7 +20,8 @@
       </select>
     </div>
 
-    <div class="form-group toggle-group">
+    <!-- Toggles -->
+    <div class="toggle-group">
       <div class="toggle-row">
         <div class="toggle-info">
           <span class="toggle-label">Mostrar email no perfil</span>
@@ -32,7 +34,7 @@
       </div>
     </div>
 
-    <div class="form-group toggle-group">
+    <div class="toggle-group">
       <div class="toggle-row">
         <div class="toggle-info">
           <span class="toggle-label">Mostrar telefone no perfil</span>
@@ -45,20 +47,20 @@
       </div>
     </div>
 
-    <div class="form-group toggle-group">
+    <div class="toggle-group">
       <div class="toggle-row">
         <div class="toggle-info">
-          <span class="toggle-label">Permitir que me marquem em publicações</span>
-          <span class="toggle-desc">Outros utilizadores podem marcar-te</span>
+          <span class="toggle-label">Mostrar localização</span>
+          <span class="toggle-desc">A tua cidade e país ficam visíveis</span>
         </div>
         <label class="toggle">
-          <input type="checkbox" [(ngModel)]="privacySettings.allowTagging">
+          <input type="checkbox" [(ngModel)]="privacySettings.showLocation">
           <span class="toggle-track"><span class="toggle-thumb"></span></span>
         </label>
       </div>
     </div>
 
-    <div class="form-group toggle-group">
+    <div class="toggle-group">
       <div class="toggle-row">
         <div class="toggle-info">
           <span class="toggle-label">Permitir menções</span>
@@ -66,6 +68,19 @@
         </div>
         <label class="toggle">
           <input type="checkbox" [(ngModel)]="privacySettings.allowMentions">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="toggle-group">
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-label">Permitir mensagens directas</span>
+          <span class="toggle-desc">Outros utilizadores podem enviar-te mensagens</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="privacySettings.allowDMs">
           <span class="toggle-track"><span class="toggle-thumb"></span></span>
         </label>
       </div>

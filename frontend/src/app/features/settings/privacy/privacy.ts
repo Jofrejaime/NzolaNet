@@ -15,14 +15,16 @@ export class PrivacyComponent {
     profileVisibility: 'public',
     showEmail: false,
     showPhone: false,
-    allowTagging: true,
-    allowMentions: true
+    showLocation: true,
+    allowMentions: true,
+    allowDMs: true
   };
 
   constructor(private router: Router) {}
 
   saveChanges(): void {
     console.log('Guardar configurações de privacidade:', this.privacySettings);
+    // TODO: Implementar serviço
     this.router.navigate(['/settings']);
   }
 
