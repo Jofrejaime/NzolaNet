@@ -1,0 +1,89 @@
+<div class="settings-page">
+  <div class="settings-header">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+    <h1>Privacidade</h1>
+    <button class="save-btn" (click)="saveChanges()">Guardar</button>
+  </div>
+
+  <div class="settings-form">
+    <!-- Visibilidade do Perfil -->
+    <div class="form-group">
+      <label>Quem pode ver o teu perfil</label>
+      <select [(ngModel)]="privacySettings.profileVisibility" class="form-select">
+        <option value="public">Público (todos)</option>
+        <option value="followers">Apenas seguidores</option>
+        <option value="private">Privado (aprovado por mim)</option>
+      </select>
+    </div>
+
+    <!-- Toggles -->
+    <div class="toggle-group">
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-label">Mostrar email no perfil</span>
+          <span class="toggle-desc">O teu email fica visível para outros utilizadores</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="privacySettings.showEmail">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="toggle-group">
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-label">Mostrar telefone no perfil</span>
+          <span class="toggle-desc">O teu número de telefone fica visível</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="privacySettings.showPhone">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="toggle-group">
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-label">Mostrar localização</span>
+          <span class="toggle-desc">A tua cidade e país ficam visíveis</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="privacySettings.showLocation">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="toggle-group">
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-label">Permitir menções</span>
+          <span class="toggle-desc">Outros utilizadores podem mencionar-te</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="privacySettings.allowMentions">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="toggle-group">
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-label">Permitir mensagens directas</span>
+          <span class="toggle-desc">Outros utilizadores podem enviar-te mensagens</span>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" [(ngModel)]="privacySettings.allowDMs">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>

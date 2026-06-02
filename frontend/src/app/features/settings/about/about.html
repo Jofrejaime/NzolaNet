@@ -1,0 +1,67 @@
+<div class="settings-page">
+  <div class="settings-header">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+    <h1>Sobre o NzolaNet</h1>
+  </div>
+
+  <div class="about-content">
+    <div class="logo-section">
+      <div class="logo">NzolaNet</div>
+      <p class="tagline">Conectando pessoas, partilhando momentos</p>
+    </div>
+
+    <div class="info-card">
+      <div class="info-row">
+        <span class="label">Versão</span>
+        <span class="value">{{ version }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Lançamento</span>
+        <span class="value">Maio 2026</span>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h3>Descrição</h3>
+      <p>
+        NzolaNet é uma rede social centrada em conteúdo e conexão humana. 
+        O nome "Nzola" significa amor e afeto em Kimbundu, reflectindo o nosso 
+        compromisso com uma plataforma acolhedora e significativa.
+      </p>
+    </div>
+
+    <div class="info-card">
+      <h3>Tecnologias</h3>
+      <div class="tech-list">
+        <span class="tech-tag">Angular 17</span>
+        <span class="tech-tag">Tailwind CSS</span>
+        <span class="tech-tag">TypeScript</span>
+        <span class="tech-tag">SCSS</span>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h3>Contribuidores</h3>
+      @for (contributor of contributors; track $index) {
+        <div class="contributor">
+          <span class="name">{{ contributor.name }}</span>
+          <span class="role">{{ contributor.role }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="links">
+      <a href="#" class="link">Termos de Serviço</a>
+      <a href="#" class="link">Política de Privacidade</a>
+      <a href="#" class="link">Licenças</a>
+    </div>
+
+    <div class="copyright">
+      © 2026 NzolaNet. Todos os direitos reservados.
+    </div>
+  </div>
+</div>
