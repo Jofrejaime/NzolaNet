@@ -5,7 +5,7 @@
         <path d="M15 18l-6-6 6-6"/>
       </svg>
     </button>
-    <h1>Informação da Conta</h1>
+    <h1>Informacao da Conta</h1>
     <button class="save-btn" (click)="saveChanges()" [class.loading]="isLoading()">
       @if (isLoading()) {
         <svg class="spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -21,27 +21,40 @@
     <div class="toast-success">{{ savedMessage() }}</div>
   }
 
+  @if (errorMessage()) {
+    <div class="toast-success" style="border-color: rgba(239,68,68,.4); color: #fca5a5;">
+      {{ errorMessage() }}
+    </div>
+  }
+
   <div class="settings-content">
-    <!-- Avatar Section -->
     <div class="avatar-section">
-      <div class="avatar-large">NU</div>
+      <div class="avatar-large">
+        @if (photoUrl()) {
+          <img [src]="photoUrl()" alt="Foto de perfil" style="width:100%;height:100%;object-fit:cover;border-radius:999px;">
+        } @else {
+          {{ initials() }}
+        }
+      </div>
       <div class="avatar-info">
         <h3>Foto de perfil</h3>
-        <p>Clique na imagem para alterar</p>
-        <button class="change-avatar-btn">Alterar foto</button>
+        <p>Escolhe uma imagem para atualizar no backend</p>
+        <label class="change-avatar-btn" style="display:inline-flex;cursor:pointer;">
+          Alterar foto
+          <input type="file" accept="image/*" style="display:none;" (change)="onPhotoSelected($event)">
+        </label>
       </div>
     </div>
 
-    <!-- Form Sections -->
     <div class="form-grid">
       <div class="form-group">
-        <label>Nome de utilizador</label>
+        <label>Nome</label>
         <div class="input-wrapper">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
           </svg>
-          <input type="text" [(ngModel)]="user.username" placeholder="@username">
+          <input type="text" [(ngModel)]="user.name" placeholder="O teu nome">
         </div>
       </div>
 
@@ -52,7 +65,7 @@
             <rect x="2" y="4" width="20" height="16" rx="2"/>
             <path d="M22 7l-10 7L2 7"/>
           </svg>
-          <input type="email" [(ngModel)]="user.email" placeholder="email@exemplo.com">
+          <input type="email" [(ngModel)]="user.email" placeholder="email@exemplo.com" disabled>
         </div>
       </div>
 
@@ -79,13 +92,13 @@
       </div>
 
       <div class="form-group">
-        <label>Localização</label>
+        <label>Localizacao</label>
         <div class="input-wrapper">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
             <circle cx="12" cy="10" r="3"/>
           </svg>
-          <input type="text" [(ngModel)]="user.location" placeholder="Cidade, País">
+          <input type="text" [(ngModel)]="user.location" placeholder="Cidade, Pais">
         </div>
       </div>
 
@@ -106,9 +119,14 @@
     <div class="form-group full-width">
       <label>Biografia</label>
       <div class="textarea-wrapper">
-        <textarea [(ngModel)]="user.bio" rows="4" placeholder="Fala um pouco sobre ti..."></textarea>
-        <span class="char-count">{{ user.bio.length }}/160</span>
+        <textarea [(ngModel)]="user.bio" rows="4" maxlength="500" placeholder="Fala um pouco sobre ti..."></textarea>
+        <span class="char-count">{{ user.bio.length }}/500</span>
       </div>
     </div>
+
+    <label class="form-group full-width" style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+      <input type="checkbox" [(ngModel)]="user.is_private">
+      <span>Perfil privado</span>
+    </label>
   </div>
 </div>
