@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Notifications - NzolaNet</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1; }
+        
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #2C2C29; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #474744; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline": "#aa8a7f", "primary-container": "#f75f1c", "secondary": "#c9c6c2", "bg-sunken": "#090908",
+                        "on-tertiary-fixed": "#001c3a", "text-tertiary": "#666663", "on-primary-fixed": "#380d00", "primary-fixed": "#ffdbcf",
+                        "sunset-orange": "#E8550F", "on-error-container": "#ffdad6", "on-primary": "#5b1b00", "tertiary": "#a5c8ff",
+                        "bg-elevated": "#1C1C1A", "on-secondary-fixed": "#1c1c1a", "primary": "#ffb59b", "on-secondary": "#31302e",
+                        "surface-container": "#2b1c17", "border-subtle": "#1F1F1D", "surface-container-low": "#261813", "on-tertiary": "#00315e",
+                        "tertiary-container": "#2492ff", "bg-overlay": "#252523", "status-success": "#4ADE80", "on-tertiary-container": "#002a52",
+                        "surface-container-highest": "#42312b", "secondary-container": "#474744", "on-primary-container": "#501600",
+                        "on-secondary-fixed-variant": "#474744", "inverse-primary": "#a93800", "on-primary-fixed-variant": "#812900",
+                        "inverse-surface": "#f8ddd4", "surface-tint": "#ffb59b", "on-surface": "#f8ddd4", "error-container": "#93000a",
+                        "secondary-fixed": "#e5e2de", "border-default": "#2C2C29", "on-background": "#f8ddd4", "bg-base": "#0D0D0C",
+                        "on-secondary-container": "#b7b5b1", "outline-variant": "#5a4138", "surface-container-high": "#362621",
+                        "surface": "#1d100b", "status-warning": "#FBBF24", "text-primary": "#F2F2F0", "background": "#1d100b",
+                        "on-tertiary-fixed-variant": "#004785", "text-secondary": "#A8A8A2", "tertiary-fixed-dim": "#a5c8ff",
+                        "surface-bright": "#46352f", "status-danger": "#F87171", "on-error": "#690005", "primary-fixed-dim": "#ffb59b",
+                        "tertiary-fixed": "#d4e3ff", "on-surface-variant": "#e2bfb3", "inverse-on-surface": "#3d2d27",
+                        "secondary-fixed-dim": "#c9c6c2", "surface-variant": "#42312b", "surface-dim": "#1d100b", "error": "#ffb4ab",
+                        "surface-container-lowest": "#170b07"
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                    spacing: { "space-10": "40px", "space-1": "4px", "navbar-height": "64px", "space-3": "12px", "space-2": "8px", "space-5": "20px", "space-6": "24px", "container-feed": "600px", "space-4": "16px", "base": "4px", "space-8": "32px" },
+                    fontFamily: {
+                        "label-sm": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"],
+                        "display": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "mono": ["JetBrains Mono"],
+                        "body-sm": ["Plus Jakarta Sans"], "label-md": ["Plus Jakarta Sans"], "caption": ["Plus Jakarta Sans"]
+                    },
+                    fontSize: {
+                        "label-sm": ["12px", { lineHeight: "12px", letterSpacing: "0.02em", fontWeight: "500" }],
+                        "headline-sm": ["16px", { lineHeight: "24px", fontWeight: "600" }],
+                        "headline-md": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+                        "display": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "headline-lg-mobile": ["20px", { lineHeight: "28px", letterSpacing: "-0.01em", fontWeight: "700" }],
+                        "headline-lg": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700" }],
+                        "body-lg": ["18px", { lineHeight: "30px", fontWeight: "400" }],
+                        "mono": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "body-sm": ["14px", { lineHeight: "22px", fontWeight: "400" }],
+                        "label-md": ["14px", { lineHeight: "14px", fontWeight: "500" }],
+                        "caption": ["12px", { lineHeight: "16px", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-bg-base text-text-primary min-h-screen flex justify-center">
+<!-- Container to restrict max width and align columns -->
+<div class="flex w-full max-w-[1120px] relative">
+<!-- Left Column: SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-[240px] hidden lg:flex flex-col gap-space-4 p-space-4 border-r border-border-subtle bg-bg-base z-20">
+<div class="px-space-4 py-space-4 mb-space-4">
+<span class="font-headline-lg text-headline-lg font-bold text-sunset-orange">NzolaNet</span>
+</div>
+<a class="flex items-center gap-space-4 px-space-4 py-space-3 text-text-secondary hover:bg-bg-elevated hover:text-text-primary rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex items-center gap-space-4 px-space-4 py-space-3 text-text-secondary hover:bg-bg-elevated hover:text-text-primary rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-md text-label-md">Search</span>
+</a>
+<!-- Active Tab -->
+<a class="flex items-center gap-space-4 px-space-4 py-space-3 text-sunset-orange font-bold hover:bg-bg-elevated rounded-lg transition-all duration-200 relative" href="#">
+<span class="material-symbols-outlined filled">notifications</span>
+<span class="font-label-md text-label-md">Notifications</span>
+<!-- Badge for unread total -->
+<span class="absolute right-4 bg-sunset-orange text-bg-base font-caption text-caption font-bold px-1.5 py-0.5 rounded-full">3</span>
+</a>
+<a class="flex items-center gap-space-4 px-space-4 py-space-3 text-text-secondary hover:bg-bg-elevated hover:text-text-primary rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+<a class="flex items-center gap-space-4 px-space-4 py-space-3 text-text-secondary hover:bg-bg-elevated hover:text-text-primary rounded-lg transition-all duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<div class="mt-auto px-space-4">
+<button class="w-full bg-sunset-orange text-white font-label-md text-label-md font-bold py-space-3 rounded-full hover:-translate-y-[1px] hover:shadow-lg transition-all active:scale-[0.98]">
+                    Post
+                </button>
+</div>
+<div class="mt-space-4 px-space-4 py-space-3 flex items-center gap-space-3 rounded-lg hover:bg-bg-elevated transition-colors cursor-pointer">
+<img alt="User profile" class="w-10 h-10 rounded-full object-cover" data-alt="A high-quality, professional headshot of a young woman with warm, glowing studio lighting. The aesthetic is clean, modern, and human-centric, aligning with a premium professional network profile picture. The background is a subtle, dark neutral tone." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXmlCIEsDRYpL_SIAxxOlpR2lIiZbT10uM1C3gXRHO-Z3NmiQWwE0U44gD4-BVOmBBNgVx7DyV65qvefR_8Y5r_BJwR1_DzKUYP8C09NyqBdlEDm8-wxIDR1LgLwXgwZqIAT9MZzedSEH5JaNjDk35wboQIDYFiRnPNO8h72LXT4fUGCEVGXZ9NVfsEXhpZ1ncajSJx7q5kI7s4IoU6B9RdqABragtUwbq-H-mPKKVJq_QaRFj8NU1xupMAAN_AFv7Dip_WH6L0QU"/>
+<div class="overflow-hidden">
+<p class="font-label-md text-label-md font-bold text-text-primary truncate">Your Network</p>
+<p class="font-caption text-caption text-text-secondary truncate">@user</p>
+</div>
+</div>
+</nav>
+<!-- Spacer for left fixed nav -->
+<div class="w-[240px] hidden lg:block shrink-0"></div>
+<!-- Center Column: Notifications Feed -->
+<main class="w-full lg:w-[600px] border-x border-border-subtle min-h-screen bg-bg-base relative">
+<header class="sticky top-0 z-10 backdrop-blur-md bg-bg-base/90 border-b border-border-subtle px-space-4 py-space-3 h-navbar-height flex items-center">
+<h1 class="font-headline-md text-headline-md font-bold text-text-primary">Notifications</h1>
+</header>
+<div class="flex flex-col">
+<!-- Group: Hoje -->
+<div class="px-space-4 pt-space-6 pb-space-2 border-b border-border-subtle bg-bg-base">
+<h2 class="font-label-sm text-label-sm font-bold text-text-tertiary uppercase tracking-widest">Hoje</h2>
+</div>
+<!-- Unread Notification: Baze -->
+<article class="flex gap-space-4 px-space-4 py-space-5 border-b border-border-subtle hover:bg-surface-variant/30 transition-colors cursor-pointer relative bg-surface-container-low/20">
+<div class="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-sunset-orange"></div>
+<div class="relative shrink-0 pl-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a young professional man with a slight smile, illuminated by soft, natural light against a blurred urban background. The image style is modern and warm, fitting a high-end social profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaFSRg7hcjYfpz6VYWEeWaEdYtCuoAYp7hbu3k5-M9rcJlB4ZStxkG6bGKkQOiC-afO96o_yGqHJmvUK2B6h1ma8NupC-zPJfZOJGolixSXj4wy2Rgu380JkSwXq0E7SYndbbeyIpDAAeJlauRL2Mtir58sB6ysklpfBmKw3Uj2K3AySbcAjLa0chbV-HOwacErqGcyySo23vXRmBR22MNBYQgVnOba4bP2Y1GuslE-TVliV5KRw5PXYznfBM4lEuqnoISmU_Zx18"/>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-bg-base flex items-center justify-center text-sunset-orange border border-border-subtle">
+<span class="material-symbols-outlined filled text-[12px]">favorite</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-text-secondary leading-tight mb-1">
+<span class="font-semibold text-text-primary">Marcus Silva</span> bazed your post
+                        </p>
+<p class="font-body-sm text-body-sm text-text-tertiary line-clamp-2">"Exploring the new functional glassmorphism trends in UI design. The depth created by blurring layers instead of relying solely on heavy drop shadows feels incredibly fresh."</p>
+</div>
+<div class="shrink-0 font-caption text-caption text-text-tertiary">2m</div>
+</article>
+<!-- Unread Notification: Follow -->
+<article class="flex gap-space-4 px-space-4 py-space-5 border-b border-border-subtle hover:bg-surface-variant/30 transition-colors cursor-pointer relative bg-surface-container-low/20">
+<div class="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-sunset-orange"></div>
+<div class="relative shrink-0 pl-3">
+<span class="material-symbols-outlined text-[40px] text-tertiary-container">account_circle</span>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-bg-base flex items-center justify-center text-tertiary-container border border-border-subtle">
+<span class="material-symbols-outlined filled text-[12px]">person_add</span>
+</div>
+</div>
+<div class="flex-1 min-w-0 flex flex-col justify-center">
+<p class="font-body-md text-body-md text-text-secondary leading-tight">
+<span class="font-semibold text-text-primary">Elena Rodriguez</span> started following you
+                        </p>
+</div>
+<div class="shrink-0 font-caption text-caption text-text-tertiary">1h</div>
+</article>
+<!-- Read Notification: Comment -->
+<article class="flex gap-space-4 px-space-4 py-space-5 border-b border-border-subtle hover:bg-surface-variant/30 transition-colors cursor-pointer relative">
+<div class="relative shrink-0 pl-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a young woman laughing in an outdoor setting, shot with a shallow depth of field. The lighting is warm and natural, suggesting a friendly and approachable persona within a modern app interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDUEx793nqu34GlT7b29iBiFFeDyXh9fxAbbuHXmyqC6ROOlvEDahWQbMYCYL1mhvdUS0agSjolPecqiyOiH0DvENn_Amw4ht9xzVFjF9MDrjMgIa_Mvfp_Qb7giO5kX025c8dmZXqGzg0LlZKSjaZ-8GHwQcGAOp6hGj1VlXqmPVF2jQRTM20SujxJztAr6cydxbmcBpWXb7_98Ya5aGmldcX7p_TRV-gZzO6btAu6z7TXUeyO9ZTsxo3TquR6mbhe8nXuN3n10w"/>
+<div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-bg-base flex items-center justify-center text-primary border border-border-subtle">
+<span class="material-symbols-outlined filled text-[12px]">chat_bubble</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-body-md text-body-md text-text-secondary leading-tight mb-1">
+<span class="font-semibold text-text-primary">Sarah Jenkins</span> commented on your post
+                        </p>
+<div class="bg-bg-sunken border border-border-subtle rounded-lg p-space-3 mt-space-2">
+<p class="font-body-sm text-body-sm text-text-primary">"Totally agree with this approach. Have you tried combining it with spring animations for micro-interactions?"</p>
+</div>
+</div>
+<div class="shrink-0 font-caption text-caption text-text-tertiary">4h</div>
+</article>
+<!-- Group: Ontem -->
+<div class="px-space-4 pt-space-6 pb-space-2 border-b border-border-subtle bg-bg-base">
+<h2 class="font-label-sm text-label-sm font-bold text-text-tertiary uppercase tracking-widest">Ontem</h2>
+</div>
+<!-- Read Notification: Multiple Baze -->
+<article class="flex gap-space-4 px-space-4 py-space-5 border-b border-border-subtle hover:bg-surface-variant/30 transition-colors cursor-pointer relative">
+<div class="relative shrink-0 pl-3 flex">
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-border-subtle flex items-center justify-center relative z-10">
+<span class="material-symbols-outlined text-sunset-orange">favorite</span>
+</div>
+</div>
+<div class="flex-1 min-w-0 flex flex-col justify-center">
+<p class="font-body-md text-body-md text-text-secondary leading-tight mb-1">
+<span class="font-semibold text-text-primary">David Chen</span> and 12 others bazed your photo
+                        </p>
+</div>
+<div class="shrink-0 font-caption text-caption text-text-tertiary">1d</div>
+</article>
+</div>
+</main>
+<!-- Right Column: Trending & Suggestions -->
+<aside class="w-[280px] hidden xl:block shrink-0 sticky top-0 h-screen overflow-y-auto px-space-6 py-space-4">
+<!-- Search -->
+<div class="relative mb-space-8 mt-2">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary text-[20px]">search</span>
+<input class="w-full bg-bg-sunken border border-border-subtle rounded-full py-2.5 pl-10 pr-4 font-body-sm text-body-sm text-text-primary placeholder-text-tertiary focus:outline-none focus:border-sunset-orange focus:ring-1 focus:ring-sunset-orange transition-all" placeholder="Search" type="text"/>
+</div>
+<!-- Trending Widget -->
+<section class="bg-surface border border-border-subtle rounded-xl p-space-4 mb-space-6">
+<h2 class="font-headline-sm text-headline-sm font-bold mb-space-4 text-text-primary">Trending now</h2>
+<div class="flex flex-col gap-space-4">
+<div class="group cursor-pointer">
+<p class="font-caption text-caption text-text-tertiary mb-0.5">Technology · Trending</p>
+<p class="font-label-md text-label-md font-bold text-text-primary group-hover:text-sunset-orange transition-colors">#WebDev</p>
+<p class="font-caption text-caption text-text-tertiary mt-0.5">15.4K posts</p>
+</div>
+<div class="group cursor-pointer">
+<p class="font-caption text-caption text-text-tertiary mb-0.5">Design · Trending</p>
+<p class="font-label-md text-label-md font-bold text-text-primary group-hover:text-sunset-orange transition-colors">Glassmorphism</p>
+<p class="font-caption text-caption text-text-tertiary mt-0.5">8,230 posts</p>
+</div>
+</div>
+</section>
+<!-- Suggested Users Widget -->
+<section class="bg-surface border border-border-subtle rounded-xl p-space-4">
+<h2 class="font-headline-sm text-headline-sm font-bold mb-space-4 text-text-primary">Who to follow</h2>
+<div class="flex flex-col gap-space-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-2 min-w-0 mr-2">
+<span class="material-symbols-outlined text-[36px] text-text-secondary shrink-0">account_circle</span>
+<div class="truncate">
+<p class="font-label-md text-label-md font-bold text-text-primary truncate hover:underline cursor-pointer">UI Collective</p>
+<p class="font-caption text-caption text-text-tertiary truncate">@uicollective</p>
+</div>
+</div>
+<button class="shrink-0 px-space-3 py-1 border border-border-subtle bg-bg-base text-text-primary rounded-full font-label-sm text-label-sm font-bold hover:bg-surface-variant transition-colors">Follow</button>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-2 min-w-0 mr-2">
+<span class="material-symbols-outlined text-[36px] text-text-secondary shrink-0">account_circle</span>
+<div class="truncate">
+<p class="font-label-md text-label-md font-bold text-text-primary truncate hover:underline cursor-pointer">Dev News</p>
+<p class="font-caption text-caption text-text-tertiary truncate">@devnews</p>
+</div>
+</div>
+<button class="shrink-0 px-space-3 py-1 border border-border-subtle bg-bg-base text-text-primary rounded-full font-label-sm text-label-sm font-bold hover:bg-surface-variant transition-colors">Follow</button>
+</div>
+</div>
+</section>
+</aside>
+</div>
+</body></html>

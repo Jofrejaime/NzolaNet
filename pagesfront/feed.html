@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NzolaNet - Home Feed</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#aa8a7f",
+                      "primary-container": "#f75f1c",
+                      "secondary": "#c9c6c2",
+                      "bg-sunken": "#090908",
+                      "on-tertiary-fixed": "#001c3a",
+                      "text-tertiary": "#666663",
+                      "on-primary-fixed": "#380d00",
+                      "primary-fixed": "#ffdbcf",
+                      "sunset-orange": "#E8550F",
+                      "on-error-container": "#ffdad6",
+                      "on-primary": "#5b1b00",
+                      "tertiary": "#a5c8ff",
+                      "bg-elevated": "#1C1C1A",
+                      "on-secondary-fixed": "#1c1c1a",
+                      "primary": "#ffb59b",
+                      "on-secondary": "#31302e",
+                      "surface-container": "#2b1c17",
+                      "border-subtle": "#1F1F1D",
+                      "surface-container-low": "#261813",
+                      "on-tertiary": "#00315e",
+                      "tertiary-container": "#2492ff",
+                      "bg-overlay": "#252523",
+                      "status-success": "#4ADE80",
+                      "on-tertiary-container": "#002a52",
+                      "surface-container-highest": "#42312b",
+                      "secondary-container": "#474744",
+                      "on-primary-container": "#501600",
+                      "on-secondary-fixed-variant": "#474744",
+                      "inverse-primary": "#a93800",
+                      "on-primary-fixed-variant": "#812900",
+                      "inverse-surface": "#f8ddd4",
+                      "surface-tint": "#ffb59b",
+                      "on-surface": "#f8ddd4",
+                      "error-container": "#93000a",
+                      "secondary-fixed": "#e5e2de",
+                      "border-default": "#2C2C29",
+                      "on-background": "#f8ddd4",
+                      "bg-base": "#0D0D0C",
+                      "on-secondary-container": "#b7b5b1",
+                      "outline-variant": "#5a4138",
+                      "surface-container-high": "#362621",
+                      "surface": "#1d100b",
+                      "status-warning": "#FBBF24",
+                      "text-primary": "#F2F2F0",
+                      "background": "#1d100b",
+                      "on-tertiary-fixed-variant": "#004785",
+                      "text-secondary": "#A8A8A2",
+                      "tertiary-fixed-dim": "#a5c8ff",
+                      "surface-bright": "#46352f",
+                      "status-danger": "#F87171",
+                      "on-error": "#690005",
+                      "primary-fixed-dim": "#ffb59b",
+                      "tertiary-fixed": "#d4e3ff",
+                      "on-surface-variant": "#e2bfb3",
+                      "inverse-on-surface": "#3d2d27",
+                      "secondary-fixed-dim": "#c9c6c2",
+                      "surface-variant": "#42312b",
+                      "surface-dim": "#1d100b",
+                      "error": "#ffb4ab",
+                      "surface-container-lowest": "#170b07"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "space-10": "40px",
+                      "space-1": "4px",
+                      "navbar-height": "64px",
+                      "space-3": "12px",
+                      "space-2": "8px",
+                      "space-5": "20px",
+                      "space-6": "24px",
+                      "container-feed": "600px",
+                      "space-4": "16px",
+                      "base": "4px",
+                      "space-8": "32px"
+              },
+              "fontFamily": {
+                      "label-sm": ["Plus Jakarta Sans"],
+                      "headline-sm": ["Plus Jakarta Sans"],
+                      "headline-md": ["Plus Jakarta Sans"],
+                      "display": ["Plus Jakarta Sans"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "headline-lg-mobile": ["Plus Jakarta Sans"],
+                      "headline-lg": ["Plus Jakarta Sans"],
+                      "body-lg": ["Plus Jakarta Sans"],
+                      "mono": ["JetBrains Mono"],
+                      "body-sm": ["Plus Jakarta Sans"],
+                      "label-md": ["Plus Jakarta Sans"],
+                      "caption": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "label-sm": ["12px", {"lineHeight": "12px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                      "headline-sm": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "30px", "fontWeight": "400"}],
+                      "mono": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "body-sm": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "14px", "fontWeight": "500"}],
+                      "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0D0D0C;
+            color: #F2F2F0;
+        }
+        .baze-btn {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .baze-btn:active {
+            transform: scale(0.9);
+        }
+        .baze-active {
+            color: #E8550F;
+        }
+        .baze-active .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-bg-base text-text-primary antialiased min-h-screen">
+<!-- TopAppBar (Mobile Only - Hidden on Desktop) -->
+<header class="md:hidden fixed top-0 w-full z-50 bg-background/92 backdrop-blur-md border-b border-border-subtle flat no shadows flex justify-between items-center h-navbar-height px-space-6 max-w-full">
+<div class="font-headline-md text-headline-md font-bold text-sunset-orange">NzolaNet</div>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-text-secondary hover:text-text-primary transition-colors duration-200 active:scale-95 transition-transform" data-icon="account_circle">account_circle</span>
+</div>
+</header>
+<div class="flex max-w-[1120px] mx-auto min-h-screen relative pt-[64px] md:pt-0">
+<!-- SideNavBar (Desktop) -->
+<nav class="fixed left-0 top-0 h-full w-[240px] hidden lg:flex flex-col gap-space-4 p-space-4 bg-bg-base border-r border-border-subtle flat no shadows z-40">
+<div class="mb-space-6 px-space-4 pt-space-4">
+<h1 class="font-headline-lg text-headline-lg text-text-primary font-bold tracking-tight">NzolaNet</h1>
+</div>
+<div class="flex flex-col gap-space-2">
+<!-- Home (Active) -->
+<a class="flex items-center gap-space-4 px-space-4 py-space-3 rounded-lg text-sunset-orange font-bold hover:bg-bg-elevated transition-all duration-200 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-sunset-orange" data-icon="home" data-weight="fill" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-headline-sm text-headline-sm">Home</span>
+</a>
+<!-- Search -->
+<a class="flex items-center gap-space-4 px-space-4 py-space-3 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-all duration-200 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-headline-sm text-headline-sm">Search</span>
+</a>
+<!-- Notifications -->
+<a class="flex items-center gap-space-4 px-space-4 py-space-3 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-all duration-200 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="font-headline-sm text-headline-sm">Notifications</span>
+</a>
+<!-- Profile -->
+<a class="flex items-center gap-space-4 px-space-4 py-space-3 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-all duration-200 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-headline-sm text-headline-sm">Profile</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center gap-space-4 px-space-4 py-space-3 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-all duration-200 active:scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-headline-sm text-headline-sm">Settings</span>
+</a>
+</div>
+<div class="mt-auto mb-space-8">
+<button class="w-full bg-sunset-orange text-text-primary font-headline-sm text-headline-sm py-space-3 rounded-full hover:bg-opacity-90 hover:-translate-y-[1px] hover:shadow-lg transition-all duration-200 shadow-black/20">
+                    Post
+                </button>
+</div>
+<!-- User Profile Snippet -->
+<div class="flex items-center gap-space-3 px-space-2 py-space-2 rounded-lg hover:bg-bg-elevated transition-colors cursor-pointer">
+<img alt="User Avatar" class="w-10 h-10 rounded-full object-cover" data-alt="Close-up portrait of a young professional man with short dark hair and a subtle smile, looking directly at the camera. He is wearing a simple dark blue crew neck t-shirt. The background is a soft, solid light gray studio backdrop providing high contrast. The lighting is soft and even, highlighting his features naturally in a modern, clean aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYws47lld48md2RFN-ttWkyheyqyb9mDJiTVtuJvmLa0UoVfabz2Y1nPbIQifOFFCNLcEwNsnDKFwLZB5Q_z8INXlpWFEhu40e2d1BPazqVTeCaqVPRExVPDhwImIduyOcY5ilxg3sjDhC-9EDxnipCebOtLSzlB9n0G5oIUrYDs8Ho_pp0Qe8B-ZGGU3ngk8CY8pzPo88P8-F3hYRMAW97wH21gDvXqJgvjUa4UnCVGzuC4a6go1Hjt6Hyw6fWfOKNZdKJDpSEjQ"/>
+<div class="flex-1 min-w-0">
+<p class="font-label-md text-label-md text-text-primary truncate">Nzola User</p>
+<p class="font-caption text-caption text-text-secondary truncate">@nzola_user</p>
+</div>
+<span class="material-symbols-outlined text-text-secondary" data-icon="more_horiz">more_horiz</span>
+</div>
+</nav>
+<!-- Main Feed Container -->
+<main class="w-full lg:w-[600px] lg:ml-[240px] border-r border-l border-border-subtle min-h-screen">
+<!-- Feed Header -->
+<div class="sticky top-0 z-30 bg-bg-base/80 backdrop-blur-xl border-b border-border-subtle px-space-4 py-space-3">
+<h2 class="font-headline-md text-headline-md text-text-primary">Home</h2>
+</div>
+<!-- Post Composer -->
+<div class="px-space-4 py-space-5 border-b border-border-subtle">
+<div class="flex gap-space-4">
+<img alt="Current User" class="w-10 h-10 rounded-full object-cover shrink-0" data-alt="Close-up portrait of a young professional man with short dark hair and a subtle smile, looking directly at the camera. He is wearing a simple dark blue crew neck t-shirt. The background is a soft, solid light gray studio backdrop providing high contrast. The lighting is soft and even, highlighting his features naturally in a modern, clean aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3SIUWfcsOvRAb4DTbjWEKCapBINxlQ3j8jzhU1cTncY3JascvpFMXZck2B6FXMVq_if-SDKvNuAEdYZUk-_xKj7lL5SlskiXr0mAVT2LT8f8xn2fc4IS5S0DY2yOMLDhwwTr94m_Qb2UNORvRVanXp9aipu8YD4VyR3Nm-3BcMa1Gdw213REa-EE97Vwmj8C8-0WX1kmox2dc7mG_nGUzJ9HZ7UrJCL-wSpDlL663gdQe5lVd-vJ9NZHLGrhAMSuS4hdPIpJKGIw"/>
+<div class="flex-1">
+<textarea class="w-full bg-transparent font-body-lg text-body-lg text-text-primary placeholder:text-text-secondary border-none resize-none focus:ring-0 p-0 h-12" placeholder="O que está a acontecer?"></textarea>
+<div class="flex justify-between items-center mt-space-3 pt-space-3 border-t border-border-subtle">
+<div class="flex gap-space-2 text-sunset-orange">
+<button class="p-2 rounded-full hover:bg-sunset-orange/10 transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="image">image</span>
+</button>
+<button class="p-2 rounded-full hover:bg-sunset-orange/10 transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="gif_box">gif_box</span>
+</button>
+<button class="p-2 rounded-full hover:bg-sunset-orange/10 transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="mood">mood</span>
+</button>
+</div>
+<button class="bg-sunset-orange/50 text-text-primary font-label-md text-label-md px-space-4 py-2 rounded-full cursor-not-allowed transition-all duration-200">
+                                Post
+                            </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Feed Content -->
+<div class="flex flex-col">
+<!-- Post Card 1 -->
+<article class="px-space-4 py-space-5 border-b border-border-subtle hover:bg-bg-elevated/30 transition-colors duration-200 cursor-pointer">
+<div class="flex gap-space-4">
+<img alt="Avatar" class="w-10 h-10 rounded-full object-cover shrink-0" data-alt="A close up, candid portrait of a smiling young woman with long wavy brown hair. She has a warm, natural expression and is wearing a simple white top. The background is softly blurred outdoors with hints of green foliage and warm sunlight. The image is brightly lit, evoking a friendly and approachable mood, matching a modern social media profile picture aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfc2VkyVhTWczJwsxxZUDTdxvAqSmo3PqR4CVGPtwctmDIFC07DY4otjquApn_RzoOH0v_v_9nyApDAn5_DiCMqFZzGycehCKgt43CjnhmON-XBDvc5a6F28cW-cTkn84NcNayg5EoSXKC4nDzfh5o0ZIvK60EGst_ef752O96Qw9gZCsogyKC9P4BSiY3f3WRmHjjm0icDoWjeWGgkCpxG37mGWaPfIKIWuRCsdv01URJgzhm-bFhB0ZkORJrr8JWwqH6IuhYUG8"/>
+<div class="flex-1 min-w-0">
+<!-- Header -->
+<div class="flex items-baseline gap-space-2 mb-1">
+<h3 class="font-headline-sm text-headline-sm text-text-primary truncate">Ana Silva</h3>
+<span class="font-body-sm text-body-sm text-text-secondary truncate">@anasilva_dev</span>
+<span class="font-body-sm text-body-sm text-text-secondary">·</span>
+<span class="font-body-sm text-body-sm text-text-secondary hover:underline">2h</span>
+</div>
+<!-- Body -->
+<p class="font-body-md text-body-md text-text-primary whitespace-pre-wrap mb-space-3">Just launched my new portfolio built entirely with Tailwind and vanilla JS. Loving the simplicity of not using heavy frameworks for smaller projects! 🚀✨</p>
+<!-- Actions -->
+<div class="flex items-center justify-between text-text-secondary max-w-md pr-space-8 mt-space-2">
+<button class="flex items-center gap-space-1 hover:text-blue-400 transition-colors group">
+<div class="p-2 rounded-full group-hover:bg-blue-400/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="chat_bubble_outline">chat_bubble_outline</span>
+</div>
+<span class="font-caption text-caption">12</span>
+</button>
+<button class="flex items-center gap-space-1 hover:text-green-400 transition-colors group">
+<div class="p-2 rounded-full group-hover:bg-green-400/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="sync">sync</span>
+</div>
+<span class="font-caption text-caption">4</span>
+</button>
+<button class="baze-btn flex items-center gap-space-1 hover:text-sunset-orange transition-colors group" onclick="this.classList.toggle('baze-active')">
+<div class="p-2 rounded-full group-hover:bg-sunset-orange/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="favorite">favorite</span>
+</div>
+<span class="font-caption text-caption">48</span>
+</button>
+<button class="flex items-center gap-space-1 hover:text-blue-400 transition-colors group">
+<div class="p-2 rounded-full group-hover:bg-blue-400/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="bar_chart">bar_chart</span>
+</div>
+<span class="font-caption text-caption">1.2k</span>
+</button>
+<button class="flex items-center gap-space-1 hover:text-text-primary transition-colors group">
+<div class="p-2 rounded-full group-hover:bg-bg-elevated transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="ios_share">ios_share</span>
+</div>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Post Card 2 with Media -->
+<article class="px-space-4 py-space-5 border-b border-border-subtle hover:bg-bg-elevated/30 transition-colors duration-200 cursor-pointer">
+<div class="flex gap-space-4">
+<img alt="Avatar" class="w-10 h-10 rounded-full object-cover shrink-0" data-alt="A black and white portrait of a man looking slightly off-camera. He has short hair and a neatly trimmed beard. The lighting is dramatic, with strong shadows accentuating his facial features against a dark background. The mood is serious and contemplative, fitting a high-end, premium aesthetic for a professional platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGcSyP3qA0OZjdWPWmtJkTMVsPeCtob_RIe1Wq9Eeuiri9h-_1K40F9ISVz7QR5f00Y26LNkc8na2gxgTaEsX2X2n5g60xTPF6Jst3MT5mh1d0mzCL4imzZYRejT4bj-rPrmicTUnykgE1pGRoYy6uLabyOm7imsaB7oxErfFyvXjZCoTqbBoV9e9ow9xawod4ylrZdH99xw7AoxQeSJp0A1UytW_RFOhkSdDps4FKqaHALdX9W3_haP8-c3nsuQV_B0mRhu4BZoQ"/>
+<div class="flex-1 min-w-0">
+<!-- Header -->
+<div class="flex items-baseline gap-space-2 mb-1">
+<h3 class="font-headline-sm text-headline-sm text-text-primary truncate">Design Daily</h3>
+<span class="font-body-sm text-body-sm text-text-secondary truncate">@designdaily</span>
+<span class="font-body-sm text-body-sm text-text-secondary">·</span>
+<span class="font-body-sm text-body-sm text-text-secondary hover:underline">5h</span>
+</div>
+<!-- Body -->
+<p class="font-body-md text-body-md text-text-primary whitespace-pre-wrap mb-space-3">Exploring dark mode gradients today. The subtle depth you get from layering low-opacity colors is incredible.</p>
+<!-- Media -->
+<div class="rounded-xl overflow-hidden mb-space-3 border border-border-subtle">
+<img alt="Dark mode abstract UI" class="w-full h-auto object-cover" data-alt="A sleek, modern abstract digital composition featuring dark, moody tones. It showcases smooth, flowing gradients in deep blacks, charcoal grays, and subtle hints of neon blue and purple. The aesthetic is highly polished and technological, resembling a high-end dark mode user interface background or a premium tech product wallpaper. The lighting feels internal and glowing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2T6EMFrKcKLSjlCAaYAfopDFePJWKvS0Rns_V9pE49R_DaeBnK7YzuEt8OaJZ1gmpcrslTnj4CKERu1YVAs64vXMKpPPngkj9L1AlIwhbgDCFqLCV-ybT3S1BJb8wsff-6m4HPpGGU8aM-JduzowhUbgC4jvnH2Eu8sqrF8_wy5bbAQ-pQmI8TR42VIHNlwqTz2N_4tdGDrW7i8pskiMoNFmxI37CpZY3RU6i2smhIYqQODdJw-IvZ80K0Y71EvI9IFt11uybtrc"/>
+</div>
+<!-- Actions -->
+<div class="flex items-center justify-between text-text-secondary max-w-md pr-space-8 mt-space-2">
+<button class="flex items-center gap-space-1 hover:text-blue-400 transition-colors group">
+<div class="p-2 rounded-full group-hover:bg-blue-400/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="chat_bubble_outline">chat_bubble_outline</span>
+</div>
+<span class="font-caption text-caption">89</span>
+</button>
+<button class="flex items-center gap-space-1 hover:text-green-400 transition-colors group">
+<div class="p-2 rounded-full group-hover:bg-green-400/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="sync">sync</span>
+</div>
+<span class="font-caption text-caption">24</span>
+</button>
+<button class="baze-btn flex items-center gap-space-1 hover:text-sunset-orange transition-colors group" onclick="this.classList.toggle('baze-active')">
+<div class="p-2 rounded-full group-hover:bg-sunset-orange/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="favorite">favorite</span>
+</div>
+<span class="font-caption text-caption">892</span>
+</button>
+<button class="flex items-center gap-space-1 hover:text-blue-400 transition-colors group">
+<div class="p-2 rounded-full group-hover:bg-blue-400/10 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="bar_chart">bar_chart</span>
+</div>
+<span class="font-caption text-caption">15k</span>
+</button>
+<button class="flex items-center gap-space-1 hover:text-text-primary transition-colors group">
+<div class="p-2 rounded-full group-hover:bg-bg-elevated transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="ios_share">ios_share</span>
+</div>
+</button>
+</div>
+</div>
+</div>
+</article>
+</div>
+</main>
+<!-- Right Sidebar (Desktop) -->
+<aside class="hidden xl:block w-[280px] ml-space-6 py-space-4 shrink-0">
+<!-- Search Input (Sunken) -->
+<div class="relative group mb-space-6">
+<div class="absolute inset-y-0 left-0 pl-space-3 flex items-center pointer-events-none text-text-secondary group-focus-within:text-sunset-orange transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="search">search</span>
+</div>
+<input class="block w-full pl-10 pr-space-3 py-2 bg-bg-sunken border border-transparent rounded-full font-body-sm text-body-sm text-text-primary placeholder:text-text-secondary focus:ring-0 focus:border-sunset-orange focus:bg-bg-base transition-colors" placeholder="Search NzolaNet" type="text"/>
+</div>
+<!-- Trending Section -->
+<div class="bg-bg-elevated rounded-xl border border-border-subtle mb-space-4 overflow-hidden">
+<h3 class="font-headline-md text-headline-md font-bold text-text-primary px-space-4 py-space-3">Tendências para ti</h3>
+<div class="flex flex-col">
+<div class="px-space-4 py-space-3 hover:bg-bg-overlay transition-colors cursor-pointer">
+<div class="flex justify-between items-start">
+<span class="font-caption text-caption text-text-secondary">Tecnologia · Tendência</span>
+<span class="material-symbols-outlined text-text-secondary text-[16px] hover:text-sunset-orange hover:bg-sunset-orange/10 rounded-full" data-icon="more_horiz">more_horiz</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-text-primary font-bold mt-1">#WebDev</p>
+<p class="font-caption text-caption text-text-secondary mt-1">12.5k posts</p>
+</div>
+<div class="px-space-4 py-space-3 hover:bg-bg-overlay transition-colors cursor-pointer border-t border-border-subtle/50">
+<div class="flex justify-between items-start">
+<span class="font-caption text-caption text-text-secondary">Design · Tendência</span>
+<span class="material-symbols-outlined text-text-secondary text-[16px] hover:text-sunset-orange hover:bg-sunset-orange/10 rounded-full" data-icon="more_horiz">more_horiz</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-text-primary font-bold mt-1">Figma Updates</p>
+<p class="font-caption text-caption text-text-secondary mt-1">8,204 posts</p>
+</div>
+</div>
+<a class="block px-space-4 py-space-3 font-body-sm text-body-sm text-sunset-orange hover:bg-bg-overlay transition-colors rounded-b-xl" href="#">Show more</a>
+</div>
+<!-- Who to Follow -->
+<div class="bg-bg-elevated rounded-xl border border-border-subtle overflow-hidden">
+<h3 class="font-headline-md text-headline-md font-bold text-text-primary px-space-4 py-space-3">Quem seguir</h3>
+<div class="flex flex-col">
+<div class="px-space-4 py-space-3 hover:bg-bg-overlay transition-colors flex items-center gap-space-3 cursor-pointer">
+<img alt="Avatar" class="w-10 h-10 rounded-full object-cover shrink-0" data-alt="A professional headshot of a mature woman with warm brown skin, smiling confidently. She is wearing a smart dark blazer over a light blouse. The background is a slightly out-of-focus modern office setting with natural light coming through a window. The aesthetic is corporate yet approachable and warm, suitable for a professional networking profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeMLKFZoqESEPegf6VzR3jBILqlDf8ESMUM1IewyZOCu10zvDwlHhGoL4H3GpukTa39p97o-R4L02AIve4uDAjcToaiNAF_Fh_XsVcZnNMQXXDATAXtXv08jfts02fCbdsS7veNxFLkbPNXwyRAsmEGNt0_DMzNU2lK8e1DWRylPjU1ICm78_ek3oQ8YQGm4m4vOOt_VuxkZKeqcw84PvFQWKUGFIvGMrwUKwJbRELRH7zbFOvqj2Il0mZzymLI94vVKkf87ty3Pc"/>
+<div class="flex-1 min-w-0">
+<p class="font-label-md text-label-md text-text-primary truncate font-bold hover:underline">Maria Costa</p>
+<p class="font-caption text-caption text-text-secondary truncate">@mcosta_ux</p>
+</div>
+<button class="bg-text-primary text-bg-base font-label-md text-label-md px-4 py-1.5 rounded-full hover:bg-opacity-90 transition-colors">
+                            Seguir
+                        </button>
+</div>
+<div class="px-space-4 py-space-3 hover:bg-bg-overlay transition-colors flex items-center gap-space-3 cursor-pointer border-t border-border-subtle/50">
+<img alt="Avatar" class="w-10 h-10 rounded-full object-cover shrink-0" data-alt="A corporate portrait of a serious-looking middle-aged man with short grey hair and glasses. He is wearing a tailored grey suit with a white shirt and dark tie. The background is a clean, neutral grey studio sweep, emphasizing a highly professional, trustworthy, and premium business aesthetic. The lighting is crisp and even." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBRTOGHv8RYoz-LuQlz1hZ46culrqBQd4Or-JiZvLISQw6yqxWlcBBYmn0cIgdEC3Po7hCHAMoT6Y_qH23U0s6GJyNvfsuclMP8RVxUtocnWQcAqlrOCg6uUI8SULxk3t2xOawhJS_6rVVQ_16tYqZfAap4ZLs3AZqeO8nIl_dHQa-4G_kI-8XShaEAjtoNGLuZOQI0a5_83KskBC1xI_U6ie6EP6lVeYNirsh4Ax9IqsBLBFLA1z4q3SMn7zoSsTCA6_CaNTD7X4"/>
+<div class="flex-1 min-w-0">
+<p class="font-label-md text-label-md text-text-primary truncate font-bold hover:underline">Tech News PT</p>
+<p class="font-caption text-caption text-text-secondary truncate">@technews_pt</p>
+</div>
+<button class="bg-text-primary text-bg-base font-label-md text-label-md px-4 py-1.5 rounded-full hover:bg-opacity-90 transition-colors">
+                            Seguir
+                        </button>
+</div>
+</div>
+<a class="block px-space-4 py-space-3 font-body-sm text-body-sm text-sunset-orange hover:bg-bg-overlay transition-colors rounded-b-xl" href="#">Show more</a>
+</div>
+<footer class="mt-space-4 px-space-4">
+<nav class="flex flex-wrap gap-x-3 gap-y-1">
+<a class="font-caption text-caption text-text-tertiary hover:underline" href="#">Terms of Service</a>
+<a class="font-caption text-caption text-text-tertiary hover:underline" href="#">Privacy Policy</a>
+<a class="font-caption text-caption text-text-tertiary hover:underline" href="#">Cookie Policy</a>
+<a class="font-caption text-caption text-text-tertiary hover:underline" href="#">Accessibility</a>
+<span class="font-caption text-caption text-text-tertiary">© 2024 NzolaNet</span>
+</nav>
+</footer>
+</aside>
+</div>
+</body></html>

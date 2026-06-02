@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile - NzolaNet</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#aa8a7f",
+                    "primary-container": "#f75f1c",
+                    "secondary": "#c9c6c2",
+                    "bg-sunken": "#090908",
+                    "on-tertiary-fixed": "#001c3a",
+                    "text-tertiary": "#666663",
+                    "on-primary-fixed": "#380d00",
+                    "primary-fixed": "#ffdbcf",
+                    "sunset-orange": "#E8550F",
+                    "on-error-container": "#ffdad6",
+                    "on-primary": "#5b1b00",
+                    "tertiary": "#a5c8ff",
+                    "bg-elevated": "#1C1C1A",
+                    "on-secondary-fixed": "#1c1c1a",
+                    "primary": "#ffb59b",
+                    "on-secondary": "#31302e",
+                    "surface-container": "#2b1c17",
+                    "border-subtle": "#1F1F1D",
+                    "surface-container-low": "#261813",
+                    "on-tertiary": "#00315e",
+                    "tertiary-container": "#2492ff",
+                    "bg-overlay": "#252523",
+                    "status-success": "#4ADE80",
+                    "on-tertiary-container": "#002a52",
+                    "surface-container-highest": "#42312b",
+                    "secondary-container": "#474744",
+                    "on-primary-container": "#501600",
+                    "on-secondary-fixed-variant": "#474744",
+                    "inverse-primary": "#a93800",
+                    "on-primary-fixed-variant": "#812900",
+                    "inverse-surface": "#f8ddd4",
+                    "surface-tint": "#ffb59b",
+                    "on-surface": "#f8ddd4",
+                    "error-container": "#93000a",
+                    "secondary-fixed": "#e5e2de",
+                    "border-default": "#2C2C29",
+                    "on-background": "#f8ddd4",
+                    "bg-base": "#0D0D0C",
+                    "on-secondary-container": "#b7b5b1",
+                    "outline-variant": "#5a4138",
+                    "surface-container-high": "#362621",
+                    "surface": "#1d100b",
+                    "status-warning": "#FBBF24",
+                    "text-primary": "#F2F2F0",
+                    "background": "#1d100b",
+                    "on-tertiary-fixed-variant": "#004785",
+                    "text-secondary": "#A8A8A2",
+                    "tertiary-fixed-dim": "#a5c8ff",
+                    "surface-bright": "#46352f",
+                    "status-danger": "#F87171",
+                    "on-error": "#690005",
+                    "primary-fixed-dim": "#ffb59b",
+                    "tertiary-fixed": "#d4e3ff",
+                    "on-surface-variant": "#e2bfb3",
+                    "inverse-on-surface": "#3d2d27",
+                    "secondary-fixed-dim": "#c9c6c2",
+                    "surface-variant": "#42312b",
+                    "surface-dim": "#1d100b",
+                    "error": "#ffb4ab",
+                    "surface-container-lowest": "#170b07"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "space-10": "40px",
+                    "space-1": "4px",
+                    "navbar-height": "64px",
+                    "space-3": "12px",
+                    "space-2": "8px",
+                    "space-5": "20px",
+                    "space-6": "24px",
+                    "container-feed": "600px",
+                    "space-4": "16px",
+                    "base": "4px",
+                    "space-8": "32px"
+            },
+            "fontFamily": {
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "headline-sm": ["Plus Jakarta Sans"],
+                    "headline-md": ["Plus Jakarta Sans"],
+                    "display": ["Plus Jakarta Sans"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "headline-lg-mobile": ["Plus Jakarta Sans"],
+                    "headline-lg": ["Plus Jakarta Sans"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "mono": ["JetBrains Mono"],
+                    "body-sm": ["Plus Jakarta Sans"],
+                    "label-md": ["Plus Jakarta Sans"],
+                    "caption": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "label-sm": ["12px", {"lineHeight": "12px", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                    "headline-sm": ["16px", {"lineHeight": "24px", "fontWeight": "600"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "display": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "30px", "fontWeight": "400"}],
+                    "mono": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "22px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "14px", "fontWeight": "500"}],
+                    "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2C2C29;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #474744;
+        }
+    </style>
+</head>
+<body class="bg-bg-base text-text-primary min-h-screen antialiased selection:bg-sunset-orange/30">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-background/92 backdrop-blur-md border-b border-border-subtle flex justify-between items-center h-navbar-height px-space-6 max-w-full">
+<div class="font-headline-md text-headline-md font-bold text-sunset-orange">NzolaNet</div>
+<div class="flex items-center gap-space-4">
+<button class="text-text-secondary hover:text-text-primary transition-colors duration-200 active:scale-95 transition-transform flex items-center justify-center p-2 rounded-full hover:bg-bg-elevated">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-navbar-height h-full w-[240px] hidden lg:block bg-bg-base border-r border-border-subtle flex flex-col gap-space-4 p-space-4 z-40">
+<div class="flex flex-col gap-space-1 mt-space-4">
+<a class="flex items-center gap-space-4 p-space-3 text-text-secondary hover:bg-bg-elevated hover:text-text-primary rounded-lg transition-all duration-200 active:scale-[0.98] transition-all font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
+<span>Home</span>
+</a>
+<a class="flex items-center gap-space-4 p-space-3 text-text-secondary hover:bg-bg-elevated hover:text-text-primary rounded-lg transition-all duration-200 active:scale-[0.98] transition-all font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">search</span>
+<span>Search</span>
+</a>
+<a class="flex items-center gap-space-4 p-space-3 text-text-secondary hover:bg-bg-elevated hover:text-text-primary rounded-lg transition-all duration-200 active:scale-[0.98] transition-all font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">notifications</span>
+<span>Notifications</span>
+</a>
+<a class="flex items-center gap-space-4 p-space-3 text-sunset-orange font-bold hover:bg-bg-elevated hover:text-text-primary rounded-lg transition-all duration-200 active:scale-[0.98] transition-all font-label-md text-label-md group bg-sunset-orange/10" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">person</span>
+<span>Profile</span>
+</a>
+<a class="flex items-center gap-space-4 p-space-3 text-text-secondary hover:bg-bg-elevated hover:text-text-primary rounded-lg transition-all duration-200 active:scale-[0.98] transition-all font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">settings</span>
+<span>Settings</span>
+</a>
+</div>
+<button class="mt-space-6 bg-sunset-orange text-white w-full py-space-3 rounded-full font-headline-sm text-headline-sm hover:brightness-110 hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(232,85,15,0.3)] transition-all duration-200 active:scale-95">
+            Post
+        </button>
+</nav>
+<!-- Main Layout Wrapper -->
+<main class="pt-navbar-height lg:pl-[240px] w-full min-h-screen flex justify-center pb-space-10">
+<div class="flex w-full max-w-[920px] px-space-4 lg:px-0 gap-space-6 mt-space-6">
+<!-- Center Column (Feed / Profile Canvas) -->
+<div class="w-full lg:w-container-feed flex-shrink-0 flex flex-col">
+<!-- Profile Header Card -->
+<div class="bg-surface border border-border-subtle rounded-xl overflow-hidden mb-space-4">
+<!-- Cover Image -->
+<div class="h-[200px] w-full bg-surface-container relative overflow-hidden group">
+<img alt="Profile Cover" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A striking digital installation art piece featuring glowing, generative geometric shapes suspended in a vast, minimalist gallery space. The room is illuminated by high-key, soft white lighting that creates a bright, modern light-mode aesthetic. The artwork relies on a sophisticated palette of deep blacks and pristine whites, punctuated by intense accents of vibrant red. The mood is serene yet technologically advanced." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBEw3doUOpN9JH8DEvNcn5ZwTgU9JyWa83lnYqiuPOrKSfFn4pFFHiRStzobFlOuvrJa01vfYRXiI-5XKOdYTZKDYKNu-e1-8jCVm6FVFEXlwxM4zsqKXBmepllLqUbrDMFEgqROxsAQFr5PezSq7O6IewdSR_dE_4hjL6UZlm490Hbg9IK8eBhrA6-QOD_9KoQ7WiStb52VThQ2PY4QSB7yPX_fK8EKgCg-01TAGLIpMZUgHw-v-fiRB15vWRKmY47q-Bstx6VNE"/>
+<div class="absolute inset-0 bg-gradient-to-b from-transparent to-surface/80"></div>
+</div>
+<!-- Profile Info -->
+<div class="px-space-5 pb-space-5 relative">
+<div class="flex justify-between items-end -mt-space-10 mb-space-4">
+<div class="relative">
+<img alt="Profile Avatar" class="w-[120px] h-[120px] rounded-full border-4 border-surface object-cover relative z-10 bg-bg-elevated shadow-lg" data-alt="A high-quality, professional headshot of a confident young woman with warm, glowing skin and dark, styled hair. She is looking directly at the camera with a subtle, approachable smile. The lighting is soft and cinematic, casting gentle shadows that emphasize her features. The background is a beautifully blurred, deep, warm neutral tone that complements the dark mode aesthetic of the surrounding UI, ensuring she stands out clearly." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAx9XsiaSv6uike1oIRjF3BTAKYzYgESScpdEZYX4imrWz4qTdRdxlk6JQg0CRU8T88oTNUzwu16PQfKxKCtdClh5Z5DCy7FpYpXACblGIGHRxmxntCfxR9ZA-z2eGkJOcAStY49wD1glEJ5micxe4ZI2jLVBXoGiL8DDpkF671TjFIqkVS9ORSIMmGd9ikFK7cTb0gJEiL8gj07UBENxwsJ7o3uyGqWJAQbVZG-EgG-zvykz0919MJzQwwt4uGX_1I2Yy3GP0Wm8M"/>
+</div>
+<button class="px-space-5 py-space-2 rounded-full border border-border-subtle text-text-primary font-label-md text-label-md hover:bg-bg-elevated transition-colors mb-space-2">
+                                Edit Profile
+                            </button>
+</div>
+<div>
+<h1 class="font-headline-lg text-headline-lg text-text-primary">Sarah Jenkins</h1>
+<p class="font-body-md text-body-md text-text-secondary mt-1">@sarahj_creates</p>
+</div>
+<div class="mt-space-4 font-body-md text-body-md text-text-primary leading-relaxed">
+                            Digital designer &amp; creative technologist. Exploring the intersection of human connection and functional minimalism. Building in public. 🖤
+                        </div>
+<div class="flex items-center gap-space-6 mt-space-5">
+<div class="flex items-center gap-space-1">
+<span class="font-headline-sm text-headline-sm text-text-primary">12.4K</span>
+<span class="font-body-sm text-body-sm text-text-secondary">Followers</span>
+</div>
+<div class="flex items-center gap-space-1">
+<span class="font-headline-sm text-headline-sm text-text-primary">842</span>
+<span class="font-body-sm text-body-sm text-text-secondary">Following</span>
+</div>
+<div class="flex items-center gap-space-1">
+<span class="font-headline-sm text-headline-sm text-text-primary">4.2K</span>
+<span class="font-body-sm text-body-sm text-text-secondary">Bazes</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Tabs -->
+<div class="border-b border-border-subtle mb-space-4 flex w-full sticky top-navbar-height bg-bg-base/90 backdrop-blur-md z-30">
+<button class="flex-1 py-space-4 font-headline-sm text-headline-sm text-text-primary relative group">
+                        Posts
+                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[40px] h-[3px] bg-sunset-orange rounded-t-full"></div>
+</button>
+<button class="flex-1 py-space-4 font-headline-sm text-headline-sm text-text-secondary hover:text-text-primary transition-colors group">
+                        Respostas
+                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[40px] h-[3px] bg-border-subtle rounded-t-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</button>
+<button class="flex-1 py-space-4 font-headline-sm text-headline-sm text-text-secondary hover:text-text-primary transition-colors group">
+                        Media
+                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-[40px] h-[3px] bg-border-subtle rounded-t-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</button>
+</div>
+<!-- Feed Area -->
+<div class="flex flex-col gap-0 border border-border-subtle rounded-xl overflow-hidden bg-surface">
+<!-- Feed Item 1 -->
+<div class="p-space-5 hover:bg-bg-elevated/30 transition-colors border-b border-border-subtle cursor-pointer">
+<div class="flex gap-space-4">
+<img alt="Avatar" class="w-[40px] h-[40px] rounded-full object-cover shrink-0" data-alt="A small, circular avatar thumbnail showing a professional headshot of a confident young woman with warm skin and dark hair against a softly blurred, warm neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9cEeVuv5uopiWIfAHLhMraeyrUnRzeJKO13qJVBzLkJpLeYfSUOCjp9cVR6DviIwICV3lM18Pw3DQO8GJvEr1rj1t7usyaO_uAiLeOuicCHvHESaJIxkAzHafhSezD4jiMP6oRqSSm8wsx9UZAi5H7SCKdeSmOU9wlzDL-DE36ULjMetoWHylyo71-GN-VrbULylFdl4ZcCdxH3-E5K7ne9J0H3gUAruFcH5iuvVT8dVv_b_Snb7fBqR7r79HhMVXdkn9qRIdn0I"/>
+<div class="flex-1">
+<div class="flex items-center gap-space-2 mb-space-1">
+<span class="font-headline-sm text-headline-sm text-text-primary">Sarah Jenkins</span>
+<span class="font-body-sm text-body-sm text-text-secondary">@sarahj_creates · 2h</span>
+</div>
+<p class="font-body-md text-body-md text-text-primary mb-space-3">
+                                    Just wrapped up a new case study on functional glassmorphism. It's fascinating how a simple 12px blur can establish such strong hierarchy without muddying the interface with heavy shadows. Details dropping tomorrow! 🎨✨
+                                </p>
+<div class="flex items-center gap-space-6 text-text-secondary mt-space-4">
+<button class="flex items-center gap-space-2 hover:text-sunset-orange transition-colors group">
+<div class="p-2 rounded-full group-hover:bg-sunset-orange/10 transition-colors -ml-2">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+</div>
+<span class="font-body-sm text-body-sm">24</span>
+</button>
+<button class="flex items-center gap-space-2 hover:text-status-success transition-colors group">
+<div class="p-2 rounded-full group-hover:bg-status-success/10 transition-colors -ml-2">
+<span class="material-symbols-outlined text-[20px]">sync</span>
+</div>
+<span class="font-body-sm text-body-sm">12</span>
+</button>
+<button class="flex items-center gap-space-2 text-sunset-orange transition-colors group">
+<div class="p-2 rounded-full bg-sunset-orange/10 transition-colors -ml-2">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<span class="font-body-sm text-body-sm">342</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Feed Item 2 (With Image) -->
+<div class="p-space-5 hover:bg-bg-elevated/30 transition-colors cursor-pointer">
+<div class="flex gap-space-4">
+<img alt="Avatar" class="w-[40px] h-[40px] rounded-full object-cover shrink-0" data-alt="A small, circular avatar thumbnail showing a professional headshot of a confident young woman with warm skin and dark hair against a softly blurred, warm neutral background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-u6FDOzS7fYQCOx93m9uR2SnXOVZFSK0CX4VGOGHX1vqCkhjODKldgw4qePGsj5vBb5A4oLDCP8Oj7soSdLXPIFyfsSxtFNt8bCB2Di7srmcvCX3DAFcFlYZvLt-U8FhRED4sDbNvsVPypfePsoa30gCwLzr1eOpOpeAotS1WQlHKvcPpFlqD0Z2uzVwW903p9_jc7Q-3D0rlQrrRU8ojjo1ZjdrlPPZ6JvBzSRf2OcezTHFBTB-mly_TSK5GDPBc46DwGhuJIgY"/>
+<div class="flex-1">
+<div class="flex items-center gap-space-2 mb-space-1">
+<span class="font-headline-sm text-headline-sm text-text-primary">Sarah Jenkins</span>
+<span class="font-body-sm text-body-sm text-text-secondary">@sarahj_creates · 5h</span>
+</div>
+<p class="font-body-md text-body-md text-text-primary mb-space-3">
+                                    Current workspace vibe. The depth you get from layering sunken and elevated surfaces is so satisfying.
+                                </p>
+<div class="rounded-xl overflow-hidden border border-border-subtle mt-space-3 bg-bg-sunken">
+<img alt="Workspace setup" class="w-full h-auto object-cover max-h-[400px]" data-alt="A high-angle, immaculately composed shot of a sleek, modern workspace. A dark grey mechanical keyboard sits next to a matte black trackpad on a rich, dark walnut desk surface. Subtle, warm bias lighting casts a soft glow behind the monitor edge, creating a moody, focused atmosphere. The overall aesthetic is highly disciplined, professional, and perfectly aligned with a premium dark-mode developer environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCn3aAvzb0qBGgPxKSP8cdH-Yl7SCBnLtJ5RKDjjey1gMgbvuQUDJnLhx3fj_H1dL8u90XQO0f4vGgXlTUiBex0QRMs3op0620B4lD9ORw_NHG8SKYOG7PRF8kQ2T-NJRXerB2l4ihHH82xF1mlA4QfIgUI705gR1gGUPxQAlUfvtXTCBFv7o3ujfcFIYNxCVQqTFWhE7NDWQVMvkYKOJVDIpKNVUYudaTIB8oPe38-YNjYivPOJRj1UaUPGV98HuDYmDrfCjGUEas"/>
+</div>
+<div class="flex items-center gap-space-6 text-text-secondary mt-space-4">
+<button class="flex items-center gap-space-2 hover:text-sunset-orange transition-colors group">
+<div class="p-2 rounded-full group-hover:bg-sunset-orange/10 transition-colors -ml-2">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+</div>
+<span class="font-body-sm text-body-sm">89</span>
+</button>
+<button class="flex items-center gap-space-2 hover:text-status-success transition-colors group">
+<div class="p-2 rounded-full group-hover:bg-status-success/10 transition-colors -ml-2">
+<span class="material-symbols-outlined text-[20px]">sync</span>
+</div>
+<span class="font-body-sm text-body-sm">45</span>
+</button>
+<button class="flex items-center gap-space-2 hover:text-sunset-orange transition-colors group">
+<div class="p-2 rounded-full group-hover:bg-sunset-orange/10 transition-colors -ml-2">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</div>
+<span class="font-body-sm text-body-sm">1.2K</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Loading indicator -->
+<div class="py-space-6 flex justify-center text-text-secondary">
+<span class="material-symbols-outlined animate-spin">progress_activity</span>
+</div>
+</div>
+<!-- Right Column (Sidebar) -->
+<div class="hidden lg:flex w-[280px] flex-shrink-0 flex-col gap-space-6">
+<!-- Media recomendada Card -->
+<div class="bg-surface border border-border-subtle rounded-xl p-space-5">
+<h2 class="font-headline-md text-headline-md text-text-primary mb-space-4">Media recomendada</h2>
+<div class="grid grid-cols-3 gap-space-2">
+<div class="aspect-square bg-bg-sunken rounded-lg overflow-hidden border border-border-subtle">
+<img alt="Media thumbnail" class="w-full h-full object-cover hover:scale-110 transition-transform cursor-pointer" data-alt="A small, square thumbnail image showing abstract retro-futuristic synthwave art. Dark background with glowing neon grid lines in pink and blue, creating a sense of deep perspective." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiN56JlmdWjVpBoHoTg43B46Ljsls7zOsHoI41nMtVMcejbM3nGCWlsxCJbRX3LlrnHzYF23LbZil1CZJOrFniF3eYKxx1wtaKL-ZzTbuaK06mb2_CFXZWHrkKQIS9Kd-c9grRYP3QyNOOXR11XzVq5lNFfY7Yc91OLyrrglqkRokDWpwZsO4ub29Uai5wKwJsSXRaJW53MzY7_r4uqN-NhFB1LJ7OiGd6v7FlTF696Oy6LEo9S2AtW7SqlHulnkJSc2IOqVuv-F0"/>
+</div>
+<div class="aspect-square bg-bg-sunken rounded-lg overflow-hidden border border-border-subtle">
+<img alt="Media thumbnail" class="w-full h-full object-cover hover:scale-110 transition-transform cursor-pointer" data-alt="A small, square thumbnail image showing a close-up of a sophisticated, dark UI design on a mobile device screen. Subtle orange accent colors highlight interactive elements against a deep grey background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7VvbaSosx3H-BvAUvgKc6W-bAOrrdq8bs2-mqqqTmVnD_rV8RILMkZPBqd62mMea0sfNf1tivSrDugd0MjVgzILkTp-ETa_wgju8j7UNH-vXL8ywenPUhWIXAly10n0FHNVmg4hoq-5d-fksYs2taE0y4MpggCFXkn8sGAb8PUzaZBVLh-8HL_-fP7EnZhvpBVdl3Yx-yGHTqpytKU6ktpazaxiO1P9aJB32VmJh0t-cAbwXZXS6ituxUfUi0ksSDxUfZsFTTPao"/>
+</div>
+<div class="aspect-square bg-bg-sunken rounded-lg overflow-hidden border border-border-subtle">
+<img alt="Media thumbnail" class="w-full h-full object-cover hover:scale-110 transition-transform cursor-pointer" data-alt="A small, square thumbnail showing lines of clean, well-formatted code glowing softly on a dark monitor screen. The syntax highlighting uses muted pastels against a pitch-black background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7CYGpX0f6mMsjRl9_1YNgPWLVm_wZaLK6CyhgIVcP139IRdKZGn1qcsee9OQYW2Ue0NmL1mXkOMBQH-i26YC-mhjeATmolyjrDk_lplGvvG2gqMyT2AEPk-B84zG2qgpaojw8Xy5oNQcUOGf5S7qNUWPjASqBH1lxesj1nBB0UdFUs0TRE8rIWwpCJJaUusObvoapnYwCJr66L1cKTpaJwPH_KNW2_vBoSK-yvx_ONL7rTElsCz_TSUeTrP8aQ0mkxNR1Y8rGrDY"/>
+</div>
+<div class="aspect-square bg-bg-sunken rounded-lg overflow-hidden border border-border-subtle">
+<img alt="Media thumbnail" class="w-full h-full object-cover hover:scale-110 transition-transform cursor-pointer" data-alt="A small, square thumbnail image of a sleek, minimalist desk setup featuring a glowing smart speaker and a potted succulent. The lighting is low, moody, and highly focused." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCasthgHPiohzx0Qm2CQU7wTM1vO6jzn8wGC8Zz6MO706ns43q_r9uGggr8lD6R8exPnlmHueMEtgI9MP1H63KPCfOVIRgjBD2EtEn11mnBHA8tmLxhg0jWHIMMTBpjzXiBkU098UofDsY6Uv7BJiVaaFXD5-0-WUtG0WSeJPjHt4Php0W8ZgehPWwZnAZFXpqlPVfJfgj9V9EyGQomTNn-vyQbfthQjAQwcqSXwvvpaqXM_YI3CLPqzlSYyVRjOJDMsgZGmDdbZ3g"/>
+</div>
+<div class="aspect-square bg-bg-sunken rounded-lg overflow-hidden border border-border-subtle flex items-center justify-center cursor-pointer hover:bg-bg-elevated transition-colors">
+<span class="font-label-md text-label-md text-text-secondary">+12</span>
+</div>
+</div>
+</div>
+<!-- Suggested Profiles Card -->
+<div class="bg-surface border border-border-subtle rounded-xl p-space-5">
+<h2 class="font-headline-md text-headline-md text-text-primary mb-space-4">Who to follow</h2>
+<div class="flex flex-col gap-space-4">
+<!-- Profile 1 -->
+<div class="flex items-center justify-between group">
+<div class="flex items-center gap-space-3">
+<img alt="User" class="w-[40px] h-[40px] rounded-full object-cover" data-alt="A circular thumbnail portrait of a young man with a slight beard, wearing a dark shirt. The background is a soft, warm blur." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFfMdgGpvA2x1KbeutUBJicquFEPjt9CyP2bJmSfLxtG7I9DkFIBqoF5k7e6WlhTYPs6NzJaBdgjqOknPt65m0dWDK_OwRhwn55NscAp2TkfjeuLZ6qXVppGu1pow5JWl3IxDjfupXf2umqfuTm_eK8m6fnI3-arxyR0-Zv8QDcWTp_JEQSwbwFKRdXhuQWF_Op4luqC18Qv4K5QKuVAqb0bdWbbQfvWt-EymT-rCeF9h5aengErJy2pIjp5Nex-whgLgFVmtHb-8"/>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-text-primary leading-tight group-hover:underline cursor-pointer">Alex Rivera</span>
+<span class="font-body-sm text-body-sm text-text-secondary">@arivera</span>
+</div>
+</div>
+<button class="px-space-4 py-1.5 rounded-full bg-text-primary text-bg-base font-label-md text-label-md hover:bg-text-secondary transition-colors">
+                                Follow
+                            </button>
+</div>
+<!-- Profile 2 -->
+<div class="flex items-center justify-between group">
+<div class="flex items-center gap-space-3">
+<img alt="User" class="w-[40px] h-[40px] rounded-full object-cover" data-alt="A circular thumbnail portrait of a woman looking sideways, smiling softly. The image has a low-contrast, moody aesthetic suitable for a dark UI environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7Yrm3lD0OfOhjHGn2r6fpc1J6SSIs0ZTgfMnrZLShft3yBY_yr3NfLk2G-WiJX3NiD7NitJ9vlx8IaabbStSRMtemGNHWVxvmz2SCDg0TkfGCUQYhYu_75su50_3w58U6AVGtq3Po0x4zatYEuH06O6yzK-Mz0jSTT3n9q-ByxZ6vTYIQIQh9fxLURxXgB33XX8W4Aj9x07AkR1lrkw6m8z0GIeCqrla9cMxrCE_W9mQ-kmePO_8ZA5hskMntnOrQ6vs1hdJ824s"/>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-text-primary leading-tight group-hover:underline cursor-pointer">Elena Chen</span>
+<span class="font-body-sm text-body-sm text-text-secondary">@elenac_ui</span>
+</div>
+</div>
+<button class="px-space-4 py-1.5 rounded-full bg-text-primary text-bg-base font-label-md text-label-md hover:bg-text-secondary transition-colors">
+                                Follow
+                            </button>
+</div>
+<button class="mt-space-2 text-sunset-orange font-label-md text-label-md hover:underline self-start">
+                            Show more
+                        </button>
+</div>
+</div>
+<!-- Footer Links -->
+<div class="px-space-2 flex flex-wrap gap-x-space-4 gap-y-space-2 font-caption text-caption text-text-tertiary">
+<a class="hover:underline" href="#">Terms of Service</a>
+<a class="hover:underline" href="#">Privacy Policy</a>
+<a class="hover:underline" href="#">Cookie Policy</a>
+<a class="hover:underline" href="#">Accessibility</a>
+<span>© 2024 NzolaNet</span>
+</div>
+</div>
+</div>
+</main>
+</body></html>
