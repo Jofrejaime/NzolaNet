@@ -17,22 +17,24 @@
     </div>
   }
 
-  <div class="flex gap-3 px-4 pt-4 flex-1">
+  <!-- Área de escrita - sem flex-1 para não empurrar o footer -->
+  <div class="flex gap-3 px-4 pt-4">
     <div class="w-10 h-10 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-xs font-semibold text-[var(--text-secondary)] flex-shrink-0 overflow-hidden">
       U
     </div>
     <textarea
       #textArea
       [(ngModel)]="content"
-      placeholder="O que esta a acontecer?"
+      placeholder="O que está a acontecer?"
       maxlength="500"
       (input)="onInput($event)"
-      class="compose-textarea flex-1 bg-transparent border-none resize-none outline-none text-[var(--text-primary)] text-base placeholder:text-[var(--text-tertiary)] pt-2 leading-relaxed"
-      rows="10"
+      class="compose-textarea flex-1 bg-transparent border-none resize-none outline-none text-[var(--text-primary)] text-base placeholder:text-[var(--text-tertiary)] leading-relaxed"
+      rows="4"
     ></textarea>
   </div>
 
-  <div class="compose-footer border-t border-[var(--border-subtle)] px-4 py-3 flex items-center justify-between">
+  <!-- Footer - agora vai ficar logo após o textarea -->
+  <div class="compose-footer border-t border-[var(--border-subtle)] px-4 py-3 flex items-center justify-between mt-4">
     <div class="flex gap-3">
       <label class="text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition p-1.5 rounded-full hover:bg-[var(--state-hover)] cursor-pointer">
         <input type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, 'image')">
@@ -55,7 +57,7 @@
         <span class="text-xs text-[var(--text-secondary)]">Imagem selecionada</span>
       }
       @if (videoFile) {
-        <span class="text-xs text-[var(--text-secondary)]">Video selecionado</span>
+        <span class="text-xs text-[var(--text-secondary)]">Vídeo selecionado</span>
       }
       <span class="text-xs text-[var(--text-tertiary)]">{{ charCount }}/500</span>
     </div>

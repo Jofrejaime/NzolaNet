@@ -1,11 +1,26 @@
 <!doctype html>
-<html lang="pt" data-theme="dark">
+<html lang="pt">
 <head>
   <meta charset="utf-8">
   <title>NzolaNet</title>
   <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  
+  <!-- Script para carregar o tema salvo ANTES do Angular inicializar -->
+  <script>
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('nzola-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+        console.log('Tema carregado:', theme);
+      } catch(e) {
+        console.error('Erro ao carregar tema:', e);
+      }
+    })();
+  </script>
 </head>
 <body>
   <app-root></app-root>
