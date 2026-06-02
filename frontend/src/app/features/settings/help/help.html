@@ -1,0 +1,41 @@
+<div class="settings-page">
+  <div class="settings-header">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+    <h1>Ajuda</h1>
+  </div>
+
+  <div class="help-content">
+    <div class="contact-card">
+      <div class="contact-icon">📧</div>
+      <div class="contact-info">
+        <h3>Precisas de ajuda?</h3>
+        <p>Fala connosco directamente por email</p>
+      </div>
+      <button class="contact-btn" (click)="contactSupport()">Contactar</button>
+    </div>
+
+    <div class="faq-section">
+      <h2>Perguntas frequentes</h2>
+      
+      @for (faq of faqs; track $index) {
+        <div class="faq-item" (click)="toggleFaq(faq)">
+          <div class="faq-question">
+            <span>{{ faq.question }}</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" [class.rotated]="faq.open">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+          @if (faq.open) {
+            <div class="faq-answer">
+              {{ faq.answer }}
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

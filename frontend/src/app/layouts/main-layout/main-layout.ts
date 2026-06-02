@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterLink } from '@angular/router'; // Adicionar RouterLink
 import { SidebarComponent } from '../components/sidebar/sidebar';
 import { RightSidebarComponent } from '../components/right-sidebar/right-sidebar';
 import { BottomNavComponent } from '../components/bottom-nav/bottom-nav';
@@ -10,10 +10,11 @@ import { BottomNavComponent } from '../components/bottom-nav/bottom-nav';
   standalone: true,
   imports: [
     CommonModule, 
-    RouterOutlet, 
+    RouterOutlet,
+    RouterLink,  // ← Adicionar RouterLink aqui
     SidebarComponent, 
     RightSidebarComponent,
-    BottomNavComponent  // ← Adicionar esta linha
+    BottomNavComponent
   ],
   templateUrl: './main-layout.html',
   styleUrls: ['./main-layout.scss']
