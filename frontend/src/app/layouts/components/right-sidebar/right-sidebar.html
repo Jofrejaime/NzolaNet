@@ -1,0 +1,96 @@
+<div class="right-sidebar-wrap pt-2 flex flex-col gap-4">
+
+  <!-- Search bar -->
+  <div class="search-bar flex items-center gap-2 bg-[var(--bg-elevated)] rounded-full px-4 py-2.5 border border-[var(--border-subtle)] hover:border-[var(--border-default)] transition focus-within:border-[var(--border-brand)] focus-within:bg-[var(--bg-surface)]">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--text-tertiary)] flex-shrink-0">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input
+      type="text"
+      placeholder="Search NzolaNet"
+      class="bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] w-full"
+    />
+  </div>
+
+  <!-- Tendências -->
+  <div class="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl overflow-hidden">
+    <div class="px-4 pt-4 pb-2">
+      <h3 class="text-base font-bold text-[var(--text-primary)]">Tendências para ti</h3>
+    </div>
+
+    <div class="trend-item px-4 py-3 hover:bg-[var(--state-hover)] transition cursor-pointer flex justify-between items-start">
+      <div>
+        <div class="text-xs text-[var(--text-tertiary)] mb-0.5">Tecnologia · Tendência</div>
+        <div class="font-bold text-[var(--text-primary)] text-sm">#WebDev</div>
+        <div class="text-xs text-[var(--text-tertiary)] mt-0.5">12.5k posts</div>
+      </div>
+      <button class="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] p-1 rounded-full hover:bg-[var(--state-hover)] transition">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="trend-item px-4 py-3 hover:bg-[var(--state-hover)] transition cursor-pointer flex justify-between items-start">
+      <div>
+        <div class="text-xs text-[var(--text-tertiary)] mb-0.5">Design · Tendência</div>
+        <div class="font-bold text-[var(--text-primary)] text-sm">Figma Updates</div>
+        <div class="text-xs text-[var(--text-tertiary)] mt-0.5">8,204 posts</div>
+      </div>
+      <button class="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] p-1 rounded-full hover:bg-[var(--state-hover)] transition">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="px-4 py-3 border-t border-[var(--border-subtle)]">
+      <button class="text-[var(--text-brand)] text-sm hover:underline">Show more</button>
+    </div>
+  </div>
+
+  <!-- Quem seguir -->
+  <div class="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-xl overflow-hidden">
+    <div class="px-4 pt-4 pb-2">
+      <h3 class="text-base font-bold text-[var(--text-primary)]">Quem seguir</h3>
+    </div>
+
+    <div class="px-4 py-3 flex items-center gap-3 hover:bg-[var(--state-hover)] transition cursor-pointer">
+      <nzola-avatar size="sm" name="Maria Costa"></nzola-avatar>
+      <div class="flex-1 min-w-0">
+        <div class="font-bold text-[var(--text-primary)] text-sm truncate">Maria Costa</div>
+        <div class="text-xs text-[var(--text-secondary)] truncate">&#64;mcoosta_ux</div>
+      </div>
+      <button class="follow-btn flex-shrink-0 border border-[var(--text-primary)] text-[var(--text-primary)] px-4 py-1 rounded-full text-xs font-bold hover:bg-[var(--state-hover)] transition">
+        Seguir
+      </button>
+    </div>
+
+    <div class="px-4 py-3 flex items-center gap-3 hover:bg-[var(--state-hover)] transition cursor-pointer">
+      <nzola-avatar size="sm" name="TechNews PT"></nzola-avatar>
+      <div class="flex-1 min-w-0">
+        <div class="font-bold text-[var(--text-primary)] text-sm truncate">TechNews PT</div>
+        <div class="text-xs text-[var(--text-secondary)] truncate">&#64;technews_pt</div>
+      </div>
+      <button class="follow-btn flex-shrink-0 border border-[var(--text-primary)] text-[var(--text-primary)] px-4 py-1 rounded-full text-xs font-bold hover:bg-[var(--state-hover)] transition">
+        Seguir
+      </button>
+    </div>
+
+    <div class="px-4 py-3 border-t border-[var(--border-subtle)]">
+      <button class="text-[var(--text-brand)] text-sm hover:underline">Show more</button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="text-xs text-[var(--text-tertiary)] px-1 pb-4">
+    <div class="flex flex-wrap gap-x-2 gap-y-1">
+      <a href="#" class="hover:underline">Terms of Service</a>
+      <a href="#" class="hover:underline">Privacy Policy</a>
+      <a href="#" class="hover:underline">Cookie Policy</a>
+      <a href="#" class="hover:underline">Accessibility</a>
+    </div>
+    <div class="mt-2">© 2024 NzolaNet</div>
+  </div>
+
+</div>

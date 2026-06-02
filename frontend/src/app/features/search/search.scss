@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.search-wrap {
+  min-height: 100vh;
+  width: 100%;
+}
+
+.search-header {
+  background: var(--bg-base);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.popular-item {
+  background: var(--bg-elevated);
+}
+
+.popular-overlay {
+  background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);
+}
