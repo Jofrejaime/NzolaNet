@@ -1,6 +1,9 @@
-﻿// Google Fonts
+﻿// Design Tokens - PRIMEIRO (antes de tudo)
+@use './app/styles/tokens.scss';
+
+// Google Fonts
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-@import './app/styles/tokens.scss';
+
 // Tailwind CSS
 @tailwind base;
 @tailwind components;
@@ -30,7 +33,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-// Focus Visible
 :focus {
   outline: none;
 }
@@ -41,7 +43,6 @@ body {
   border-radius: var(--radius-sm);
 }
 
-// Reduced Motion
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -50,7 +51,6 @@ body {
   }
 }
 
-// Scrollbar
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

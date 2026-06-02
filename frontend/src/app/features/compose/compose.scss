@@ -9,12 +9,22 @@
 }
 
 .compose-textarea {
-  min-height: 200px;
+    min-height: 80px;  /* Reduzido de 100px para 80px */
+  max-height: 200px; /* Altura máxima para não crescer demais */
   caret-color: var(--text-brand);
+  overflow-y: auto;
 }
 
 .compose-footer {
   background: var(--bg-base);
-  position: sticky;
-  bottom: 0;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: auto; /* Empurra para baixo se houver espaço */
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+  .compose-textarea {
+    min-height: 50px;
+    font-size: 14px;
+  }
 }
