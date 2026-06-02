@@ -1,25 +1,30 @@
 <div class="compose-wrap min-h-screen flex flex-col">
 
-  <!-- Header -->
   <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border-subtle)]">
     <button (click)="close()" class="p-2 rounded-full hover:bg-[var(--state-hover)] transition text-[var(--text-primary)]">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
     </button>
-    <button (click)="publish()" class="bg-[var(--bg-brand)] text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-[#C9460A] transition-all hover:scale-[1.02] active:scale-[0.98]">
-      Publicar
+    <button (click)="publish()" [disabled]="isPublishing" class="bg-[var(--bg-brand)] text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-[#C9460A] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60">
+      {{ isPublishing ? 'A publicar...' : 'Publicar' }}
     </button>
   </div>
 
-  <!-- Área de escrita -->
+  @if (errorMessage) {
+    <div class="mx-4 mt-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+      {{ errorMessage }}
+    </div>
+  }
+
   <div class="flex gap-3 px-4 pt-4 flex-1">
     <div class="w-10 h-10 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-xs font-semibold text-[var(--text-secondary)] flex-shrink-0 overflow-hidden">
       U
     </div>
     <textarea
       #textArea
-      placeholder="O que está a acontecer?"
+      [(ngModel)]="content"
+      placeholder="O que esta a acontecer?"
       maxlength="500"
       (input)="onInput($event)"
       class="compose-textarea flex-1 bg-transparent border-none resize-none outline-none text-[var(--text-primary)] text-base placeholder:text-[var(--text-tertiary)] pt-2 leading-relaxed"
@@ -27,32 +32,33 @@
     ></textarea>
   </div>
 
-  <!-- Footer fixo -->
   <div class="compose-footer border-t border-[var(--border-subtle)] px-4 py-3 flex items-center justify-between">
     <div class="flex gap-3">
-      <!-- Imagem -->
-      <button class="text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition p-1.5 rounded-full hover:bg-[var(--state-hover)]">
+      <label class="text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition p-1.5 rounded-full hover:bg-[var(--state-hover)] cursor-pointer">
+        <input type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, 'image')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
           <polyline points="21 15 16 10 5 21"/>
         </svg>
-      </button>
-      <!-- Vídeo -->
-      <button class="text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition p-1.5 rounded-full hover:bg-[var(--state-hover)]">
+      </label>
+
+      <label class="text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition p-1.5 rounded-full hover:bg-[var(--state-hover)] cursor-pointer">
+        <input type="file" accept="video/*" class="hidden" (change)="onFileSelected($event, 'video')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
         </svg>
-      </button>
-      <!-- Localização -->
-      <button class="text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition p-1.5 rounded-full hover:bg-[var(--state-hover)]">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-        </svg>
-      </button>
+      </label>
     </div>
 
-    <!-- Contador -->
-    <span class="text-xs text-[var(--text-tertiary)]">{{ charCount }}/500</span>
+    <div class="flex items-center gap-3">
+      @if (imageFile) {
+        <span class="text-xs text-[var(--text-secondary)]">Imagem selecionada</span>
+      }
+      @if (videoFile) {
+        <span class="text-xs text-[var(--text-secondary)]">Video selecionado</span>
+      }
+      <span class="text-xs text-[var(--text-tertiary)]">{{ charCount }}/500</span>
+    </div>
   </div>
 
 </div>

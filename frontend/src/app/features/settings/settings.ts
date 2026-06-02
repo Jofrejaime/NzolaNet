@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ThemeService } from '../../core/services/theme.service';
+import { AuthService } from '../../core/services/auth.service';
 
 export interface SettingsItem {
   id: string;
@@ -23,6 +24,7 @@ export interface SettingsItem {
 export class SettingsComponent {
 
   private router = inject(Router);
+  private authService = inject(AuthService);
   themeService = inject(ThemeService);
 
   // Computed property for dark mode
@@ -108,9 +110,7 @@ export class SettingsComponent {
   }
 
   logout(): void {
-    // Limpar estado de autenticação e redirigir para login
-    // this.authService.logout();
-    this.router.navigate(['/login']);
+    this.authService.logout();
   }
 
   goBack(): void {

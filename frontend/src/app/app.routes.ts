@@ -13,13 +13,15 @@ import { PrivacyComponent } from './features/settings/privacy/privacy';
 import { SecurityComponent } from './features/settings/security/security';
 import { HelpComponent } from './features/settings/help/help';
 import { AboutComponent } from './features/settings/about/about';
+import { authGuard, guestGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
+  { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
   
   {
     path: '',
     component: MainLayoutComponent,
+    canActivate: [authGuard],
     children: [
       { path: 'home', component: FeedComponent },
       { path: 'profile', component: ProfileComponent },
