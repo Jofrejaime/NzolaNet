@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -12,10 +12,8 @@ import { ApiUrlService } from '../../../core/services/api-url.service';
   styleUrls: ['./sidebar.scss']
 })
 export class SidebarComponent {
-  constructor(
-    public authService: AuthService,
-    private apiUrl: ApiUrlService
-  ) {}
+  authService = inject(AuthService);
+  apiUrl = inject(ApiUrlService);
 
   photoUrl(path?: string | null): string | null {
     return this.apiUrl.storageUrl(path);

@@ -5,7 +5,9 @@
 
 .profile-wrap {
   min-height: 100vh;
-  width: 800px;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .profile-header {
@@ -52,4 +54,84 @@
   width: 100%;
   height: 240px;
   background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-overlay) 100%);
+}
+
+// Menu dropdown
+.menu-trigger {
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  
+  &:hover {
+    background: var(--state-hover);
+  }
+}
+
+// Confirm Dialog
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirm-dialog {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  max-width: 320px;
+  width: 90%;
+  
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+  
+  p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+  
+  .dialog-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+  
+  .btn-cancel {
+    background: transparent;
+    border: 1px solid var(--border-default);
+    color: var(--text-primary);
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    cursor: pointer;
+    
+    &:hover {
+      background: var(--state-hover);
+    }
+  }
+  
+  .btn-confirm {
+    background: #f87171;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    cursor: pointer;
+    
+    &:hover {
+      background: #ef4444;
+    }
+  }
 }

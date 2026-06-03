@@ -32,6 +32,11 @@ export class ThreadComponent implements OnInit {
   showPostMenu = false;
   activeCommentMenuId: number | null = null;
   
+  // Reply properties
+  replyingToCommentId: number | null = null;
+  replyContent = '';
+  isReplying = false;
+  
   // Dialog properties
   showDeletePostDialog = false;
   showDeleteCommentDialog = false;
@@ -70,6 +75,10 @@ export class ThreadComponent implements OnInit {
     if (!target.closest('.menu-trigger') && !target.closest('.comment-menu-trigger')) {
       this.showPostMenu = false;
       this.activeCommentMenuId = null;
+    }
+    if (!target.closest('.reply-container')) {
+      this.replyingToCommentId = null;
+      this.replyContent = '';
     }
   }
 
@@ -149,8 +158,52 @@ export class ThreadComponent implements OnInit {
     });
   }
 
+  // Reply to comment
+  startReply(comment: Comment): void {
+    this.replyingToCommentId = comment.id;
+    this.replyContent = '';
+  }
+
+  cancelReply(): void {
+    this.replyingToCommentId = null;
+    this.replyContent = '';
+  }
+
+  submitReply(comment: Comment): void {
+    if (!this.replyContent.trim()) return;
+    
+    this.ngZone.run(() => {
+      this.isReplying = true;
+    });
+
+    this.commentService.create(this.post!.id, this.replyContent.trim()).subscribe({
+      next: (newComment) => {
+        this.ngZone.run(() => {
+          this.comments = [...this.comments, newComment];
+          if (this.post) {
+            this.post = {
+              ...this.post,
+              comments_count: (this.post.comments_count || 0) + 1
+            };
+          }
+          this.replyingToCommentId = null;
+          this.replyContent = '';
+          this.isReplying = false;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        this.ngZone.run(() => {
+          this.errorMessage = error?.error?.message || 'Nao foi possivel responder.';
+          this.isReplying = false;
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
   goBack(): void {
-    this.router.navigate(['/']);
+    window.history.back();
   }
 
   isOwnPost(): boolean {
@@ -314,7 +367,6 @@ export class ThreadComponent implements OnInit {
   toggleBaze(event: MouseEvent): void {
     if (!this.post) return;
     
-    // Criar elemento de animação
     const burst = document.createElement('div');
     burst.className = 'baze-burst';
     burst.innerHTML = '❤️';
@@ -326,13 +378,11 @@ export class ThreadComponent implements OnInit {
       burst.remove();
     }, 500);
     
-    // Adicionar classe de animação ao botão
     this.isBazing = true;
     setTimeout(() => {
       this.isBazing = false;
     }, 300);
     
-    // Chamar o serviço de baze
     const nextHasBazed = !this.post.has_bazed;
     const nextCount = Math.max((this.post.bazes_count || 0) + (nextHasBazed ? 1 : -1), 0);
     

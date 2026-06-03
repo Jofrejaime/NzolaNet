@@ -53,6 +53,23 @@
   }
 }
 
+// Reply container
+.reply-container {
+  animation: fadeIn 0.2s ease-out;
+}
+
+// Animações
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 // Baze animation
 @keyframes bazeHeartBeat {
   0% { transform: scale(1); }
