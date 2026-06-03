@@ -42,3 +42,129 @@
     background: var(--state-hover);
   }
 }
+
+// Menu dropdown
+.menu-trigger, .comment-menu-trigger {
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  
+  &:hover {
+    background: var(--state-hover);
+  }
+}
+
+// Baze animation
+@keyframes bazeHeartBeat {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+@keyframes bazeHeartBurst {
+  0% { 
+    transform: scale(0); 
+    opacity: 0.8;
+  }
+  100% { 
+    transform: scale(2.5); 
+    opacity: 0;
+  }
+}
+
+.baze-animation {
+  animation: bazeHeartBeat 0.3s ease-in-out;
+}
+
+.baze-burst {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1000;
+  font-size: 30px;
+  animation: bazeHeartBurst 0.5s ease-out forwards;
+}
+
+// Confirm Dialog
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirm-dialog {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  max-width: 320px;
+  width: 90%;
+  
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+  
+  p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+  
+  .dialog-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+  
+  .btn-cancel {
+    background: transparent;
+    border: 1px solid var(--border-default);
+    color: var(--text-primary);
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    cursor: pointer;
+    
+    &:hover {
+      background: var(--state-hover);
+    }
+  }
+  
+  .btn-confirm {
+    background: #f87171;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    cursor: pointer;
+    
+    &:hover {
+      background: #ef4444;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 640px) {
+  .thread-wrap {
+    padding-bottom: 80px;
+  }
+  
+  .thread-composer {
+    padding: 12px;
+  }
+  
+  .confirm-dialog {
+    margin: 16px;
+    padding: 20px;
+  }
+}

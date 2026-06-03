@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ApplicationRef, NgZone } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ApplicationRef, NgZone, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -22,6 +22,13 @@ export class FeedComponent implements OnInit {
   actionMessage = '';
   editingPostId: number | null = null;
   editContent = '';
+  
+  // Menu properties
+  activeMenuId: number | null = null;
+  
+  // Confirm dialog
+  showConfirmDialog = false;
+  postToDelete: Post | null = null;
 
   waveform: number[] = [
     6, 10, 16, 22, 18, 28, 12, 20, 26, 14,
@@ -44,9 +51,16 @@ export class FeedComponent implements OnInit {
     this.loadFeed();
   }
 
+  // Fechar menu ao clicar fora
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.menu-trigger') && !target.closest('.menu-dropdown')) {
+      this.activeMenuId = null;
+    }
+  }
+
   loadFeed(): void {
-    console.log('🟡 loadFeed() chamado');
-    
     this.ngZone.run(() => {
       this.isLoading = true;
       this.errorMessage = '';
@@ -54,25 +68,15 @@ export class FeedComponent implements OnInit {
 
     this.postService.list().subscribe({
       next: (page) => {
-        console.log('✅ Resposta recebida:', page);
-        
         this.ngZone.run(() => {
-          this.posts = [...page.data]; // Criar nova referência
+          this.posts = [...page.data];
           this.isLoading = false;
-          
-          // Forçar atualização da view
           this.cdr.detectChanges();
-          this.cdr.markForCheck();
-          this.appRef.tick();
-          
-          console.log('🟢 Posts atualizados:', this.posts.length);
         });
       },
       error: (error) => {
-        console.error('❌ Erro:', error);
-        
         this.ngZone.run(() => {
-          this.errorMessage = error?.error?.message || 'Nao foi possivel carregar o feed. Confirma se o Laravel esta a correr em http://localhost:8000.';
+          this.errorMessage = error?.error?.message || 'Não foi possível carregar o feed.';
           this.isLoading = false;
           this.cdr.detectChanges();
         });
@@ -81,9 +85,7 @@ export class FeedComponent implements OnInit {
   }
 
   initials(name?: string): string {
-    if (!name) {
-      return '?';
-    }
+    if (!name) return '?';
     return name.split(' ').map((part) => part[0]).join('').toUpperCase().slice(0, 2);
   }
 
@@ -95,7 +97,8 @@ export class FeedComponent implements OnInit {
     return this.apiUrl.storageUrl(path);
   }
 
-  openPost(post: Post): void {
+  // Navegar para a thread
+  goToThread(post: Post): void {
     this.router.navigate(['/post', post.id]);
   }
 
@@ -103,10 +106,24 @@ export class FeedComponent implements OnInit {
     return this.authService.currentUser()?.id === post.user_id;
   }
 
+  // === MENU METHODS ===
+  toggleMenu(postId: number, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.activeMenuId = this.activeMenuId === postId ? null : postId;
+  }
+
+  closeMenu(): void {
+    this.activeMenuId = null;
+  }
+
+  // === EDIT METHODS ===
   beginEdit(post: Post): void {
     this.actionMessage = '';
     this.editingPostId = post.id;
     this.editContent = post.content || '';
+    this.closeMenu();
   }
 
   cancelEdit(): void {
@@ -116,7 +133,7 @@ export class FeedComponent implements OnInit {
 
   savePost(post: Post): void {
     if (!this.editContent.trim()) {
-      this.actionMessage = 'A publicacao precisa de texto para esta edicao.';
+      this.actionMessage = 'A publicação precisa de texto para esta edição.';
       return;
     }
 
@@ -126,28 +143,47 @@ export class FeedComponent implements OnInit {
         this.cancelEdit();
       },
       error: (error) => {
-        this.actionMessage = error?.error?.message || 'Nao foi possivel editar a publicacao.';
+        this.actionMessage = error?.error?.message || 'Não foi possível editar a publicação.';
       }
     });
   }
 
-  deletePost(post: Post): void {
-    if (!confirm('Excluir esta publicacao?')) {
-      return;
-    }
+  // === DELETE METHODS ===
+  confirmDelete(post: Post): void {
+    this.postToDelete = post;
+    this.showConfirmDialog = true;
+    this.closeMenu();
+  }
+
+  cancelDelete(): void {
+    this.showConfirmDialog = false;
+    this.postToDelete = null;
+  }
+
+  deletePost(): void {
+    if (!this.postToDelete) return;
 
     this.actionMessage = '';
-    this.postService.delete(post.id).subscribe({
+    this.postService.delete(this.postToDelete.id).subscribe({
       next: () => {
-        this.posts = this.posts.filter((item) => item.id !== post.id);
+        this.posts = this.posts.filter((item) => item.id !== this.postToDelete?.id);
+        this.showConfirmDialog = false;
+        this.postToDelete = null;
       },
       error: (error) => {
-        this.actionMessage = error?.error?.message || 'Nao foi possivel excluir a publicacao.';
+        this.actionMessage = error?.error?.message || 'Não foi possível excluir a publicação.';
+        this.showConfirmDialog = false;
+        this.postToDelete = null;
       }
     });
   }
 
-  toggleBaze(post: Post): void {
+  // === BAZE METHODS ===
+  toggleBaze(post: Post, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    
     this.actionMessage = '';
     const nextHasBazed = !post.has_bazed;
     const nextCount = Math.max((post.bazes_count || 0) + (nextHasBazed ? 1 : -1), 0);
@@ -169,28 +205,19 @@ export class FeedComponent implements OnInit {
             ? { ...item, has_bazed: post.has_bazed, bazes_count: post.bazes_count }
             : item
         );
-        this.actionMessage = error?.error?.message || 'Nao foi possivel atualizar o baze.';
+        this.actionMessage = error?.error?.message || 'Não foi possível atualizar o baze.';
       }
     });
   }
 
+  // === UTILITY METHODS ===
   relativeTime(date?: string): string {
-    if (!date) {
-      return 'agora';
-    }
-
+    if (!date) return 'agora';
     const diffMs = Date.now() - new Date(date).getTime();
     const minutes = Math.max(1, Math.floor(diffMs / 60000));
-
-    if (minutes < 60) {
-      return `${minutes}m`;
-    }
-
+    if (minutes < 60) return `${minutes}m`;
     const hours = Math.floor(minutes / 60);
-    if (hours < 24) {
-      return `${hours}h`;
-    }
-
+    if (hours < 24) return `${hours}h`;
     return `${Math.floor(hours / 24)}d`;
   }
 }
