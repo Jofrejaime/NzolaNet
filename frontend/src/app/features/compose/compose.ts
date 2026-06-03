@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PostService } from '../../core/services/post.service';
+import { AuthService } from '../../core/services/auth.service';
+import { ApiUrlService } from '../../core/services/api-url.service';
 
 @Component({
   selector: 'nzola-compose',
@@ -20,7 +22,12 @@ export class ComposeComponent {
   isPublishing = false;
   errorMessage = '';
 
-  constructor(private router: Router, private postService: PostService) {}
+  constructor(
+    private router: Router,
+    private postService: PostService,
+    public authService: AuthService,
+    private apiUrl: ApiUrlService
+  ) {}
 
   onInput(event: Event): void {
     const textarea = event.target as HTMLTextAreaElement;
@@ -65,5 +72,13 @@ export class ComposeComponent {
 
   close(): void {
     this.router.navigate(['/home']);
+  }
+
+  photoUrl(path?: string | null): string | null {
+    return this.apiUrl.storageUrl(path);
+  }
+
+  initials(name?: string): string {
+    return name ? name.split(' ').map((part) => part[0]).join('').toUpperCase().slice(0, 2) : 'U';
   }
 }

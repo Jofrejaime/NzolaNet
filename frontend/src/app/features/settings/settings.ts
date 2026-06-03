@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ThemeService } from '../../core/services/theme.service';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -16,7 +16,7 @@ export interface SettingsItem {
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './settings.html',
   styleUrls: ['./settings.scss'],
   host: { class: 'block w-full' },
@@ -24,7 +24,7 @@ export interface SettingsItem {
 export class SettingsComponent {
 
   private router = inject(Router);
-  private authService = inject(AuthService);
+  authService = inject(AuthService);
   themeService = inject(ThemeService);
 
   // Computed property for dark mode
@@ -115,5 +115,13 @@ export class SettingsComponent {
 
   goBack(): void {
     this.router.navigate(['/']);
+  }
+
+  initials(name?: string): string {
+    return name ? name.split(' ').map((part) => part[0]).join('').toUpperCase().slice(0, 2) : 'NU';
+  }
+
+  username(name?: string): string {
+    return (name || 'utilizador').toLowerCase().replace(/\s+/g, '_');
   }
 }

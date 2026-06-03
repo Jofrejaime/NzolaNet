@@ -36,34 +36,38 @@
   border-radius: var(--radius-md);
 }
 
+.post-card {
+  margin-bottom: 12px;
+}
+
 // Responsive mobile
 @media (max-width: 640px) {
   .feed-wrap {
     border-left: none;
     border-right: none;
   }
-  
+
   .post-card {
     padding: 12px;
   }
-  
+
   .post-action {
     padding: 4px;
-    
+
     span {
       font-size: 11px;
     }
-    
+
     svg {
       width: 14px;
       height: 14px;
     }
   }
-  
+
   .post-image-placeholder {
     height: 200px;
   }
-  
+
   .grid-cols-2 {
     gap: 8px;
   }

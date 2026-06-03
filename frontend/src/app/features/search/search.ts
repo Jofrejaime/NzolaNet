@@ -1,17 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
+import { UserService, UserWithFollow } from '../../core/services/user.service';
+import { ApiUrlService } from '../../core/services/api-url.service';
 
 @Component({
   selector: 'nzola-search',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './search.html',
   styleUrls: ['./search.scss'],
   host: { class: 'block w-full' }
 })
-export class SearchComponent {
+export class SearchComponent implements OnInit {
   searchQuery = '';
+  filteredUsers: UserWithFollow[] = [];
+  allUsers: UserWithFollow[] = [];
+  loading = false;
 
   trends = [
     { category: 'Tecnologia', tag: '#WebDev', posts: '12.5k' },
@@ -19,13 +24,6 @@ export class SearchComponent {
     { category: 'Angola', tag: '#Luanda', posts: '6.1k' },
     { category: 'Música', tag: '#Kuduro', posts: '4.8k' },
     { category: 'Desporto', tag: '#PrimeiraLiga', posts: '3.9k' },
-  ];
-
-  suggestions = [
-    { name: 'Maria Costa', handle: 'mcoosta_ux', initials: 'MC', bio: 'UX Designer · Lisboa' },
-    { name: 'TechNews PT', handle: 'technews_pt', initials: 'TN', bio: 'Notícias de tecnologia em PT' },
-    { name: 'João Ferreira', handle: 'joaodev', initials: 'JF', bio: 'Full-stack developer · Porto' },
-    { name: 'Ana Rodrigues', handle: 'ana_creates', initials: 'AR', bio: 'Fotografia & Arte Digital' },
   ];
 
   popularPosts = [
@@ -40,28 +38,75 @@ export class SearchComponent {
     { id: 9, emoji: '🎭', likes: '1.5k', comments: '19' },
   ];
 
-  allUsers = [
-    { name: 'Maria Costa', handle: 'mcoosta_ux', initials: 'MC' },
-    { name: 'TechNews PT', handle: 'technews_pt', initials: 'TN' },
-    { name: 'João Ferreira', handle: 'joaodev', initials: 'JF' },
-    { name: 'Ana Rodrigues', handle: 'ana_creates', initials: 'AR' },
-    { name: 'Design Daily', handle: 'designdaily', initials: 'DD' },
-    { name: 'Ana Silva', handle: 'anasilva_dev', initials: 'AS' },
-  ];
+  constructor(
+    private userService: UserService,
+    private apiUrl: ApiUrlService,
+    private router: Router
+  ) {}
 
-  filteredUsers: typeof this.allUsers = [];
+  ngOnInit(): void {
+    this.loadInitialUsers();
+  }
+
+  loadInitialUsers(): void {
+    this.loading = true;
+    this.userService.list().subscribe({
+      next: (users) => {
+        this.allUsers = users;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
+  }
 
   onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value.trim();
     this.searchQuery = value;
     if (value) {
-      const lower = value.toLowerCase();
-      this.filteredUsers = this.allUsers.filter(u =>
-        u.name.toLowerCase().includes(lower) ||
-        u.handle.toLowerCase().includes(lower)
-      );
+      this.loading = true;
+      this.userService.list(value).subscribe({
+        next: (users) => {
+          this.filteredUsers = users;
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        }
+      });
     } else {
       this.filteredUsers = [];
     }
+  }
+
+  toggleFollow(user: UserWithFollow): void {
+    if (user.is_following) {
+      this.userService.unfollow(user.id).subscribe({
+        next: () => {
+          user.is_following = false;
+        }
+      });
+    } else {
+      this.userService.follow(user.id).subscribe({
+        next: () => {
+          user.is_following = true;
+        }
+      });
+    }
+  }
+
+  photoUrl(path?: string | null): string | null {
+    return this.apiUrl.storageUrl(path);
+  }
+
+  initials(name?: string): string {
+    if (!name) return '?';
+    return name.split(' ').map((part) => part[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  goToProfile(user: UserWithFollow): void {
+    // Future: navigate to user profile
+    this.router.navigate(['/profile']);
   }
 }

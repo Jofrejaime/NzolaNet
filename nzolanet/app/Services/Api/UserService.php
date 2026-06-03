@@ -139,6 +139,14 @@ class UserService
     }
 
     /**
+     * Pesquisar utilizadores
+     */
+    public function searchUsers(string $search, int $currentUserId): array
+    {
+        return $this->userRepository->searchUsers($search, $currentUserId);
+    }
+
+    /**
      * Recuperar senha (solicitar reset)
      */
     public function recoverPassword(string $email): string

@@ -39,4 +39,44 @@ export class PostService {
       .post<ApiResponse<Post>>(`${this.apiUrl.apiUrl}/posts`, formData)
       .pipe(map((response) => response.data));
   }
+
+  update(id: number, payload: { content: string; image?: File | null; video?: File | null }) {
+    const formData = new FormData();
+
+    if (payload.content.trim()) {
+      formData.append('content', payload.content.trim());
+    }
+
+    if (payload.image) {
+      formData.append('image', payload.image);
+    }
+
+    if (payload.video) {
+      formData.append('video', payload.video);
+    }
+
+    formData.append('_method', 'PUT');
+
+    return this.http
+      .post<ApiResponse<Post>>(`${this.apiUrl.apiUrl}/posts/${id}`, formData)
+      .pipe(map((response) => response.data));
+  }
+
+  delete(id: number) {
+    return this.http
+      .delete<ApiResponse<null>>(`${this.apiUrl.apiUrl}/posts/${id}`)
+      .pipe(map((response) => response));
+  }
+
+  addBaze(id: number) {
+    return this.http
+      .post<ApiResponse<null>>(`${this.apiUrl.apiUrl}/posts/${id}/baze`, {})
+      .pipe(map((response) => response));
+  }
+
+  removeBaze(id: number) {
+    return this.http
+      .delete<ApiResponse<null>>(`${this.apiUrl.apiUrl}/posts/${id}/baze`)
+      .pipe(map((response) => response));
+  }
 }

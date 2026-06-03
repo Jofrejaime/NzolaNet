@@ -19,4 +19,16 @@ export class CommentService {
       .post<ApiResponse<Comment>>(`${this.apiUrl.apiUrl}/posts/${postId}/comments`, { content })
       .pipe(map((response) => response.data));
   }
+
+  update(id: number, content: string) {
+    return this.http
+      .put<ApiResponse<Comment>>(`${this.apiUrl.apiUrl}/comments/${id}`, { content })
+      .pipe(map((response) => response.data));
+  }
+
+  delete(id: number) {
+    return this.http
+      .delete<ApiResponse<null>>(`${this.apiUrl.apiUrl}/comments/${id}`)
+      .pipe(map((response) => response));
+  }
 }

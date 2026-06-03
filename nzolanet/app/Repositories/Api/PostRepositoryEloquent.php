@@ -19,13 +19,20 @@ class PostRepositoryEloquent extends BaseRepository implements PostRepository
         $this->pushCriteria(app(RequestCriteria::class));
     }
 
-    public function getLatestPosts(int $perPage = 15)
+    public function getLatestPosts(int $perPage = 15, ?int $userId = null)
     {
-        return $this->model
+        $query = $this->model
             ->with(['user'])
             ->withCount(['comments', 'bazes'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+            ->orderBy('created_at', 'desc');
+
+        if ($userId) {
+            $query->withExists([
+                'bazes as has_bazed' => fn ($query) => $query->where('user_id', $userId),
+            ]);
+        }
+
+        return $query->paginate($perPage);
     }
 
     public function getLatestPostsForUser(int $userId, int $perPage = 15)

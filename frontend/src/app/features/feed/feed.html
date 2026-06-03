@@ -14,6 +14,12 @@
   </div>
   }
 
+  @if (actionMessage) {
+  <div class="m-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+    {{ actionMessage }}
+  </div>
+  }
+
   @if (!isLoading && !errorMessage && posts.length === 0) {
   <div class="px-4 py-12 text-center">
     <p class="text-sm text-[var(--text-secondary)]">Ainda não há publicações no feed.</p>
@@ -21,7 +27,7 @@
   }
 
   @for (post of posts; track post.id) {
-  <article [routerLink]="['/post', post.id]"
+  <article (click)="openPost(post)"
     class="post-card bg-[var(--bg-surface)] border-b border-[var(--border-subtle)] px-4 py-4 hover:bg-[var(--state-hover)] transition cursor-pointer">
     <div class="flex gap-3">
       <div
@@ -43,7 +49,22 @@
           <span class="text-sm text-[var(--text-secondary)]">{{ relativeTime(post.created_at) }}</span>
         </div>
 
+        @if (editingPostId === post.id) {
+        <div class="mt-2" (click)="$event.stopPropagation()">
+          <textarea [(ngModel)]="editContent" maxlength="1000" rows="3"
+            class="w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-brand)]"></textarea>
+          <div class="mt-2 flex justify-end gap-2">
+            <button
+              class="px-3 py-1.5 rounded-full text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--state-hover)]"
+              (click)="cancelEdit()">Cancelar</button>
+            <button
+              class="px-3 py-1.5 rounded-full bg-[var(--bg-brand)] text-white text-xs font-bold disabled:opacity-60"
+              [disabled]="!editContent.trim()" (click)="savePost(post)">Guardar</button>
+          </div>
+        </div>
+        } @else {
         <p class="text-[var(--text-primary)] text-sm leading-relaxed whitespace-pre-line">{{ post.content }}</p>
+        }
 
         @if (mediaUrl(post.image)) {
         <img [src]="mediaUrl(post.image)" alt="Imagem da publicacao"
@@ -63,9 +84,9 @@
             </svg>
             <span class="text-xs">{{ post.comments_count || 0 }}</span>
           </button>
-          <button
-            class="post-action flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-rose-500 transition"
-            (click)="$event.stopPropagation()">
+          <button class="post-action flex items-center gap-1.5 transition"
+            [ngClass]="post.has_bazed ? 'text-rose-500' : 'text-[var(--text-secondary)] hover:text-rose-500'"
+            (click)="$event.stopPropagation(); toggleBaze(post)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path
                 d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -80,6 +101,17 @@
               <line x1="12" y1="2" x2="12" y2="15" />
             </svg>
           </button>
+          @if (isOwnPost(post)) {
+          <button
+            class="post-action text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition text-xs font-semibold"
+            (click)="$event.stopPropagation(); beginEdit(post)">
+            Editar
+          </button>
+          <button class="post-action text-[var(--text-secondary)] hover:text-red-400 transition text-xs font-semibold"
+            (click)="$event.stopPropagation(); deletePost(post)">
+            Excluir
+          </button>
+          }
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, ApplicationRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AvatarComponent } from '../../shared/components/avatar/avatar';
 import { Router, RouterLink } from '@angular/router';
@@ -19,6 +19,9 @@ export class ProfileComponent implements OnInit {
   private authService = inject(AuthService);
   private postService = inject(PostService);
   private apiUrl = inject(ApiUrlService);
+  private cdr = inject(ChangeDetectorRef);
+  private appRef = inject(ApplicationRef);
+  private ngZone = inject(NgZone);
 
   activeTab: 'posts' | 'replies' | 'highlights' | 'media' = 'posts';
   user: NzolaUser | null = this.authService.currentUser();
@@ -31,16 +34,25 @@ export class ProfileComponent implements OnInit {
   }
 
   loadProfile(): void {
-    this.isLoading = true;
+    this.ngZone.run(() => {
+      this.isLoading = true;
+      this.errorMessage = '';
+    });
 
     this.authService.loadUser().subscribe({
       next: (user) => {
-        this.user = user;
-        this.loadPosts(user.id);
+        this.ngZone.run(() => {
+          this.user = user;
+          this.cdr.detectChanges();
+          this.loadPosts(user.id);
+        });
       },
       error: (error) => {
-        this.errorMessage = error?.error?.message || 'Nao foi possivel carregar o perfil.';
-        this.isLoading = false;
+        this.ngZone.run(() => {
+          this.errorMessage = error?.error?.message || 'Nao foi possivel carregar o perfil.';
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        });
       }
     });
   }
@@ -48,10 +60,19 @@ export class ProfileComponent implements OnInit {
   loadPosts(userId: number): void {
     this.postService.list().subscribe({
       next: (page) => {
-        this.posts = page.data.filter((post) => post.user_id === userId);
+        this.ngZone.run(() => {
+          this.posts = [...page.data.filter((post) => post.user_id === userId)];
+          this.isLoading = false;
+          this.cdr.detectChanges();
+          this.appRef.tick();
+        });
       },
-      complete: () => {
-        this.isLoading = false;
+      error: (error) => {
+        this.ngZone.run(() => {
+          this.errorMessage = error?.error?.message || 'Nao foi possivel carregar as publicacoes.';
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        });
       }
     });
   }

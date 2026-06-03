@@ -20,7 +20,11 @@
   <!-- Área de escrita - sem flex-1 para não empurrar o footer -->
   <div class="flex gap-3 px-4 pt-4">
     <div class="w-10 h-10 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-xs font-semibold text-[var(--text-secondary)] flex-shrink-0 overflow-hidden">
-      U
+      @if (photoUrl(authService.currentUser()?.profile_photo)) {
+        <img [src]="photoUrl(authService.currentUser()?.profile_photo)" [alt]="authService.currentUser()?.name || 'Avatar'" class="w-full h-full object-cover">
+      } @else {
+        {{ initials(authService.currentUser()?.name) }}
+      }
     </div>
     <textarea
       #textArea

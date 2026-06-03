@@ -9,4 +9,6 @@ interface FollowRepository extends RepositoryInterface
     public function isFollowing(int $followerId, int $followingId): bool;
     public function follow(int $followerId, int $followingId): bool;
     public function unfollow(int $followerId, int $followingId): bool;
+    public function getFollowing(int $userId, int $currentUserId): array;
+    public function getFollowers(int $userId, int $currentUserId): array;
 }

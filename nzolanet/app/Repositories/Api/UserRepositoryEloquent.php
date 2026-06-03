@@ -41,6 +41,42 @@ class UserRepositoryEloquent extends BaseRepository implements UserRepository
         return null;
     }
 
+    public function searchUsers(string $search, int $currentUserId): array
+    {
+        $query = $this->model->where('id', '!=', $currentUserId);
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Add is_following status for the current user
+        $users = $query->limit(50)->get();
+
+        $result = [];
+        foreach ($users as $user) {
+            $isFollowing = \DB::table('follows')
+                ->where('follower_id', $currentUserId)
+                ->where('following_id', $user->id)
+                ->exists();
+
+            $result[] = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'bio' => $user->bio,
+                'profile_photo' => $user->profile_photo,
+                'is_private' => $user->is_private,
+                'is_active' => $user->is_active,
+                'is_following' => $isFollowing,
+                'created_at' => $user->created_at,
+            ];
+        }
+
+        return $result;
+    }
 
     /**
      * Boot up the repository, pushing criteria

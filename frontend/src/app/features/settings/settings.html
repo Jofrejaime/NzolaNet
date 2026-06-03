@@ -12,10 +12,10 @@
 
   <!-- Card do utilizador -->
   <div class="user-card" (click)="onRowClick(accountItems[0])">
-    <div class="user-avatar">NU</div>
+    <div class="user-avatar">{{ initials(authService.currentUser()?.name) }}</div>
     <div class="user-info">
-      <span class="user-name">Nzola User</span>
-      <span class="user-handle">&#64;nzola_user</span>
+      <span class="user-name">{{ authService.currentUser()?.name || 'Utilizador NzolaNet' }}</span>
+      <span class="user-handle">&#64;{{ username(authService.currentUser()?.name) }}</span>
     </div>
     <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path d="M9 18l6-6-6-6"/>

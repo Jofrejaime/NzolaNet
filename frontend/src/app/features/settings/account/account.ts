@@ -21,11 +21,11 @@ export class AccountComponent {
   user = {
     name: '',
     email: '',
-    phone: '+244 923 456 789',
+    phone: '',
     bio: '',
-    website: 'https://nzolanet.com',
-    location: 'Luanda, Angola',
-    birthDate: '1990-01-01',
+    website: '',
+    location: '',
+    birthDate: '',
     is_private: false,
     profile_photo: null as string | null
   };

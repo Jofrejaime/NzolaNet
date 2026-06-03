@@ -18,22 +18,41 @@ class PostService
 
     /**
      * Obter feed principal de posts
+     * Mostra posts de utilizadores seguidos + próprios posts
+     * Se o utilizador não segue ninguém, mostra todos os posts
      */
     public function getFeed(?int $userId = null, int $perPage = 15)
     {
         if ($userId) {
-            return $this->postRepository->getLatestPostsForUser($userId, $perPage);
+            // Check if user follows anyone
+            $followingCount = \DB::table('follows')
+                ->where('follower_id', $userId)
+                ->count();
+
+            if ($followingCount > 0) {
+                return $this->postRepository->getLatestPostsForUser($userId, $perPage);
+            }
         }
 
-        return $this->postRepository->getLatestPosts($perPage);
+        return $this->postRepository->getLatestPosts($perPage, $userId);
     }
 
     /**
      * Obter post específico
      */
-    public function getPostById(int $id): ?Post
+    public function getPostById(int $id, ?int $userId = null): ?Post
     {
-        return $this->postRepository->with(['user'])->withCount(['comments', 'bazes'])->find($id);
+        $query = Post::query()
+            ->with(['user'])
+            ->withCount(['comments', 'bazes']);
+
+        if ($userId) {
+            $query->withExists([
+                'bazes as has_bazed' => fn ($query) => $query->where('user_id', $userId),
+            ]);
+        }
+
+        return $query->find($id);
     }
 
     /**

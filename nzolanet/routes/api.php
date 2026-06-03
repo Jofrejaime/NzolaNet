@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\BazeController;
+use App\Http\Controllers\Api\NotificationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -20,11 +22,19 @@ Route::middleware('auth:sanctum')->group(function () {
     // Gestão de Perfil e Seguidores
     Route::put('/profile', [UserController::class, 'updateProfile']);
     Route::post('/profile/photo', [UserController::class, 'updateProfilePhoto']);
+
+    // Listar e pesquisar utilizadores
+    Route::get('/users', [UserController::class, 'index']);
+    Route::get('/users/{id}', [UserController::class, 'show']);
     Route::post('/users/{id}/follow', [UserController::class, 'follow']);
     Route::delete('/users/{id}/follow', [UserController::class, 'unfollow']);
+    Route::get('/users/{id}/following', [UserController::class, 'following']);
+    Route::get('/users/{id}/followers', [UserController::class, 'followers']);
 
     // Gestão de Publicações
     Route::apiResource('posts', PostController::class);
+    Route::post('/posts/{postId}/baze', [BazeController::class, 'store']);
+    Route::delete('/posts/{postId}/baze', [BazeController::class, 'destroy']);
 
     // Gestão de Comentários
     Route::get('/posts/{postId}/comments', [CommentController::class, 'index']);

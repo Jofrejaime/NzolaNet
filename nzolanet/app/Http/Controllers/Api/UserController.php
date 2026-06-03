@@ -26,6 +26,70 @@ class UserController extends Controller
     ) {}
 
     /**
+     * Listar / pesquisar utilizadores
+     * GET /api/users?search=term
+     */
+    public function index(Request $request): JsonResponse
+    {
+        try {
+            $search = $request->query('search', '');
+            $users = $this->userService->searchUsers($search, $request->user()->id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $users
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao listar utilizadores: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Listar utilizadores que o user autenticado segue
+     * GET /api/users/{id}/following
+     */
+    public function following(int $id, Request $request): JsonResponse
+    {
+        try {
+            $following = $this->followService->getFollowing($id, $request->user()->id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $following
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao listar seguidores: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Listar seguidores do utilizador
+     * GET /api/users/{id}/followers
+     */
+    public function followers(int $id, Request $request): JsonResponse
+    {
+        try {
+            $followers = $this->followService->getFollowers($id, $request->user()->id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $followers
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao listar seguidores: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Registrar novo usuário
      * POST /api/register
      */

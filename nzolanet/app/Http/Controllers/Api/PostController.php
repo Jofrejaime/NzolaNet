@@ -46,7 +46,8 @@ class PostController extends Controller
     public function show(int $id): JsonResponse
     {
         try {
-            $post = $this->postService->getPostById($id);
+            $user = request()->user('sanctum');
+            $post = $this->postService->getPostById($id, $user?->id);
 
             if (!$post) {
                 return response()->json([

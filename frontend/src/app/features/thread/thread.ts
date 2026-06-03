@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ApplicationRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Comment, Post } from '../../core/models/api.models';
 import { ApiUrlService } from '../../core/services/api-url.service';
+import { AuthService } from '../../core/services/auth.service';
 import { CommentService } from '../../core/services/comment.service';
 import { PostService } from '../../core/services/post.service';
 
@@ -22,13 +23,21 @@ export class ThreadComponent implements OnInit {
   isLoading = false;
   isCommenting = false;
   errorMessage = '';
+  editingPost = false;
+  editPostContent = '';
+  editingCommentId: number | null = null;
+  editCommentContent = '';
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private postService: PostService,
     private commentService: CommentService,
-    private apiUrl: ApiUrlService
+    public authService: AuthService,
+    private apiUrl: ApiUrlService,
+    private cdr: ChangeDetectorRef,
+    private appRef: ApplicationRef,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -43,20 +52,25 @@ export class ThreadComponent implements OnInit {
   }
 
   loadThread(id: number): void {
-    this.isLoading = true;
-    this.errorMessage = '';
+    this.ngZone.run(() => {
+      this.isLoading = true;
+      this.errorMessage = '';
+    });
 
     this.postService.show(id).subscribe({
       next: (post) => {
-        this.post = post;
-        this.loadComments(post.id);
+        this.ngZone.run(() => {
+          this.post = post;
+          this.cdr.detectChanges();
+          this.loadComments(post.id);
+        });
       },
       error: (error) => {
-        this.errorMessage = error?.error?.message || 'Nao foi possivel carregar a publicacao.';
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
+        this.ngZone.run(() => {
+          this.errorMessage = error?.error?.message || 'Nao foi possivel carregar a publicacao.';
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        });
       }
     });
   }
@@ -64,7 +78,19 @@ export class ThreadComponent implements OnInit {
   loadComments(postId: number): void {
     this.commentService.list(postId).subscribe({
       next: (page) => {
-        this.comments = page.data;
+        this.ngZone.run(() => {
+          this.comments = [...page.data];
+          this.isLoading = false;
+          this.cdr.detectChanges();
+          this.appRef.tick();
+        });
+      },
+      error: (error) => {
+        this.ngZone.run(() => {
+          console.error('Erro ao carregar comentários:', error);
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        });
       }
     });
   }
@@ -74,28 +100,160 @@ export class ThreadComponent implements OnInit {
       return;
     }
 
-    this.isCommenting = true;
+    this.ngZone.run(() => {
+      this.isCommenting = true;
+    });
+
     this.commentService.create(this.post.id, this.commentContent.trim()).subscribe({
       next: (comment) => {
-        this.comments = [comment, ...this.comments];
-        this.commentContent = '';
-        this.post = {
-          ...this.post!,
-          comments_count: (this.post?.comments_count || 0) + 1
-        };
+        this.ngZone.run(() => {
+          this.comments = [...this.comments, comment];
+          this.commentContent = '';
+          this.post = {
+            ...this.post!,
+            comments_count: (this.post?.comments_count || 0) + 1
+          };
+          this.isCommenting = false;
+          this.cdr.detectChanges();
+        });
       },
       error: (error) => {
-        this.errorMessage = error?.error?.message || 'Nao foi possivel comentar.';
-        this.isCommenting = false;
-      },
-      complete: () => {
-        this.isCommenting = false;
+        this.ngZone.run(() => {
+          this.errorMessage = error?.error?.message || 'Nao foi possivel comentar.';
+          this.isCommenting = false;
+          this.cdr.detectChanges();
+        });
       }
     });
   }
 
   goBack(): void {
     this.router.navigate(['/']);
+  }
+
+  isOwnPost(): boolean {
+    return !!this.post && this.authService.currentUser()?.id === this.post.user_id;
+  }
+
+  isOwnComment(comment: Comment): boolean {
+    return this.authService.currentUser()?.id === comment.user_id;
+  }
+
+  beginPostEdit(): void {
+    if (!this.post) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.editingPost = true;
+    this.editPostContent = this.post.content || '';
+  }
+
+  cancelPostEdit(): void {
+    this.editingPost = false;
+    this.editPostContent = '';
+  }
+
+  savePost(): void {
+    if (!this.post || !this.editPostContent.trim()) {
+      return;
+    }
+
+    this.postService.update(this.post.id, { content: this.editPostContent }).subscribe({
+      next: (post) => {
+        this.ngZone.run(() => {
+          this.post = post;
+          this.cancelPostEdit();
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        this.ngZone.run(() => {
+          this.errorMessage = error?.error?.message || 'Nao foi possivel editar a publicacao.';
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
+  deletePost(): void {
+    if (!this.post || !confirm('Excluir esta publicacao?')) {
+      return;
+    }
+
+    this.postService.delete(this.post.id).subscribe({
+      next: () => {
+        this.ngZone.run(() => {
+          this.router.navigate(['/home']);
+        });
+      },
+      error: (error) => {
+        this.ngZone.run(() => {
+          this.errorMessage = error?.error?.message || 'Nao foi possivel excluir a publicacao.';
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
+  beginCommentEdit(comment: Comment): void {
+    this.errorMessage = '';
+    this.editingCommentId = comment.id;
+    this.editCommentContent = comment.content;
+  }
+
+  cancelCommentEdit(): void {
+    this.editingCommentId = null;
+    this.editCommentContent = '';
+  }
+
+  saveComment(comment: Comment): void {
+    if (!this.editCommentContent.trim()) {
+      return;
+    }
+
+    this.commentService.update(comment.id, this.editCommentContent.trim()).subscribe({
+      next: (updatedComment) => {
+        this.ngZone.run(() => {
+          this.comments = this.comments.map((item) => item.id === comment.id ? updatedComment : item);
+          this.cancelCommentEdit();
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        this.ngZone.run(() => {
+          this.errorMessage = error?.error?.message || 'Nao foi possivel editar o comentario.';
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
+  deleteComment(comment: Comment): void {
+    if (!confirm('Excluir este comentario?')) {
+      return;
+    }
+
+    this.commentService.delete(comment.id).subscribe({
+      next: () => {
+        this.ngZone.run(() => {
+          this.comments = this.comments.filter((item) => item.id !== comment.id);
+          if (this.post) {
+            this.post = {
+              ...this.post,
+              comments_count: Math.max((this.post.comments_count || 1) - 1, 0)
+            };
+          }
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        this.ngZone.run(() => {
+          this.errorMessage = error?.error?.message || 'Nao foi possivel excluir o comentario.';
+          this.cdr.detectChanges();
+        });
+      }
+    });
   }
 
   initials(name?: string): string {

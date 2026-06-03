@@ -38,6 +38,7 @@ export interface Post {
   video?: string | null;
   comments_count?: number;
   bazes_count?: number;
+  has_bazed?: boolean;
   created_at?: string;
   updated_at?: string;
   user?: NzolaUser;

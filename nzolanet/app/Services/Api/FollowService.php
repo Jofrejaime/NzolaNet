@@ -40,4 +40,14 @@ class FollowService
             ]);
         }
     }
+
+    public function getFollowing(int $userId, int $currentUserId): array
+    {
+        return $this->followRepository->getFollowing($userId, $currentUserId);
+    }
+
+    public function getFollowers(int $userId, int $currentUserId): array
+    {
+        return $this->followRepository->getFollowers($userId, $currentUserId);
+    }
 }
