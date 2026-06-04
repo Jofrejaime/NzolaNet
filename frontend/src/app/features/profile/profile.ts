@@ -15,13 +15,13 @@ import { ToastService } from '../../core/services/toast.service';
 @Component({
   selector: 'nzola-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, AvatarComponent, SkeletonComponent],
+  imports: [CommonModule, FormsModule, RouterLink, AvatarComponent, SkeletonComponent], // Apenas RouterLink aqui
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
 })
 export class ProfileComponent implements OnInit {
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
+  private router = inject(Router);        // Serviços vão aqui
+  private route = inject(ActivatedRoute); // Serviços vão aqui
   private authService = inject(AuthService);
   private postService = inject(PostService);
   private userService = inject(UserService);

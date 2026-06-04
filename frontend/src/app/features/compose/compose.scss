@@ -23,14 +23,12 @@
   margin-top: auto;
 }
 
-/* Grid para imagens */
 .grid-cols-2 {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 8px;
 }
 
-/* Responsivo */
 @media (max-width: 640px) {
   .compose-textarea {
     min-height: 50px;

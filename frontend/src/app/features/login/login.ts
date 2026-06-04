@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'nzola-login',
@@ -33,16 +34,23 @@ export class LoginComponent {
     terms: false
   };
 
-  constructor(private router: Router, private authService: AuthService) {}
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private toastService = inject(ToastService);
 
   login(): void {
     this.errorMessage = '';
     this.isLoading = true;
 
     this.authService.login(this.loginForm).subscribe({
-      next: () => this.router.navigate(['/home']),
+      next: () => {
+        this.toastService.success('Bem-vindo!', 'Login realizado com sucesso.');
+        this.router.navigate(['/home']);
+      },
       error: (error) => {
-        this.errorMessage = error?.error?.message || this.firstValidationError(error) || 'Não foi possível entrar. Verifica os dados e tenta novamente.';
+        const msg = error?.error?.message || this.firstValidationError(error) || 'Não foi possível entrar. Verifica os dados e tenta novamente.';
+        this.errorMessage = msg;
+        this.toastService.error('Erro!', msg);
         this.isLoading = false;
       },
       complete: () => {
@@ -55,7 +63,23 @@ export class LoginComponent {
     this.errorMessage = '';
 
     if (!this.registerForm.terms) {
-      this.errorMessage = 'Aceita os termos para criar a conta.';
+      const msg = 'Aceita os termos para criar a conta.';
+      this.errorMessage = msg;
+      this.toastService.warning('Atenção!', msg);
+      return;
+    }
+
+    if (this.registerForm.password !== this.registerForm.password_confirmation) {
+      const msg = 'As palavras-passe não coincidem.';
+      this.errorMessage = msg;
+      this.toastService.warning('Atenção!', msg);
+      return;
+    }
+
+    if (this.registerForm.password.length < 8) {
+      const msg = 'A palavra-passe deve ter pelo menos 8 caracteres.';
+      this.errorMessage = msg;
+      this.toastService.warning('Atenção!', msg);
       return;
     }
 
@@ -69,15 +93,30 @@ export class LoginComponent {
       bio: this.registerForm.bio || undefined,
       is_private: this.registerForm.is_private
     }).subscribe({
-      next: () => this.router.navigate(['/home']),
+      next: () => {
+        this.toastService.success('Conta criada!', 'Bem-vindo ao NzolaNet.');
+        this.router.navigate(['/home']);
+      },
       error: (error) => {
-        this.errorMessage = error?.error?.message || this.firstValidationError(error) || 'Nao foi possivel criar a conta.';
+        const msg = error?.error?.message || this.firstValidationError(error) || 'Não foi possível criar a conta.';
+        this.errorMessage = msg;
+        this.toastService.error('Erro!', msg);
         this.isLoading = false;
       },
       complete: () => {
         this.isLoading = false;
       }
     });
+  }
+
+  switchToLogin(): void {
+    this.activeTab = 'entrar';
+    this.errorMessage = '';
+  }
+
+  switchToRegister(): void {
+    this.activeTab = 'criar';
+    this.errorMessage = '';
   }
 
   private firstValidationError(error: any): string | null {

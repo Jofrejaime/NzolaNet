@@ -1,10 +1,11 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PostService } from '../../core/services/post.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ApiUrlService } from '../../core/services/api-url.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'nzola-compose',
@@ -20,22 +21,21 @@ export class ComposeComponent {
   
   images: File[] = [];
   imagePreviews: string[] = [];
-  maxImages = 10;
+  maxImages = 4;
   
   videos: File[] = [];
   videoPreviews: string[] = [];
-  maxVideos = 10;
+  maxVideos = 2;
   
   isPublishing = false;
   errorMessage = '';
 
-  constructor(
-    private router: Router,
-    private postService: PostService,
-    public authService: AuthService,
-    private apiUrl: ApiUrlService,
-    private cdr: ChangeDetectorRef
-  ) {}
+  private router = inject(Router);
+  private postService = inject(PostService);
+  public authService = inject(AuthService);
+  private apiUrl = inject(ApiUrlService);
+  private cdr = inject(ChangeDetectorRef);
+  private toastService = inject(ToastService);
 
   onInput(event: Event): void {
     const textarea = event.target as HTMLTextAreaElement;
@@ -57,13 +57,17 @@ export class ComposeComponent {
         const reader = new FileReader();
         reader.onload = (e: any) => {
           this.imagePreviews = [...this.imagePreviews, e.target?.result as string];
-          this.cdr.detectChanges(); // Forçar atualização da view
+          this.cdr.detectChanges();
         };
         reader.readAsDataURL(file);
       }
     });
     
     input.value = '';
+    
+    if (filesToAdd.length > 0) {
+      this.toastService.success('Imagens adicionadas!', `${filesToAdd.length} imagem(ns) selecionada(s).`);
+    }
   }
 
   onVideoSelected(event: Event): void {
@@ -81,13 +85,17 @@ export class ComposeComponent {
         const reader = new FileReader();
         reader.onload = (e: any) => {
           this.videoPreviews = [...this.videoPreviews, e.target?.result as string];
-          this.cdr.detectChanges(); // Forçar atualização da view
+          this.cdr.detectChanges();
         };
         reader.readAsDataURL(file);
       }
     });
     
     input.value = '';
+    
+    if (filesToAdd.length > 0) {
+      this.toastService.success('Vídeos adicionados!', `${filesToAdd.length} vídeo(s) selecionado(s).`);
+    }
   }
 
   removeImage(index: number): void {
@@ -103,18 +111,25 @@ export class ComposeComponent {
   }
 
   clearAllMedia(): void {
+    const imageCount = this.images.length;
+    const videoCount = this.videos.length;
+    
     this.images = [];
     this.imagePreviews = [];
     this.videos = [];
     this.videoPreviews = [];
     this.cdr.detectChanges();
+    
+    if (imageCount > 0 || videoCount > 0) {
+      this.toastService.info('Limpo!', 'Todos os media foram removidos.');
+    }
   }
 
   publish(): void {
     this.errorMessage = '';
 
     if (!this.content.trim() && this.images.length === 0 && this.videos.length === 0) {
-      this.errorMessage = 'Escreve algo ou adiciona imagens/vídeos para publicar.';
+      this.toastService.warning('Atenção', 'Escreve algo ou adiciona imagens/vídeos para publicar.');
       return;
     }
 
@@ -127,6 +142,7 @@ export class ComposeComponent {
     }).subscribe({
       next: (response: any) => {
         console.log('Publicado com sucesso:', response);
+        this.toastService.success('Publicado!', 'A tua publicação está no feed.');
         this.router.navigate(['/home']);
       },
       error: (err: any) => {
@@ -151,7 +167,13 @@ export class ComposeComponent {
   }
 
   close(): void {
-    this.router.navigate(['/home']);
+    if (this.content.trim() || this.images.length > 0 || this.videos.length > 0) {
+      if (confirm('Tens conteúdo não publicado. Descartar alterações?')) {
+        this.router.navigate(['/home']);
+      }
+    } else {
+      this.router.navigate(['/home']);
+    }
   }
 
   photoUrl(path?: string | null): string | null {
@@ -159,6 +181,7 @@ export class ComposeComponent {
   }
 
   initials(name?: string): string {
-    return name ? name.split(' ').map((part) => part[0]).join('').toUpperCase().slice(0, 2) : 'U';
+    if (!name) return 'U';
+    return name.split(' ').map((part) => part[0]).join('').toUpperCase().slice(0, 2);
   }
 }

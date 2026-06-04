@@ -5,30 +5,55 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../../core/services/user.service';
 import { ApiUrlService } from '../../../core/services/api-url.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton';
 
 @Component({
   selector: 'nzola-followers',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SkeletonComponent, RouterLink],
   templateUrl: './followers.html',
   styleUrls: ['./followers.scss']
 })
 export class FollowersComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private route = inject(ActivatedRoute);
   private userService = inject(UserService);
   apiUrl = inject(ApiUrlService);
   authService = inject(AuthService);
+  private toastService = inject(ToastService);
 
   followers: any[] = [];
   filteredFollowers: any[] = [];
   isLoading = false;
   searchTerm = '';
   errorMessage = '';
+  userId: number | null = null;
+  skeletonItems = [1, 2, 3, 4, 5];
 
   ngOnInit(): void {
-    this.loadFollowers();
-  }
+  console.log('FollowersComponent inicializado');
+  
+  // Obter o ID da rota
+  this.route.params.subscribe(params => {
+    console.log('Parâmetros da rota:', params);
+    this.userId = params['id'] ? Number(params['id']) : null;
+    
+    if (!this.userId) {
+      this.userId = this.authService.currentUser()?.id || null;
+    }
+    
+    console.log('UserId final:', this.userId);
+    
+    if (this.userId) {
+      this.loadFollowers();
+    } else {
+      this.errorMessage = 'Utilizador não encontrado.';
+      this.isLoading = false;
+    }
+  });
+}
 
   loadFollowers(): void {
     this.isLoading = true;
@@ -45,6 +70,7 @@ export class FollowersComponent implements OnInit {
       error: (error: any) => {
         this.errorMessage = 'Erro ao carregar seguidores.';
         this.isLoading = false;
+        this.toastService.error('Erro!', 'Não foi possível carregar os seguidores.');
       }
     });
   }
@@ -58,7 +84,7 @@ export class FollowersComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/profile']);
+    this.router.navigate(['/profile', this.userId]);
   }
 
   goToProfile(userId: number): void {

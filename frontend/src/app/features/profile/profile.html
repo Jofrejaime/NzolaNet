@@ -52,11 +52,11 @@
 
       <!-- Stats -->
       <div class="flex gap-8 mb-3">
-        <div class="cursor-pointer hover:bg-[var(--state-hover)] px-3 py-1.5 rounded-lg transition -ml-3" (click)="goToFollowers()">
+        <div (click)="goToFollowers()" class="cursor-pointer hover:bg-[var(--state-hover)] px-3 py-1.5 rounded-lg transition -ml-3">
           <strong class="text-base font-bold text-[var(--text-primary)]">{{ followersCount }}</strong>
           <span class="text-sm text-[var(--text-secondary)] ml-1">seguidores</span>
         </div>
-        <div class="cursor-pointer hover:bg-[var(--state-hover)] px-3 py-1.5 rounded-lg transition" (click)="goToFollowing()">
+        <div (click)="goToFollowing()" class="cursor-pointer hover:bg-[var(--state-hover)] px-3 py-1.5 rounded-lg transition">
           <strong class="text-base font-bold text-[var(--text-primary)]">{{ followingCount }}</strong>
           <span class="text-sm text-[var(--text-secondary)] ml-1">seguindo</span>
         </div>

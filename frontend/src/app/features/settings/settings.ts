@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../core/services/theme.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 
 export interface SettingsItem {
   id: string;
@@ -26,6 +27,7 @@ export class SettingsComponent {
   private router = inject(Router);
   authService = inject(AuthService);
   themeService = inject(ThemeService);
+  private toastService = inject(ToastService);
 
   // Computed property for dark mode
   get darkMode(): boolean {
@@ -103,7 +105,9 @@ export class SettingsComponent {
 
   // ── Acções ───────────────────────────────────────────
   toggleDarkMode(): void {
+    const newMode = this.darkMode ? 'claro' : 'escuro';
     this.themeService.toggle();
+    this.toastService.success('Tema alterado!', `Modo ${newMode} ativado.`);
   }
 
   onRowClick(item: SettingsItem): void {
@@ -114,6 +118,8 @@ export class SettingsComponent {
 
   logout(): void {
     this.authService.logout();
+    this.toastService.info('Sessão terminada', 'Volta sempre!');
+    this.router.navigate(['/login'], { replaceUrl: true });
   }
 
   goBack(): void {

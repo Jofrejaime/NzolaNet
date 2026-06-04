@@ -1,6 +1,6 @@
 <div class="followers-page">
   <div class="followers-header">
-    <button class="back-btn" (click)="goBack()">
+    <button class="back-btn" [routerLink]="['/profile', userId]">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M15 18l-6-6 6-6"/>
       </svg>
@@ -24,20 +24,22 @@
   </div>
 
   @if (isLoading) {
-    <div class="loading">A carregar seguidores...</div>
+    @for (item of skeletonItems; track $index) {
+      <nzola-skeleton variant="user" />
+    }
   }
 
-  @if (errorMessage) {
+  @if (errorMessage && !isLoading) {
     <div class="error-message">{{ errorMessage }}</div>
   }
 
-  @if (!isLoading && filteredFollowers.length === 0 && searchTerm) {
+  @if (!isLoading && filteredFollowers.length === 0 && searchTerm && !errorMessage) {
     <div class="empty-state">
       <p>Nenhum seguidor encontrado para "{{ searchTerm }}"</p>
     </div>
   }
 
-  @if (!isLoading && filteredFollowers.length === 0 && !searchTerm) {
+  @if (!isLoading && filteredFollowers.length === 0 && !searchTerm && !errorMessage) {
     <div class="empty-state">
       <p>Ainda não tens seguidores</p>
     </div>
@@ -55,7 +57,7 @@
         </div>
         <div class="follower-info">
           <div class="follower-name">{{ follower.name }}</div>
-          <div class="follower-username">&#64;{{ follower.username }}</div>
+          <div class="follower-username">&#64;{{ follower.username || follower.name.toLowerCase().replace(/\s+/g, '_') }}</div>
         </div>
         @if (follower.is_following) {
           <button class="following-btn" (click)="$event.stopPropagation()">Seguindo</button>

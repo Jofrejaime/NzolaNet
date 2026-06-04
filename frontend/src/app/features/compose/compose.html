@@ -52,7 +52,7 @@
           </div>
         }
       </div>
-      <p class="text-xs text-[var(--text-tertiary)] mt-2">{{ images.length }} imagens</p>
+      <p class="text-xs text-[var(--text-tertiary)] mt-2">{{ images.length }}/{{ maxImages }} imagens</p>
     </div>
   }
 
@@ -71,7 +71,7 @@
           </div>
         }
       </div>
-      <p class="text-xs text-[var(--text-tertiary)] mt-2">{{ videos.length }} vídeos</p>
+      <p class="text-xs text-[var(--text-tertiary)] mt-2">{{ videos.length }}/{{ maxVideos }} vídeos</p>
     </div>
   }
 
@@ -103,7 +103,11 @@
       @if (videos.length > 0) {
         <span class="text-xs text-[var(--text-secondary)]">{{ videos.length }} vid</span>
       }
-      <span class="text-xs text-[var(--text-tertiary)]">{{ charCount }}/500</span>
+      <span class="text-xs text-[var(--text-tertiary)]" 
+            [class.text-[var(--text-warning)]]="charCount >= 450"
+            [class.text-[var(--text-danger)]]="charCount >= 500">
+        {{ charCount }}/500
+      </span>
     </div>
   </div>
 
