@@ -48,15 +48,22 @@ export class FeedComponent implements OnInit {
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
-  const target = event.target as HTMLElement;
-  if (!target.closest('.menu-trigger') && !target.closest('.post-menu-dropdown') && !target.closest('.edit-textarea')) {
-    // Se clicar fora do menu e fora do textarea de edição, cancela edição
-    if (this.editingPostId) {
-      this.cancelEdit();
+    const target = event.target as HTMLElement;
+    if (!target.closest('.menu-trigger') && !target.closest('.post-menu-dropdown') && !target.closest('.edit-textarea')) {
+      if (this.editingPostId) {
+        this.cancelEdit();
+      }
+      this.activeMenuId = null;
     }
-    this.activeMenuId = null;
   }
-}
+
+  // Navegar para o perfil do utilizador
+  goToUserProfile(userId: number | undefined, event: Event): void {
+    event.stopPropagation();
+    if (userId) {
+      this.router.navigate(['/profile', userId]);
+    }
+  }
 
   loadFeed(): void {
     this.ngZone.run(() => {
@@ -94,7 +101,7 @@ export class FeedComponent implements OnInit {
   }
 
   mediaUrl(path?: string | null): string | null {
-   return this.apiUrl.storageUrl(path);
+    return this.apiUrl.storageUrl(path);
   }
 
   goToThread(post: Post): void {
@@ -123,32 +130,31 @@ export class FeedComponent implements OnInit {
   }
 
   savePost(post: Post): void {
-  // Verificar se é o post correcto que está a ser editado
-  if (this.editingPostId !== post.id) {
-    return;
-  }
-
-  if (!this.editContent.trim()) {
-    this.toastService.warning('Atenção', 'A publicação precisa de texto para esta edição.');
-    return;
-  }
-
-  this.postService.update(post.id, { content: this.editContent }).subscribe({
-    next: (updatedPost) => {
-      this.posts = this.posts.map((item) => 
-        item.id === post.id ? { ...updatedPost, has_bazed: item.has_bazed, bazes_count: item.bazes_count } : item
-      );
-      this.cancelEdit();  // Limpa o estado de edição
-      this.toastService.success('Editado!', 'Publicação atualizada com sucesso.');
-      this.cdr.detectChanges();
-    },
-    error: (error) => {
-      const msg = error?.error?.message || 'Não foi possível editar a publicação.';
-      this.toastService.error('Erro!', msg);
-      this.actionMessage = msg;
+    if (this.editingPostId !== post.id) {
+      return;
     }
-  });
-}
+
+    if (!this.editContent.trim()) {
+      this.toastService.warning('Atenção', 'A publicação precisa de texto para esta edição.');
+      return;
+    }
+
+    this.postService.update(post.id, { content: this.editContent }).subscribe({
+      next: (updatedPost) => {
+        this.posts = this.posts.map((item) => 
+          item.id === post.id ? { ...updatedPost, has_bazed: item.has_bazed, bazes_count: item.bazes_count } : item
+        );
+        this.cancelEdit();
+        this.toastService.success('Editado!', 'Publicação atualizada com sucesso.');
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        const msg = error?.error?.message || 'Não foi possível editar a publicação.';
+        this.toastService.error('Erro!', msg);
+        this.actionMessage = msg;
+      }
+    });
+  }
 
   confirmDelete(post: Post): void {
     this.postToDelete = post;

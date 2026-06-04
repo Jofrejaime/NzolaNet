@@ -34,7 +34,9 @@
         <span>Notificações</span>
       </a>
 
-      <a routerLink="/profile" routerLinkActive="active"
+      <a [routerLink]="['/profile', authService.currentUser()?.id]" 
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{exact: true}"
          class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-[var(--text-secondary)] hover:bg-[var(--state-hover)] hover:text-[var(--text-primary)] font-medium transition-all">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
