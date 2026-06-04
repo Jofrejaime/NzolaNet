@@ -1,7 +1,7 @@
 .right-sidebar-wrap {
   position: sticky;
-  top: 0;
-  max-height: 100vh;
+  top: 20px; /* Pequeno espaçamento do topo */
+  max-height: calc(100vh - 40px);
   overflow-y: auto;
   scrollbar-width: none;
 
