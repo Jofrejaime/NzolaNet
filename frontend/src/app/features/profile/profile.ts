@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef, ApplicationRef, NgZone, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router'; // RouterLink é a única directiva que vai nos imports
 import { AvatarComponent } from '../../shared/components/avatar/avatar';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 import { Post, NzolaUser } from '../../core/models/api.models';
@@ -14,13 +14,13 @@ import { ToastService } from '../../core/services/toast.service';
 @Component({
   selector: 'nzola-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, AvatarComponent, SkeletonComponent],
+  imports: [CommonModule, FormsModule, RouterLink, AvatarComponent, SkeletonComponent], // Apenas RouterLink aqui
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
 })
 export class ProfileComponent implements OnInit {
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
+  private router = inject(Router);        // Serviços vão aqui
+  private route = inject(ActivatedRoute); // Serviços vão aqui
   private authService = inject(AuthService);
   private postService = inject(PostService);
   private userService = inject(UserService);
@@ -124,6 +124,10 @@ export class ProfileComponent implements OnInit {
       }
     });
   }
+  // Adicionar este método no ProfileComponent
+getCurrentUserId(): number | undefined {
+  return this.authService.currentUser()?.id;
+}
 
   loadPosts(userId: number): void {
     this.postService.list().subscribe({
@@ -165,15 +169,22 @@ export class ProfileComponent implements OnInit {
       error: (error: any) => console.error('Erro ao carregar seguindo:', error)
     });
   }
-
-  goToFollowers(): void {
-    this.router.navigate(['/profile', this.user?.id, 'followers']);
+goToFollowers(): void {
+  const userId = this.user?.id;
+  console.log('Navegando para seguidores - userId:', userId);
+  if (userId) {
+    console.log('Navegando para seguidores - userId: aqui meso', userId);
+    this.router.navigate(['/{:id}/followers']);
   }
+}
 
-  goToFollowing(): void {
-    this.router.navigate(['/profile', this.user?.id, 'following']);
+goToFollowing(): void {
+  const userId = this.user?.id;
+  console.log('Navegando para seguindo - userId:', userId);
+  if (userId) {
+    this.router.navigate(['/:id/following']);
   }
-
+}
   goToAccount(): void {
     this.router.navigate(['/settings/account']);
   }

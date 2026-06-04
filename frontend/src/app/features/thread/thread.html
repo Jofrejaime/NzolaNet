@@ -9,17 +9,21 @@
     <h1 class="text-base font-bold text-[var(--text-primary)]">Thread</h1>
   </div>
 
+  <!-- Skeleton Loading -->
   @if (isLoading) {
-    <div class="px-4 py-8 text-center text-sm text-[var(--text-secondary)]">A carregar thread...</div>
+    <nzola-skeleton variant="post" />
+    @for (item of skeletonItems; track $index) {
+      <nzola-skeleton variant="comment" />
+    }
   }
 
-  @if (errorMessage) {
+  @if (errorMessage && !isLoading) {
     <div class="m-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
       {{ errorMessage }}
     </div>
   }
 
-  @if (post) {
+  @if (post && !isLoading) {
     <!-- Post Principal -->
     <div class="px-4 pt-4 pb-3 border-b border-[var(--border-subtle)]">
       <div class="flex items-start gap-3 mb-3">

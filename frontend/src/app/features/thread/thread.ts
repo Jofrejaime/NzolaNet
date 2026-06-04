@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ApplicationRef, NgZone, HostListener } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ApplicationRef, NgZone, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,11 +7,13 @@ import { ApiUrlService } from '../../core/services/api-url.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CommentService } from '../../core/services/comment.service';
 import { PostService } from '../../core/services/post.service';
+import { ToastService } from '../../core/services/toast.service';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
 @Component({
   selector: 'nzola-thread',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SkeletonComponent],
   templateUrl: './thread.html',
   styleUrls: ['./thread.scss'],
   host: { class: 'block w-full' }
@@ -44,6 +46,11 @@ export class ThreadComponent implements OnInit {
   
   // Baze animation
   isBazing = false;
+  
+  // Skeleton items
+  skeletonItems = [1, 2, 3];
+
+  private toastService = inject(ToastService);
 
   constructor(
     private router: Router,
@@ -102,6 +109,7 @@ export class ThreadComponent implements OnInit {
           this.isLoading = false;
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível carregar a publicação.');
       }
     });
   }
@@ -122,12 +130,14 @@ export class ThreadComponent implements OnInit {
           this.isLoading = false;
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível carregar os comentários.');
       }
     });
   }
 
   publishComment(): void {
     if (!this.post || !this.commentContent.trim()) {
+      this.toastService.warning('Atenção', 'Escreve um comentário antes de publicar.');
       return;
     }
 
@@ -147,6 +157,7 @@ export class ThreadComponent implements OnInit {
           this.isCommenting = false;
           this.cdr.detectChanges();
         });
+        this.toastService.success('Comentário adicionado!', 'O teu comentário foi publicado.');
       },
       error: (error) => {
         this.ngZone.run(() => {
@@ -154,6 +165,7 @@ export class ThreadComponent implements OnInit {
           this.isCommenting = false;
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível publicar o comentário.');
       }
     });
   }
@@ -170,7 +182,10 @@ export class ThreadComponent implements OnInit {
   }
 
   submitReply(comment: Comment): void {
-    if (!this.replyContent.trim()) return;
+    if (!this.replyContent.trim()) {
+      this.toastService.warning('Atenção', 'Escreve uma resposta antes de publicar.');
+      return;
+    }
     
     this.ngZone.run(() => {
       this.isReplying = true;
@@ -191,6 +206,7 @@ export class ThreadComponent implements OnInit {
           this.isReplying = false;
           this.cdr.detectChanges();
         });
+        this.toastService.success('Resposta adicionada!', 'A tua resposta foi publicada.');
       },
       error: (error) => {
         this.ngZone.run(() => {
@@ -198,6 +214,7 @@ export class ThreadComponent implements OnInit {
           this.isReplying = false;
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível responder.');
       }
     });
   }
@@ -241,7 +258,10 @@ export class ThreadComponent implements OnInit {
   }
 
   savePost(): void {
-    if (!this.post || !this.editPostContent.trim()) return;
+    if (!this.post || !this.editPostContent.trim()) {
+      this.toastService.warning('Atenção', 'A publicação precisa de texto para esta edição.');
+      return;
+    }
 
     this.postService.update(this.post.id, { content: this.editPostContent }).subscribe({
       next: (post) => {
@@ -250,12 +270,14 @@ export class ThreadComponent implements OnInit {
           this.cancelPostEdit();
           this.cdr.detectChanges();
         });
+        this.toastService.success('Editado!', 'Publicação atualizada com sucesso.');
       },
       error: (error) => {
         this.ngZone.run(() => {
           this.errorMessage = error?.error?.message || 'Nao foi possivel editar a publicacao.';
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível editar a publicação.');
       }
     });
   }
@@ -278,6 +300,7 @@ export class ThreadComponent implements OnInit {
         this.ngZone.run(() => {
           this.router.navigate(['/home']);
         });
+        this.toastService.success('Eliminado!', 'Publicação removida com sucesso.');
       },
       error: (error) => {
         this.ngZone.run(() => {
@@ -285,6 +308,7 @@ export class ThreadComponent implements OnInit {
           this.showDeletePostDialog = false;
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível excluir a publicação.');
       }
     });
   }
@@ -303,7 +327,10 @@ export class ThreadComponent implements OnInit {
   }
 
   saveComment(comment: Comment): void {
-    if (!this.editCommentContent.trim()) return;
+    if (!this.editCommentContent.trim()) {
+      this.toastService.warning('Atenção', 'O comentário precisa de texto.');
+      return;
+    }
 
     this.commentService.update(comment.id, this.editCommentContent.trim()).subscribe({
       next: (updatedComment) => {
@@ -312,12 +339,14 @@ export class ThreadComponent implements OnInit {
           this.cancelCommentEdit();
           this.cdr.detectChanges();
         });
+        this.toastService.success('Editado!', 'Comentário atualizado com sucesso.');
       },
       error: (error) => {
         this.ngZone.run(() => {
           this.errorMessage = error?.error?.message || 'Nao foi possivel editar o comentario.';
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível editar o comentário.');
       }
     });
   }
@@ -351,6 +380,7 @@ export class ThreadComponent implements OnInit {
           this.commentToDelete = null;
           this.cdr.detectChanges();
         });
+        this.toastService.success('Eliminado!', 'Comentário removido com sucesso.');
       },
       error: (error) => {
         this.ngZone.run(() => {
@@ -359,6 +389,7 @@ export class ThreadComponent implements OnInit {
           this.commentToDelete = null;
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível excluir o comentário.');
       }
     });
   }
@@ -396,6 +427,7 @@ export class ThreadComponent implements OnInit {
     request.subscribe({
       error: () => {
         this.post = previousState;
+        this.toastService.warning('Erro!', 'Não foi possível atualizar o baze.');
       }
     });
   }
