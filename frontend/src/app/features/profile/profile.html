@@ -20,184 +20,187 @@
     </div>
   }
 
-  <!-- Cover -->
-  <div class="h-[150px] bg-gradient-to-r from-[var(--bg-brand)] to-[var(--bg-brand-subtle)]"></div>
+  <!-- Skeleton Loading -->
+  @if (isLoading) {
+    <nzola-skeleton variant="profile-header" />
+  }
 
-  <!-- Perfil Info -->
-  <div class="border-b border-[var(--border-subtle)] px-4 pb-4">
-    <!-- Avatar e Botão -->
-    <div class="flex justify-between items-end -mt-10 mb-3">
-      <nzola-avatar size="xl" [name]="user?.name || ''" [src]="photoUrl(user?.profile_photo) || undefined"></nzola-avatar>
-      @if (isOwnProfile) {
-        <button (click)="goToAccount()" class="border border-[var(--border-strong)] text-[var(--text-primary)] bg-transparent px-4 py-1.5 rounded-full text-sm font-bold hover:bg-[var(--state-hover)] transition">
-          Editar Perfil
-        </button>
-      } @else {
-        <button (click)="followUser()" class="bg-[var(--bg-brand)] text-white px-4 py-1.5 rounded-full text-sm font-bold hover:bg-[#C9460A] transition">
-          Seguir
-        </button>
-      }
-    </div>
+  @if (!isLoading && user) {
+    <!-- Cover -->
+    <div class="h-[150px] bg-gradient-to-r from-[var(--bg-brand)] to-[var(--bg-brand-subtle)]"></div>
 
-    <!-- Nome e Username -->
-    <h2 class="text-xl font-bold text-[var(--text-primary)] leading-tight">{{ user?.name || 'Utilizador NzolaNet' }}</h2>
-    <p class="text-sm text-[var(--text-secondary)] mb-3">&#64;{{ username() }}</p>
-
-    <!-- Bio -->
-    <p class="text-sm text-[var(--text-primary)] leading-relaxed mb-4">{{ user?.bio || 'Sem biografia ainda.' }}</p>
-
-    <!-- Stats -->
-    <div class="flex gap-8 mb-3">
-      <div class="cursor-pointer hover:bg-[var(--state-hover)] px-3 py-1.5 rounded-lg transition -ml-3" (click)="goToFollowers()">
-        <strong class="text-base font-bold text-[var(--text-primary)]">{{ followersCount }}</strong>
-        <span class="text-sm text-[var(--text-secondary)] ml-1">seguidores</span>
+    <!-- Perfil Info -->
+    <div class="border-b border-[var(--border-subtle)] px-4 pb-4">
+      <!-- Avatar e Botão -->
+      <div class="flex justify-between items-end -mt-10 mb-3">
+        <nzola-avatar size="xl" [name]="user?.name || ''" [src]="photoUrl(user?.profile_photo) || undefined"></nzola-avatar>
+        @if (isOwnProfile) {
+          <button (click)="goToAccount()" class="border border-[var(--border-strong)] text-[var(--text-primary)] bg-transparent px-4 py-1.5 rounded-full text-sm font-bold hover:bg-[var(--state-hover)] transition">
+            Editar Perfil
+          </button>
+        } @else {
+          <button (click)="followUser()" class="bg-[var(--bg-brand)] text-white px-4 py-1.5 rounded-full text-sm font-bold hover:bg-[#C9460A] transition">
+            Seguir
+          </button>
+        }
       </div>
-      <div class="cursor-pointer hover:bg-[var(--state-hover)] px-3 py-1.5 rounded-lg transition" (click)="goToFollowing()">
-        <strong class="text-base font-bold text-[var(--text-primary)]">{{ followingCount }}</strong>
-        <span class="text-sm text-[var(--text-secondary)] ml-1">seguindo</span>
-      </div>
-      <div class="px-3 py-1.5">
-        <strong class="text-base font-bold text-[var(--text-primary)]">{{ posts.length }}</strong>
-        <span class="text-sm text-[var(--text-secondary)] ml-1">publicações</span>
-      </div>
-    </div>
 
-    <!-- Data de adesão -->
-    <div class="flex items-center gap-1 text-xs text-[var(--text-secondary)] mt-1">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="4" width="18" height="18" rx="2" />
-        <line x1="16" y1="2" x2="16" y2="6" />
-        <line x1="8" y1="2" x2="8" y2="6" />
-        <line x1="3" y1="10" x2="21" y2="10" />
-      </svg>
-      <span>Juntou-se em {{ user?.created_at | date:'MMMM yyyy' }}</span>
-    </div>
-  </div>
+      <!-- Nome e Username -->
+      <h2 class="text-xl font-bold text-[var(--text-primary)] leading-tight">{{ user?.name || 'Utilizador NzolaNet' }}</h2>
+      <p class="text-sm text-[var(--text-secondary)] mb-3">&#64;{{ username() }}</p>
 
-  <!-- Tabs -->
-  <div class="flex border-b border-[var(--border-subtle)]">
-    <button class="tab-item flex-1 py-3 text-sm font-medium text-center transition hover:bg-[var(--state-hover)]"
-      [class.active]="activeTab === 'posts'" (click)="activeTab = 'posts'">Posts</button>
-    <button class="tab-item flex-1 py-3 text-sm font-medium text-center transition hover:bg-[var(--state-hover)]"
-      [class.active]="activeTab === 'replies'" (click)="activeTab = 'replies'">Respostas</button>
-    <button class="tab-item flex-1 py-3 text-sm font-medium text-center transition hover:bg-[var(--state-hover)]"
-      [class.active]="activeTab === 'media'" (click)="activeTab = 'media'">Mídia</button>
-  </div>
+      <!-- Bio -->
+      <p class="text-sm text-[var(--text-primary)] leading-relaxed mb-4">{{ user?.bio || 'Sem biografia ainda.' }}</p>
 
-  <!-- Posts Tab -->
-  @if (activeTab === 'posts') {
-    @if (isLoading) {
-      <div class="text-center py-12 text-sm text-[var(--text-secondary)]">A carregar posts...</div>
-    }
-
-    @for (post of posts; track post.id) {
-      <article class="post-card bg-[var(--bg-surface)] border-b border-[var(--border-subtle)] px-4 py-4 hover:bg-[var(--state-hover)] transition cursor-pointer" 
-               (click)="goToThread(post)">
-        
-        <div class="flex gap-3">
-          <!-- Avatar -->
-          <div class="flex-shrink-0">
-            <nzola-avatar size="md" [name]="user?.name || ''" [src]="photoUrl(user?.profile_photo) || undefined"></nzola-avatar>
-          </div>
-          
-          <div class="flex-1 min-w-0">
-            <!-- Header -->
-            <div class="flex items-center justify-between gap-1 flex-wrap mb-1">
-              <div class="flex items-center gap-1 flex-wrap" (click)="$event.stopPropagation()">
-                <span class="font-bold text-[var(--text-primary)] text-sm">{{ user?.name }}</span>
-                <span class="text-sm text-[var(--text-secondary)]">&#64;{{ username() }}</span>
-                <span class="text-sm text-[var(--text-tertiary)]">·</span>
-                <span class="text-sm text-[var(--text-secondary)]">{{ relativeTime(post.created_at) }}</span>
-              </div>
-              
-              <!-- Menu (apenas para o próprio perfil) -->
-              @if (isOwnProfile) {
-                <div class="relative" (click)="$event.stopPropagation()">
-                  <button class="menu-trigger p-1 rounded-full hover:bg-[var(--state-hover)] transition" (click)="toggleMenu(post.id, $event)">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="1"/>
-                      <circle cx="12" cy="5" r="1"/>
-                      <circle cx="12" cy="19" r="1"/>
-                    </svg>
-                  </button>
-                  
-                  @if (activeMenuId === post.id) {
-                    <div class="absolute right-0 top-8 z-20 min-w-[120px] bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg shadow-lg overflow-hidden">
-                      <button class="w-full px-4 py-2 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--state-hover)] transition" (click)="beginEdit(post)">Editar</button>
-                      <button class="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-[var(--state-hover)] transition" (click)="confirmDelete(post)">Excluir</button>
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-
-            <!-- Conteúdo -->
-            @if (editingPostId === post.id) {
-              <div class="mt-2" (click)="$event.stopPropagation()">
-                <textarea [(ngModel)]="editContent" maxlength="1000" rows="3" class="w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-brand)]"></textarea>
-                <div class="mt-2 flex justify-end gap-2">
-                  <button class="px-3 py-1.5 rounded-full text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--state-hover)]" (click)="cancelEdit()">Cancelar</button>
-                  <button class="px-3 py-1.5 rounded-full bg-[var(--bg-brand)] text-white text-xs font-bold disabled:opacity-60" [disabled]="!editContent.trim()" (click)="savePost(post)">Guardar</button>
-                </div>
-              </div>
-            } @else {
-              <p class="text-[var(--text-primary)] text-sm leading-relaxed whitespace-pre-line" (click)="$event.stopPropagation()">{{ post.content }}</p>
-            }
-
-            <!-- Media -->
-            @if (mediaUrl(post.image)) {
-              <img [src]="mediaUrl(post.image)" alt="Imagem da publicação" class="mt-3 rounded-xl w-full max-h-[420px] object-cover" (click)="$event.stopPropagation()">
-            }
-            @if (mediaUrl(post.video)) {
-              <video [src]="mediaUrl(post.video)" controls class="mt-3 rounded-xl w-full max-h-[420px]" (click)="$event.stopPropagation()"></video>
-            }
-
-            <!-- Actions -->
-            <div class="flex items-center gap-5 mt-3">
-              <button class="post-action flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition" (click)="$event.stopPropagation(); goToThread(post)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                </svg>
-                <span class="text-xs">{{ post.comments_count || 0 }}</span>
-              </button>
-              
-              <button class="post-action flex items-center gap-1.5 transition" [ngClass]="post.has_bazed ? 'text-rose-500' : 'text-[var(--text-secondary)] hover:text-rose-500'" (click)="toggleBaze(post, $event)">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                </svg>
-                <span class="text-xs">{{ post.bazes_count || 0 }}</span>
-              </button>
-              
-              <button class="post-action ml-auto text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition" (click)="$event.stopPropagation()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                  <polyline points="16 6 12 2 8 6" />
-                  <line x1="12" y1="2" x2="12" y2="15" />
-                </svg>
-              </button>
-            </div>
-          </div>
+      <!-- Stats -->
+      <div class="flex gap-8 mb-3">
+        <div class="cursor-pointer hover:bg-[var(--state-hover)] px-3 py-1.5 rounded-lg transition -ml-3" (click)="goToFollowers()">
+          <strong class="text-base font-bold text-[var(--text-primary)]">{{ followersCount }}</strong>
+          <span class="text-sm text-[var(--text-secondary)] ml-1">seguidores</span>
         </div>
-      </article>
+        <div class="cursor-pointer hover:bg-[var(--state-hover)] px-3 py-1.5 rounded-lg transition" (click)="goToFollowing()">
+          <strong class="text-base font-bold text-[var(--text-primary)]">{{ followingCount }}</strong>
+          <span class="text-sm text-[var(--text-secondary)] ml-1">seguindo</span>
+        </div>
+        <div class="px-3 py-1.5">
+          <strong class="text-base font-bold text-[var(--text-primary)]">{{ posts.length }}</strong>
+          <span class="text-sm text-[var(--text-secondary)] ml-1">publicações</span>
+        </div>
+      </div>
+
+      <!-- Data de adesão -->
+      <div class="flex items-center gap-1 text-xs text-[var(--text-secondary)] mt-1">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+        <span>Juntou-se em {{ user?.created_at | date:'MMMM yyyy' }}</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex border-b border-[var(--border-subtle)]">
+      <button class="tab-item flex-1 py-3 text-sm font-medium text-center transition hover:bg-[var(--state-hover)]"
+        [class.active]="activeTab === 'posts'" (click)="activeTab = 'posts'">Posts</button>
+      <button class="tab-item flex-1 py-3 text-sm font-medium text-center transition hover:bg-[var(--state-hover)]"
+        [class.active]="activeTab === 'replies'" (click)="activeTab = 'replies'">Respostas</button>
+      <button class="tab-item flex-1 py-3 text-sm font-medium text-center transition hover:bg-[var(--state-hover)]"
+        [class.active]="activeTab === 'media'" (click)="activeTab = 'media'">Mídia</button>
+    </div>
+
+    <!-- Posts Tab -->
+    @if (activeTab === 'posts') {
+      @if (isLoading) {
+        @for (item of skeletonItems; track $index) {
+          <nzola-skeleton variant="post" />
+        }
+      }
+
+      @for (post of posts; track post.id) {
+        <article class="post-card bg-[var(--bg-surface)] border-b border-[var(--border-subtle)] px-4 py-4 hover:bg-[var(--state-hover)] transition cursor-pointer" 
+                 (click)="goToThread(post)">
+          
+          <div class="flex gap-3">
+            <div class="flex-shrink-0">
+              <nzola-avatar size="md" [name]="user?.name || ''" [src]="photoUrl(user?.profile_photo) || undefined"></nzola-avatar>
+            </div>
+            
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-1 flex-wrap mb-1">
+                <div class="flex items-center gap-1 flex-wrap" (click)="$event.stopPropagation()">
+                  <span class="font-bold text-[var(--text-primary)] text-sm">{{ user?.name }}</span>
+                  <span class="text-sm text-[var(--text-secondary)]">&#64;{{ username() }}</span>
+                  <span class="text-sm text-[var(--text-tertiary)]">·</span>
+                  <span class="text-sm text-[var(--text-secondary)]">{{ relativeTime(post.created_at) }}</span>
+                </div>
+                
+                @if (isOwnProfile) {
+                  <div class="relative" (click)="$event.stopPropagation()">
+                    <button class="menu-trigger p-1 rounded-full hover:bg-[var(--state-hover)] transition" (click)="toggleMenu(post.id, $event)">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="1"/>
+                        <circle cx="12" cy="5" r="1"/>
+                        <circle cx="12" cy="19" r="1"/>
+                      </svg>
+                    </button>
+                    
+                    @if (activeMenuId === post.id) {
+                      <div class="absolute right-0 top-8 z-20 min-w-[120px] bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg shadow-lg overflow-hidden">
+                        <button class="w-full px-4 py-2 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--state-hover)] transition" (click)="beginEdit(post)">Editar</button>
+                        <button class="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-[var(--state-hover)] transition" (click)="confirmDelete(post)">Excluir</button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+
+              @if (editingPostId === post.id) {
+                <div class="mt-2" (click)="$event.stopPropagation()">
+                  <textarea [(ngModel)]="editContent" maxlength="1000" rows="3" class="edit-textarea w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-brand)]"></textarea>
+                  <div class="mt-2 flex justify-end gap-2">
+                    <button class="px-3 py-1.5 rounded-full text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--state-hover)]" (click)="cancelEdit()">Cancelar</button>
+                    <button class="px-3 py-1.5 rounded-full bg-[var(--bg-brand)] text-white text-xs font-bold disabled:opacity-60" [disabled]="!editContent.trim()" (click)="savePost(post)">Guardar</button>
+                  </div>
+                </div>
+              } @else {
+                <p class="text-[var(--text-primary)] text-sm leading-relaxed whitespace-pre-line" (click)="$event.stopPropagation()">{{ post.content }}</p>
+              }
+
+              @if (mediaUrl(post.image)) {
+                <img [src]="mediaUrl(post.image)" alt="Imagem da publicação" class="mt-3 rounded-xl w-full max-h-[420px] object-cover" (click)="$event.stopPropagation()">
+              }
+              @if (mediaUrl(post.video)) {
+                <video [src]="mediaUrl(post.video)" controls class="mt-3 rounded-xl w-full max-h-[420px]" (click)="$event.stopPropagation()"></video>
+              }
+
+              <div class="flex items-center gap-5 mt-3">
+                <button class="post-action flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition" (click)="$event.stopPropagation(); goToThread(post)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                  <span class="text-xs">{{ post.comments_count || 0 }}</span>
+                </button>
+                
+                <button class="post-action flex items-center gap-1.5 transition" [ngClass]="post.has_bazed ? 'text-rose-500' : 'text-[var(--text-secondary)] hover:text-rose-500'" (click)="toggleBaze(post, $event)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                  <span class="text-xs">{{ post.bazes_count || 0 }}</span>
+                </button>
+                
+                <button class="post-action ml-auto text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition" (click)="$event.stopPropagation()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                    <polyline points="16 6 12 2 8 6" />
+                    <line x1="12" y1="2" x2="12" y2="15" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+      }
+
+      @if (!isLoading && posts.length === 0) {
+        <div class="empty-state text-center py-12">
+          <p class="text-[var(--text-secondary)]">Ainda não há posts.</p>
+        </div>
+      }
     }
 
-    @if (!isLoading && posts.length === 0) {
+    @if (activeTab === 'replies') {
       <div class="empty-state text-center py-12">
-        <p class="text-[var(--text-secondary)]">Ainda não há posts.</p>
+        <p class="text-[var(--text-secondary)]">Ainda não há respostas.</p>
       </div>
     }
-  }
 
-  @if (activeTab === 'replies') {
-    <div class="empty-state text-center py-12">
-      <p class="text-[var(--text-secondary)]">Ainda não há respostas.</p>
-    </div>
-  }
-
-  @if (activeTab === 'media') {
-    <div class="empty-state text-center py-12">
-      <p class="text-[var(--text-secondary)]">Ainda não há mídias.</p>
-    </div>
+    @if (activeTab === 'media') {
+      <div class="empty-state text-center py-12">
+        <p class="text-[var(--text-secondary)]">Ainda não há mídias.</p>
+      </div>
+    }
   }
 
 </div>

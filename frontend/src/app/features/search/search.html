@@ -1,7 +1,7 @@
 <div class="search-wrap">
 
   <!-- Header com barra de pesquisa -->
-  <div class="search-header sticky top-0 z-10 px-4 py-3 border-b border-[var(--border-subtle)]">
+  <div class="search-header sticky top-0 z-10 px-4 py-3 border-b border-[var(--border-subtle)] bg-[var(--bg-base)]">
     <div class="flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-full px-4 py-2.5 focus-within:border-[var(--border-brand)] focus-within:bg-[var(--bg-surface)] transition">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--text-tertiary)] flex-shrink-0">
         <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
@@ -40,12 +40,15 @@
     <!-- Utilizadores sugeridos -->
     <div class="px-4 pt-5 pb-2">
       <h2 class="text-base font-bold text-[var(--text-primary)] mb-4">Sugerido para si</h2>
+      
       @if (loading) {
-        <p class="text-xs text-[var(--text-secondary)] text-center py-4">A carregar utilizadores...</p>
+        @for (item of skeletonItems; track $index) {
+          <nzola-skeleton variant="user" />
+        }
       } @else {
         <div class="flex flex-col gap-1">
           @for (user of allUsers; track user.id) {
-            <div class="flex items-center gap-3 py-3 px-1 rounded-lg hover:bg-[var(--state-hover)] transition cursor-pointer">
+            <div class="flex items-center gap-3 py-3 px-1 rounded-lg hover:bg-[var(--state-hover)] transition cursor-pointer" (click)="goToUserProfile(user)">
               <div class="w-11 h-11 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-sm font-bold text-[var(--text-secondary)] flex-shrink-0 overflow-hidden">
                 @if (photoUrl(user.profile_photo)) {
                   <img [src]="photoUrl(user.profile_photo)" [alt]="user.name || 'Avatar'" class="w-full h-full object-cover">
@@ -55,13 +58,13 @@
               </div>
               <div class="flex-1 min-w-0">
                 <p class="font-bold text-[var(--text-primary)] text-sm truncate">{{ user.name }}</p>
-              <p class="text-xs text-[var(--text-secondary)] truncate">&#64;{{ user.name.toLowerCase().replace(/\s+/g, '_') }}</p>
+                <p class="text-xs text-[var(--text-secondary)] truncate">&#64;{{ user.name.toLowerCase().replace(/\s+/g, '_') }}</p>
                 @if (user.bio) {
                   <p class="text-xs text-[var(--text-tertiary)] mt-0.5 truncate">{{ user.bio }}</p>
                 }
               </div>
               <button
-                (click)="toggleFollow(user)"
+                (click)="$event.stopPropagation(); toggleFollow(user)"
                 class="flex-shrink-0 rounded-full text-xs font-bold px-4 py-1.5 transition whitespace-nowrap"
                 [ngClass]="user.is_following ? 'border border-[var(--border-strong)] text-[var(--text-primary)] hover:border-red-400 hover:text-red-400' : 'bg-[var(--bg-brand)] text-white hover:opacity-90'"
               >
@@ -102,39 +105,43 @@
   @if (searchQuery) {
     <div class="px-4 pt-4">
       <p class="text-xs text-[var(--text-tertiary)] mb-4">Resultados para "<span class="text-[var(--text-primary)]">{{ searchQuery }}</span>"</p>
-      @if (loading) {
-        <p class="text-xs text-[var(--text-secondary)] text-center py-4">A pesquisar...</p>
-      }
-      @for (user of filteredUsers; track user.id) {
-        <div class="flex items-center gap-3 py-3 border-b border-[var(--border-subtle)] hover:bg-[var(--state-hover)] px-1 rounded-lg transition cursor-pointer">
-          <div class="w-11 h-11 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-sm font-bold text-[var(--text-secondary)] flex-shrink-0 overflow-hidden">
-            @if (photoUrl(user.profile_photo)) {
-              <img [src]="photoUrl(user.profile_photo)" [alt]="user.name || 'Avatar'" class="w-full h-full object-cover">
-            } @else {
-              {{ initials(user.name) }}
-            }
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-bold text-[var(--text-primary)] text-sm truncate">{{ user.name }}</p>
+      
+      @if (isSearching) {
+        @for (item of skeletonItems; track $index) {
+          <nzola-skeleton variant="user" />
+        }
+      } @else {
+        @for (user of filteredUsers; track user.id) {
+          <div class="flex items-center gap-3 py-3 border-b border-[var(--border-subtle)] hover:bg-[var(--state-hover)] px-1 rounded-lg transition cursor-pointer" (click)="goToUserProfile(user)">
+            <div class="w-11 h-11 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-sm font-bold text-[var(--text-secondary)] flex-shrink-0 overflow-hidden">
+              @if (photoUrl(user.profile_photo)) {
+                <img [src]="photoUrl(user.profile_photo)" [alt]="user.name || 'Avatar'" class="w-full h-full object-cover">
+              } @else {
+                {{ initials(user.name) }}
+              }
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-[var(--text-primary)] text-sm truncate">{{ user.name }}</p>
               <p class="text-xs text-[var(--text-secondary)] truncate">&#64;{{ user.name.toLowerCase().replace(/\s+/g, '_') }}</p>
-            @if (user.bio) {
-              <p class="text-xs text-[var(--text-tertiary)] mt-0.5 truncate">{{ user.bio }}</p>
-            }
+              @if (user.bio) {
+                <p class="text-xs text-[var(--text-tertiary)] mt-0.5 truncate">{{ user.bio }}</p>
+              }
+            </div>
+            <button
+              (click)="$event.stopPropagation(); toggleFollow(user)"
+              class="flex-shrink-0 rounded-full text-xs font-bold px-4 py-1.5 transition whitespace-nowrap"
+              [ngClass]="user.is_following ? 'border border-[var(--border-strong)] text-[var(--text-primary)] hover:border-red-400 hover:text-red-400' : 'bg-[var(--bg-brand)] text-white hover:opacity-90'"
+            >
+              {{ user.is_following ? 'A seguir' : 'Seguir' }}
+            </button>
           </div>
-          <button
-            (click)="toggleFollow(user)"
-            class="flex-shrink-0 rounded-full text-xs font-bold px-4 py-1.5 transition whitespace-nowrap"
-            [ngClass]="user.is_following ? 'border border-[var(--border-strong)] text-[var(--text-primary)] hover:border-red-400 hover:text-red-400' : 'bg-[var(--bg-brand)] text-white hover:opacity-90'"
-          >
-            {{ user.is_following ? 'A seguir' : 'Seguir' }}
-          </button>
-        </div>
-      }
-      @if (filteredUsers.length === 0 && !loading) {
-        <div class="text-center py-16 text-[var(--text-tertiary)]">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mx-auto mb-3 opacity-40"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <p class="text-sm">Nenhum resultado encontrado</p>
-        </div>
+        }
+        @if (filteredUsers.length === 0 && !isSearching) {
+          <div class="text-center py-16 text-[var(--text-tertiary)]">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mx-auto mb-3 opacity-40"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <p class="text-sm">Nenhum resultado encontrado</p>
+          </div>
+        }
       }
     </div>
   }

@@ -6,11 +6,13 @@ import { Post } from '../../core/models/api.models';
 import { ApiUrlService } from '../../core/services/api-url.service';
 import { PostService } from '../../core/services/post.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
 @Component({
   selector: 'nzola-feed',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SkeletonComponent],
   templateUrl: './feed.html',
   styleUrls: ['./feed.scss'],
   host: { class: 'block w-full' }
@@ -27,6 +29,8 @@ export class FeedComponent implements OnInit {
   showConfirmDialog = false;
   postToDelete: Post | null = null;
 
+  skeletonItems = [1, 2, 3];
+
   constructor(
     private postService: PostService,
     private apiUrl: ApiUrlService,
@@ -34,7 +38,8 @@ export class FeedComponent implements OnInit {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private appRef: ApplicationRef,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -42,12 +47,17 @@ export class FeedComponent implements OnInit {
   }
 
   @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.menu-trigger')) {
-      this.activeMenuId = null;
+  @HostListener('document:click', ['$event'])
+onDocumentClick(event: Event): void {
+  const target = event.target as HTMLElement;
+  if (!target.closest('.menu-trigger') && !target.closest('.edit-textarea')) {
+    // Se clicar fora do menu e fora do textarea de edição, cancela edição
+    if (this.editingPostId) {
+      this.cancelEdit();
     }
+    this.activeMenuId = null;
   }
+}
 
   loadFeed(): void {
     this.ngZone.run(() => {
@@ -61,6 +71,7 @@ export class FeedComponent implements OnInit {
           this.posts = [...page.data];
           this.isLoading = false;
           this.cdr.detectChanges();
+          this.appRef.tick();
         });
       },
       error: (error) => {
@@ -69,6 +80,7 @@ export class FeedComponent implements OnInit {
           this.isLoading = false;
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível carregar o feed.');
       }
     });
   }
@@ -83,13 +95,13 @@ export class FeedComponent implements OnInit {
   }
 
   mediaUrl(path?: string | null): string | null {
-  if (!path) return null;
-  if (path.startsWith('http')) return path;
-  if (path.startsWith('posts/')) {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    if (path.startsWith('posts/')) {
+      return `http://localhost:8000/storage/${path}`;
+    }
     return `http://localhost:8000/storage/${path}`;
   }
-  return `http://localhost:8000/storage/${path}`;
-}
 
   goToThread(post: Post): void {
     this.router.navigate(['/post', post.id]);
@@ -117,21 +129,32 @@ export class FeedComponent implements OnInit {
   }
 
   savePost(post: Post): void {
-    if (!this.editContent.trim()) {
-      this.actionMessage = 'A publicação precisa de texto para esta edição.';
-      return;
-    }
-
-    this.postService.update(post.id, { content: this.editContent }).subscribe({
-      next: (updatedPost) => {
-        this.posts = this.posts.map((item) => item.id === post.id ? updatedPost : item);
-        this.cancelEdit();
-      },
-      error: (error) => {
-        this.actionMessage = error?.error?.message || 'Não foi possível editar a publicação.';
-      }
-    });
+  // Verificar se é o post correcto que está a ser editado
+  if (this.editingPostId !== post.id) {
+    return;
   }
+
+  if (!this.editContent.trim()) {
+    this.toastService.warning('Atenção', 'A publicação precisa de texto para esta edição.');
+    return;
+  }
+
+  this.postService.update(post.id, { content: this.editContent }).subscribe({
+    next: (updatedPost) => {
+      this.posts = this.posts.map((item) => 
+        item.id === post.id ? { ...updatedPost, has_bazed: item.has_bazed, bazes_count: item.bazes_count } : item
+      );
+      this.cancelEdit();  // Limpa o estado de edição
+      this.toastService.success('Editado!', 'Publicação atualizada com sucesso.');
+      this.cdr.detectChanges();
+    },
+    error: (error) => {
+      const msg = error?.error?.message || 'Não foi possível editar a publicação.';
+      this.toastService.error('Erro!', msg);
+      this.actionMessage = msg;
+    }
+  });
+}
 
   confirmDelete(post: Post): void {
     this.postToDelete = post;
@@ -152,9 +175,12 @@ export class FeedComponent implements OnInit {
         this.posts = this.posts.filter((item) => item.id !== this.postToDelete?.id);
         this.showConfirmDialog = false;
         this.postToDelete = null;
+        this.toastService.success('Eliminado!', 'Publicação removida com sucesso.');
       },
       error: (error) => {
-        this.actionMessage = error?.error?.message || 'Não foi possível excluir a publicação.';
+        const msg = error?.error?.message || 'Não foi possível excluir a publicação.';
+        this.toastService.error('Erro!', msg);
+        this.actionMessage = msg;
         this.showConfirmDialog = false;
         this.postToDelete = null;
       }
@@ -181,6 +207,7 @@ export class FeedComponent implements OnInit {
         this.posts = this.posts.map((item) =>
           item.id === post.id ? originalPost : item
         );
+        this.toastService.warning('Erro!', 'Não foi possível atualizar o baze.');
       }
     });
   }
@@ -194,9 +221,9 @@ export class FeedComponent implements OnInit {
     if (hours < 24) return `${hours}h`;
     return `${Math.floor(hours / 24)}d`;
   }
-  // Adicionar este método no FeedComponent
-onImageError(imagePath: string): void {
-  console.error('Erro ao carregar imagem:', imagePath);
-  console.log('URL gerado:', this.mediaUrl(imagePath));
-}
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    console.error('Erro ao carregar imagem:', img.src);
+  }
 }

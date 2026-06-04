@@ -3,16 +3,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AvatarComponent } from '../../shared/components/avatar/avatar';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 import { Post, NzolaUser } from '../../core/models/api.models';
 import { ApiUrlService } from '../../core/services/api-url.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PostService } from '../../core/services/post.service';
 import { UserService } from '../../core/services/user.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'nzola-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, AvatarComponent],
+  imports: [CommonModule, FormsModule, AvatarComponent, SkeletonComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
 })
@@ -26,6 +28,7 @@ export class ProfileComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
   private appRef = inject(ApplicationRef);
   private ngZone = inject(NgZone);
+  private toastService = inject(ToastService);
 
   activeTab: 'posts' | 'replies' | 'highlights' | 'media' = 'posts';
   user: NzolaUser | null = null;
@@ -36,27 +39,35 @@ export class ProfileComponent implements OnInit {
   followersCount = 0;
   followingCount = 0;
   
-  // Para controle de menu (apenas no próprio perfil)
   activeMenuId: number | null = null;
   editingPostId: number | null = null;
   editContent = '';
   showConfirmDialog = false;
   postToDelete: Post | null = null;
   
-  // Indica se é o próprio perfil
   isOwnProfile = false;
+  skeletonItems = [1, 2, 3];
 
   ngOnInit(): void {
     const userId = this.route.snapshot.paramMap.get('id');
     
     if (userId) {
-      // Ver página de perfil de outro utilizador
       this.loadUserProfile(Number(userId));
       this.isOwnProfile = this.authService.currentUser()?.id === Number(userId);
     } else {
-      // Página do próprio perfil
       this.loadOwnProfile();
       this.isOwnProfile = true;
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.menu-trigger') && !target.closest('.edit-textarea')) {
+      if (this.editingPostId) {
+        this.cancelEdit();
+      }
+      this.activeMenuId = null;
     }
   }
 
@@ -82,6 +93,7 @@ export class ProfileComponent implements OnInit {
           this.isLoading = false;
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível carregar o perfil.');
       }
     });
   }
@@ -108,6 +120,7 @@ export class ProfileComponent implements OnInit {
           this.isLoading = false;
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível carregar o perfil.');
       }
     });
   }
@@ -128,6 +141,7 @@ export class ProfileComponent implements OnInit {
           this.isLoading = false;
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível carregar as publicações.');
       }
     });
   }
@@ -176,9 +190,11 @@ export class ProfileComponent implements OnInit {
     if (!this.user) return;
     this.userService.follow(this.user.id).subscribe({
       next: () => {
-        // Atualizar estado
+        this.toastService.success('Seguindo!', `Agora segues ${this.user?.name}.`);
       },
-      error: (error) => console.error('Erro ao seguir:', error)
+      error: (error) => {
+        this.toastService.error('Erro!', 'Não foi possível seguir este utilizador.');
+      }
     });
   }
 
@@ -186,9 +202,11 @@ export class ProfileComponent implements OnInit {
     if (!this.user) return;
     this.userService.unfollow(this.user.id).subscribe({
       next: () => {
-        // Atualizar estado
+        this.toastService.info('Deixaste de seguir', `${this.user?.name}.`);
       },
-      error: (error) => console.error('Erro ao deixar de seguir:', error)
+      error: (error) => {
+        this.toastService.error('Erro!', 'Não foi possível deixar de seguir.');
+      }
     });
   }
 
@@ -217,7 +235,6 @@ export class ProfileComponent implements OnInit {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   }
 
-  // === MENU METHODS (apenas para próprio perfil) ===
   toggleMenu(postId: number, event: Event): void {
     if (!this.isOwnProfile) return;
     event.stopPropagation();
@@ -237,7 +254,12 @@ export class ProfileComponent implements OnInit {
   }
 
   savePost(post: Post): void {
-    if (!this.editContent.trim()) return;
+    if (this.editingPostId !== post.id) return;
+    
+    if (!this.editContent.trim()) {
+      this.toastService.warning('Atenção', 'A publicação precisa de texto para esta edição.');
+      return;
+    }
 
     this.postService.update(post.id, { content: this.editContent }).subscribe({
       next: (updatedPost) => {
@@ -246,12 +268,14 @@ export class ProfileComponent implements OnInit {
           this.cancelEdit();
           this.cdr.detectChanges();
         });
+        this.toastService.success('Editado!', 'Publicação atualizada com sucesso.');
       },
       error: (error) => {
         this.ngZone.run(() => {
           this.errorMessage = error?.error?.message || 'Não foi possível editar o post.';
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível editar a publicação.');
       }
     });
   }
@@ -279,6 +303,7 @@ export class ProfileComponent implements OnInit {
           this.postToDelete = null;
           this.cdr.detectChanges();
         });
+        this.toastService.success('Eliminado!', 'Publicação removida com sucesso.');
       },
       error: (error) => {
         this.ngZone.run(() => {
@@ -287,6 +312,7 @@ export class ProfileComponent implements OnInit {
           this.postToDelete = null;
           this.cdr.detectChanges();
         });
+        this.toastService.error('Erro!', 'Não foi possível excluir a publicação.');
       }
     });
   }
@@ -309,6 +335,7 @@ export class ProfileComponent implements OnInit {
     request.subscribe({
       error: () => {
         this.posts = previousPosts;
+        this.toastService.warning('Erro!', 'Não foi possível atualizar o baze.');
       }
     });
   }

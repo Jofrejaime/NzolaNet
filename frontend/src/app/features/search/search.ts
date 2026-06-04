@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UserService, UserWithFollow } from '../../core/services/user.service';
 import { ApiUrlService } from '../../core/services/api-url.service';
+import { ToastService } from '../../core/services/toast.service';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
 @Component({
   selector: 'nzola-search',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SkeletonComponent],
   templateUrl: './search.html',
   styleUrls: ['./search.scss'],
   host: { class: 'block w-full' }
@@ -17,6 +19,8 @@ export class SearchComponent implements OnInit {
   filteredUsers: UserWithFollow[] = [];
   allUsers: UserWithFollow[] = [];
   loading = false;
+  isSearching = false;
+  skeletonItems = [1, 2, 3, 4, 5];
 
   trends = [
     { category: 'Tecnologia', tag: '#WebDev', posts: '12.5k' },
@@ -41,7 +45,8 @@ export class SearchComponent implements OnInit {
   constructor(
     private userService: UserService,
     private apiUrl: ApiUrlService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -57,6 +62,7 @@ export class SearchComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
+        this.toastService.error('Erro!', 'Não foi possível carregar sugestões.');
       }
     });
   }
@@ -65,14 +71,15 @@ export class SearchComponent implements OnInit {
     const value = (event.target as HTMLInputElement).value.trim();
     this.searchQuery = value;
     if (value) {
-      this.loading = true;
+      this.isSearching = true;
       this.userService.list(value).subscribe({
         next: (users) => {
           this.filteredUsers = users;
-          this.loading = false;
+          this.isSearching = false;
         },
         error: () => {
-          this.loading = false;
+          this.isSearching = false;
+          this.toastService.error('Erro!', 'Erro ao pesquisar utilizadores.');
         }
       });
     } else {
@@ -85,15 +92,27 @@ export class SearchComponent implements OnInit {
       this.userService.unfollow(user.id).subscribe({
         next: () => {
           user.is_following = false;
+          this.toastService.info('Deixaste de seguir', user.name);
+        },
+        error: () => {
+          this.toastService.error('Erro!', 'Não foi possível deixar de seguir.');
         }
       });
     } else {
       this.userService.follow(user.id).subscribe({
         next: () => {
           user.is_following = true;
+          this.toastService.success('Seguindo!', `Agora segues ${user.name}.`);
+        },
+        error: () => {
+          this.toastService.error('Erro!', 'Não foi possível seguir.');
         }
       });
     }
+  }
+
+  goToUserProfile(user: UserWithFollow): void {
+    this.router.navigate(['/profile', user.id]);
   }
 
   photoUrl(path?: string | null): string | null {
@@ -103,10 +122,5 @@ export class SearchComponent implements OnInit {
   initials(name?: string): string {
     if (!name) return '?';
     return name.split(' ').map((part) => part[0]).join('').toUpperCase().slice(0, 2);
-  }
-
-  goToProfile(user: UserWithFollow): void {
-    // Future: navigate to user profile
-    this.router.navigate(['/profile']);
   }
 }

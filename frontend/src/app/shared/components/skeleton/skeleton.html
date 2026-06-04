@@ -1,0 +1,51 @@
+<div class="skeleton-wrapper" [class]="variant">
+  @if (variant === 'post') {
+    <div class="skeleton-post">
+      <div class="skeleton-avatar"></div>
+      <div class="skeleton-content">
+        <div class="skeleton-line w-32"></div>
+        <div class="skeleton-line w-24"></div>
+        <div class="skeleton-line w-full mt-2"></div>
+        <div class="skeleton-line w-3/4"></div>
+        <div class="skeleton-media mt-3"></div>
+        <div class="skeleton-actions mt-3">
+          <div class="skeleton-icon"></div>
+          <div class="skeleton-icon"></div>
+          <div class="skeleton-icon"></div>
+        </div>
+      </div>
+    </div>
+  }
+  
+  @if (variant === 'comment') {
+    <div class="skeleton-comment">
+      <div class="skeleton-avatar-sm"></div>
+      <div class="skeleton-content">
+        <div class="skeleton-line w-32"></div>
+        <div class="skeleton-line w-full"></div>
+        <div class="skeleton-line w-2/3"></div>
+      </div>
+    </div>
+  }
+  
+  @if (variant === 'user') {
+    <div class="skeleton-user">
+      <div class="skeleton-avatar-sm"></div>
+      <div class="skeleton-content">
+        <div class="skeleton-line w-28"></div>
+        <div class="skeleton-line w-20"></div>
+      </div>
+      <div class="skeleton-btn"></div>
+    </div>
+  }
+  
+  @if (variant === 'profile-header') {
+    <div class="skeleton-profile-header">
+      <div class="skeleton-cover"></div>
+      <div class="skeleton-avatar-xl"></div>
+      <div class="skeleton-line w-40 mx-auto mt-3"></div>
+      <div class="skeleton-line w-24 mx-auto"></div>
+      <div class="skeleton-line w-48 mx-auto"></div>
+    </div>
+  }
+</div>
