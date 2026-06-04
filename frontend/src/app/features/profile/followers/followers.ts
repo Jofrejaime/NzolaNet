@@ -1,7 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { UserService } from '../../../core/services/user.service';
 import { ApiUrlService } from '../../../core/services/api-url.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -11,18 +11,18 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton'
 @Component({
   selector: 'nzola-followers',
   standalone: true,
-  imports: [CommonModule, FormsModule, SkeletonComponent, RouterLink],
+  imports: [CommonModule, FormsModule, RouterModule, SkeletonComponent],
   templateUrl: './followers.html',
   styleUrls: ['./followers.scss']
 })
 export class FollowersComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private route = inject(ActivatedRoute);
   private userService = inject(UserService);
   apiUrl = inject(ApiUrlService);
   authService = inject(AuthService);
   private toastService = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef);
 
   followers: any[] = [];
   filteredFollowers: any[] = [];
@@ -33,43 +33,52 @@ export class FollowersComponent implements OnInit {
   skeletonItems = [1, 2, 3, 4, 5];
 
   ngOnInit(): void {
-  console.log('FollowersComponent inicializado');
-  
-  // Obter o ID da rota
-  this.route.params.subscribe(params => {
-    console.log('Parâmetros da rota:', params);
-    this.userId = params['id'] ? Number(params['id']) : null;
+    console.log('FollowersComponent inicializado');
     
-    if (!this.userId) {
-      this.userId = this.authService.currentUser()?.id || null;
-    }
-    
-    console.log('UserId final:', this.userId);
-    
-    if (this.userId) {
-      this.loadFollowers();
-    } else {
-      this.errorMessage = 'Utilizador não encontrado.';
-      this.isLoading = false;
-    }
-  });
-}
+    this.route.params.subscribe(params => {
+      console.log('Parâmetros da rota:', params);
+      this.userId = params['id'] ? Number(params['id']) : null;
+      
+      if (!this.userId) {
+        this.userId = this.authService.currentUser()?.id || null;
+      }
+      
+      console.log('UserId final:', this.userId);
+      
+      if (this.userId) {
+        this.loadFollowers();
+      } else {
+        this.errorMessage = 'Utilizador não encontrado.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   loadFollowers(): void {
     this.isLoading = true;
-    const paramId = this.route.snapshot.paramMap.get('id');
-    const userId = paramId ? Number(paramId) : this.authService.currentUser()?.id;
-    if (!userId) return;
+    this.cdr.detectChanges();
     
-    this.userService.getFollowers(userId).subscribe({
+    if (!this.userId) {
+      this.errorMessage = 'Utilizador não identificado.';
+      this.isLoading = false;
+      this.cdr.detectChanges();
+      return;
+    }
+    
+    this.userService.getFollowers(this.userId).subscribe({
       next: (data: any) => {
+        console.log('Seguidores carregados:', data);
         this.followers = data;
         this.filteredFollowers = data;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (error: any) => {
+        console.error('Erro ao carregar seguidores:', error);
         this.errorMessage = 'Erro ao carregar seguidores.';
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.toastService.error('Erro!', 'Não foi possível carregar os seguidores.');
       }
     });
@@ -81,10 +90,15 @@ export class FollowersComponent implements OnInit {
       follower.name.toLowerCase().includes(term) ||
       (follower.username || '').toLowerCase().includes(term)
     );
+    this.cdr.detectChanges();
   }
 
   goBack(): void {
-    this.router.navigate(['/profile', this.userId]);
+    if (this.userId) {
+      this.router.navigate(['/profile', this.userId]);
+    } else {
+      this.router.navigate(['/profile']);
+    }
   }
 
   goToProfile(userId: number): void {

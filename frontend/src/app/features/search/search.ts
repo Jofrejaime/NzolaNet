@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // ✅ Adicionar ChangeDetectorRef
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router'; // ✅ Adicionar RouterModule
 import { UserService, UserWithFollow } from '../../core/services/user.service';
 import { ApiUrlService } from '../../core/services/api-url.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -9,7 +9,7 @@ import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 @Component({
   selector: 'nzola-search',
   standalone: true,
-  imports: [CommonModule, SkeletonComponent],
+  imports: [CommonModule, SkeletonComponent, RouterModule], // ✅ Adicionar RouterModule para routerLink
   templateUrl: './search.html',
   styleUrls: ['./search.scss'],
   host: { class: 'block w-full' }
@@ -46,7 +46,8 @@ export class SearchComponent implements OnInit {
     private userService: UserService,
     private apiUrl: ApiUrlService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private cdr: ChangeDetectorRef // ✅ Adicionar
   ) {}
 
   ngOnInit(): void {
@@ -55,13 +56,17 @@ export class SearchComponent implements OnInit {
 
   loadInitialUsers(): void {
     this.loading = true;
+    this.cdr.detectChanges(); // ✅ Forçar atualização do loading
+    
     this.userService.list().subscribe({
       next: (users) => {
         this.allUsers = users;
         this.loading = false;
+        this.cdr.detectChanges(); // ✅ Forçar atualização da UI
       },
       error: () => {
         this.loading = false;
+        this.cdr.detectChanges(); // ✅ Forçar atualização
         this.toastService.error('Erro!', 'Não foi possível carregar sugestões.');
       }
     });
@@ -70,20 +75,27 @@ export class SearchComponent implements OnInit {
   onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value.trim();
     this.searchQuery = value;
+    this.cdr.detectChanges(); // ✅ Forçar atualização do estado
+    
     if (value) {
       this.isSearching = true;
+      this.cdr.detectChanges(); // ✅ Mostrar skeleton imediatamente
+      
       this.userService.list(value).subscribe({
         next: (users) => {
           this.filteredUsers = users;
           this.isSearching = false;
+          this.cdr.detectChanges(); // ✅ Forçar atualização dos resultados
         },
         error: () => {
           this.isSearching = false;
+          this.cdr.detectChanges(); // ✅ Forçar atualização
           this.toastService.error('Erro!', 'Erro ao pesquisar utilizadores.');
         }
       });
     } else {
       this.filteredUsers = [];
+      this.cdr.detectChanges(); // ✅ Limpar resultados imediatamente
     }
   }
 
@@ -92,6 +104,7 @@ export class SearchComponent implements OnInit {
       this.userService.unfollow(user.id).subscribe({
         next: () => {
           user.is_following = false;
+          this.cdr.detectChanges(); // ✅ Atualizar botão imediatamente
           this.toastService.info('Deixaste de seguir', user.name);
         },
         error: () => {
@@ -102,6 +115,7 @@ export class SearchComponent implements OnInit {
       this.userService.follow(user.id).subscribe({
         next: () => {
           user.is_following = true;
+          this.cdr.detectChanges(); // ✅ Atualizar botão imediatamente
           this.toastService.success('Seguindo!', `Agora segues ${user.name}.`);
         },
         error: () => {

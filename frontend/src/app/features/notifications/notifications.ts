@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core'; // ✅ Adicionar ChangeDetectorRef
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router'; // ✅ Adicionar RouterModule
 import { ToastService } from '../../core/services/toast.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
@@ -33,7 +33,7 @@ export interface NotifGroup {
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [CommonModule, SkeletonComponent],
+  imports: [CommonModule, SkeletonComponent, RouterModule], // ✅ Adicionar RouterModule
   templateUrl: './notifications.html',
   styleUrls: ['./notifications.scss'],
   host: { class: 'block w-full' },
@@ -41,6 +41,7 @@ export interface NotifGroup {
 export class NotificationsComponent implements OnInit {
   private router = inject(Router);
   private toastService = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef); // ✅ Adicionar
 
   allNotifications: Notification[] = [];
   groupedNotifications: NotifGroup[] = [];
@@ -105,12 +106,14 @@ export class NotificationsComponent implements OnInit {
 
   loadNotifications(): void {
     this.isLoading = true;
+    this.cdr.detectChanges(); // ✅ Forçar atualização do loading
     
     // Simular carregamento de API
     setTimeout(() => {
       this.allNotifications = [...this.mockNotifications];
       this.buildGroups();
       this.isLoading = false;
+      this.cdr.detectChanges(); // ✅ Forçar atualização da UI
       this.toastService.info('Notificações', `${this.unreadCount} novas notificações.`);
     }, 1000);
   }
@@ -122,12 +125,15 @@ export class NotificationsComponent implements OnInit {
     this.groupedNotifications = [];
     if (today.length) this.groupedNotifications.push({ label: 'Hoje', items: today });
     if (yesterday.length) this.groupedNotifications.push({ label: 'Ontem', items: yesterday });
+    
+    this.cdr.detectChanges(); // ✅ Forçar atualização
   }
 
   markAsRead(notif: Notification, event: Event): void {
     event.stopPropagation();
     if (!notif.read) {
       notif.read = true;
+      this.cdr.detectChanges(); // ✅ Forçar atualização
       this.toastService.success('Lida!', 'Notificação marcada como lida.');
     }
   }
@@ -140,12 +146,14 @@ export class NotificationsComponent implements OnInit {
     }
     
     this.allNotifications.forEach(n => n.read = true);
+    this.cdr.detectChanges(); // ✅ Forçar atualização da UI
     this.toastService.success('Todas lidas!', `${unreadCount} notificações marcadas como lidas.`);
   }
 
   onNotifClick(notif: Notification): void {
     if (!notif.read) {
       notif.read = true;
+      this.cdr.detectChanges(); // ✅ Forçar atualização
     }
     
     if (notif.routeTo) {

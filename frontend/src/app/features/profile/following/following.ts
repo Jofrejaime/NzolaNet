@@ -1,16 +1,18 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router'; // ✅ Adicionar RouterModule
 import { UserService } from '../../../core/services/user.service';
 import { ApiUrlService } from '../../../core/services/api-url.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service'; // ✅ Adicionar
+import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton'; // ✅ Adicionar
 
 @Component({
   selector: 'nzola-following',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './following.html',  // Corrigido: following.html
+  imports: [CommonModule, FormsModule, RouterModule, SkeletonComponent], // ✅ Adicionar RouterModule e SkeletonComponent
+  templateUrl: './following.html',
   styleUrls: ['./following.scss']
 })
 export class FollowingComponent implements OnInit {
@@ -19,32 +21,67 @@ export class FollowingComponent implements OnInit {
   private userService = inject(UserService);
   apiUrl = inject(ApiUrlService);
   authService = inject(AuthService);
+  private toastService = inject(ToastService);
+  private cdr = inject(ChangeDetectorRef); // ✅ Adicionar
 
   following: any[] = [];
   filteredFollowing: any[] = [];
   isLoading = false;
   searchTerm = '';
   errorMessage = '';
+  userId: number | null = null; // ✅ Armazenar userId
+  skeletonItems = [1, 2, 3, 4, 5];
 
   ngOnInit(): void {
-    this.loadFollowing();
+    console.log('FollowingComponent inicializado');
+    
+    // ✅ Usar params para capturar mudanças na rota
+    this.route.params.subscribe(params => {
+      console.log('Parâmetros da rota:', params);
+      this.userId = params['id'] ? Number(params['id']) : null;
+      
+      // Se não tiver userId na rota, pegar do usuário autenticado
+      if (!this.userId) {
+        this.userId = this.authService.currentUser()?.id || null;
+      }
+      
+      console.log('UserId final:', this.userId);
+      
+      if (this.userId) {
+        this.loadFollowing();
+      } else {
+        this.errorMessage = 'Utilizador não encontrado.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   loadFollowing(): void {
     this.isLoading = true;
-    const paramId = this.route.snapshot.paramMap.get('id');
-    const userId = paramId ? Number(paramId) : this.authService.currentUser()?.id;
-    if (!userId) return;
+    this.cdr.detectChanges(); // ✅ Forçar atualização do loading
     
-    this.userService.getFollowing(userId).subscribe({
+    if (!this.userId) {
+      this.errorMessage = 'Utilizador não identificado.';
+      this.isLoading = false;
+      this.cdr.detectChanges();
+      return;
+    }
+    
+    this.userService.getFollowing(this.userId).subscribe({
       next: (data: any) => {
+        console.log('Seguindo carregados:', data);
         this.following = data;
         this.filteredFollowing = data;
         this.isLoading = false;
+        this.cdr.detectChanges(); // ✅ Forçar atualização da UI
       },
       error: (error: any) => {
+        console.error('Erro ao carregar seguindo:', error);
         this.errorMessage = 'Erro ao carregar seguindo.';
         this.isLoading = false;
+        this.cdr.detectChanges(); // ✅ Forçar atualização
+        this.toastService.error('Erro!', 'Não foi possível carregar a lista de seguindo.');
       }
     });
   }
@@ -55,10 +92,15 @@ export class FollowingComponent implements OnInit {
       user.name.toLowerCase().includes(term) ||
       (user.username || '').toLowerCase().includes(term)
     );
+    this.cdr.detectChanges(); // ✅ Forçar atualização
   }
 
   goBack(): void {
-    this.router.navigate(['/profile']);
+    if (this.userId) {
+      this.router.navigate(['/profile', this.userId]);
+    } else {
+      this.router.navigate(['/profile']);
+    }
   }
 
   goToProfile(userId: number): void {

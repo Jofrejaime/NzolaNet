@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule} from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { AvatarComponent } from '../../shared/components/avatar/avatar';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
@@ -15,7 +15,7 @@ import { ToastService } from '../../core/services/toast.service';
 @Component({
   selector: 'nzola-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AvatarComponent, SkeletonComponent], // Apenas RouterLink aqui
+  imports: [CommonModule, FormsModule, RouterModule, AvatarComponent, SkeletonComponent], // Apenas RouterLink aqui
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
 })
