@@ -43,7 +43,9 @@ class UserRepositoryEloquent extends BaseRepository implements UserRepository
 
     public function searchUsers(string $search, int $currentUserId): array
     {
-        $query = $this->model->where('id', '!=', $currentUserId);
+        $query = $this->model
+            ->where('id', '!=', $currentUserId)
+            ->where('is_active', true);
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {

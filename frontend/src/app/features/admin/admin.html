@@ -5,6 +5,7 @@
   </header>
 
   <div class="admin-tabs">
+    <button class="admin-tab" [class.active]="activeTab() === 'dashboard'" (click)="setTab('dashboard')">Dashboard</button>
     <button class="admin-tab" [class.active]="activeTab() === 'users'" (click)="setTab('users')">Utilizadores</button>
     <button class="admin-tab" [class.active]="activeTab() === 'posts'" (click)="setTab('posts')">Publicações</button>
     <button class="admin-tab" [class.active]="activeTab() === 'comments'" (click)="setTab('comments')">Comentários</button>
@@ -14,6 +15,91 @@
     <p class="text-sm text-[var(--text-secondary)]">A carregar...</p>
   }
 
+  <!-- DASHBOARD -->
+  @if (!loading() && activeTab() === 'dashboard') {
+    @if (dashboard(); as d) {
+      <!-- Cards de estatísticas -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+        <div class="stat-card">
+          <span class="stat-label">Utilizadores</span>
+          <span class="stat-value">{{ d.totalUsers }}</span>
+        </div>
+        <div class="stat-card stat-card--success">
+          <span class="stat-label">Activos</span>
+          <span class="stat-value">{{ d.activeUsers }}</span>
+        </div>
+        <div class="stat-card stat-card--danger">
+          <span class="stat-label">Inactivos</span>
+          <span class="stat-value">{{ d.inactiveUsers }}</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Publicações</span>
+          <span class="stat-value">{{ d.totalPosts }}</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Comentários</span>
+          <span class="stat-value">{{ d.totalComments }}</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Bazes</span>
+          <span class="stat-value">{{ d.totalBazes }}</span>
+        </div>
+      </div>
+
+      <!-- Gráfico de Utilizadores por Mês -->
+      <div class="chart-section">
+        <h3 class="chart-title">Utilizadores registados (últimos 6 meses)</h3>
+        <div class="chart-bars">
+          @for (item of chartData(d.usersByMonth); track item.label) {
+            <div class="chart-bar-group">
+              <div class="chart-bar" [style.height.%]="(item.value / maxChartValue) * 100">
+                <span class="chart-bar-value">{{ item.value }}</span>
+              </div>
+              <span class="chart-bar-label">{{ item.label.slice(5) }}/{{ item.label.slice(0,4) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Gráfico de Publicações por Mês -->
+      <div class="chart-section">
+        <h3 class="chart-title">Publicações criadas (últimos 6 meses)</h3>
+        <div class="chart-bars">
+          @for (item of chartData(d.postsByMonth); track item.label) {
+            <div class="chart-bar-group">
+              <div class="chart-bar chart-bar--accent" [style.height.%]="(item.value / maxChartValue) * 100">
+                <span class="chart-bar-value">{{ item.value }}</span>
+              </div>
+              <span class="chart-bar-label">{{ item.label.slice(5) }}/{{ item.label.slice(0,4) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Utilizadores recentes -->
+      <div class="recent-section">
+        <h3 class="chart-title">Utilizadores recentes</h3>
+        @for (user of d.recentUsers; track user.id) {
+          <div class="admin-row">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full bg-[var(--bg-brand)] flex items-center justify-center text-white text-xs font-bold">
+                {{ user.name?.charAt(0) || '?' }}
+              </div>
+              <div>
+                <p class="font-bold text-sm">{{ user.name }}</p>
+                <p class="text-xs text-[var(--text-secondary)]">{{ user.email }}</p>
+              </div>
+            </div>
+            <span class="text-xs px-2 py-0.5 rounded-full" [class.bg-green-500]="user.is_active" [class.bg-red-500]="!user.is_active" class="text-white">
+              {{ user.is_active ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- UTILIZADORES -->
   @if (!loading() && activeTab() === 'users') {
     <div class="mb-3 flex gap-2">
       <input type="text" [(ngModel)]="userSearch" placeholder="Pesquisar..." class="flex-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2 text-sm" />
@@ -23,36 +109,51 @@
       <div class="admin-row">
         <div>
           <p class="font-bold text-sm">{{ user.name }}</p>
-          <p class="text-xs text-[var(--text-secondary)]">{{ user.email }} · {{ user.role }}</p>
+          <p class="text-xs text-[var(--text-secondary)]">{{ user.email }} · {{ user.role }}
+            @if (!user.is_active) {
+              <span class="text-red-400"> (desactivado)</span>
+            }
+          </p>
         </div>
-        <div class="flex gap-2">
-          <button class="text-xs font-bold" (click)="toggleUser(user)">{{ user.is_active ? 'Desactivar' : 'Activar' }}</button>
-          <button class="text-xs font-bold text-red-400" (click)="deleteUser(user)">Eliminar</button>
+        <div class="flex gap-2 items-center">
+          @if (user.role !== 'administrador') {
+            <button class="text-xs font-bold" (click)="toggleUser(user)">{{ user.is_active ? 'Desactivar' : 'Activar' }}</button>
+          }
+          @if (canDeleteUser(user)) {
+            <button class="text-xs font-bold text-red-400" (click)="deleteUser(user)">Eliminar</button>
+          } @else {
+            <span class="text-xs text-[var(--text-secondary)] italic">Protegido</span>
+          }
         </div>
       </div>
     }
   }
 
+  <!-- PUBLICAÇÕES -->
   @if (!loading() && activeTab() === 'posts') {
     @for (post of posts(); track post.id) {
       <div class="admin-row">
-        <div>
+        <div class="min-w-0 flex-1">
           <p class="font-bold text-sm">{{ post.user?.name || 'Autor' }}</p>
           <p class="text-xs text-[var(--text-secondary)] line-clamp-2">{{ post.content }}</p>
+          <p class="text-xs text-[var(--text-secondary)] mt-1">
+            💬 {{ post.comments_count ?? 0 }} · 👍 {{ post.bazes_count ?? 0 }}
+          </p>
         </div>
-        <button class="text-xs font-bold text-red-400" (click)="deletePost(post)">Eliminar</button>
+        <button class="text-xs font-bold text-red-400 shrink-0" (click)="deletePost(post)">Eliminar</button>
       </div>
     }
   }
 
+  <!-- COMENTÁRIOS -->
   @if (!loading() && activeTab() === 'comments') {
     @for (comment of comments(); track comment.id) {
       <div class="admin-row">
-        <div>
+        <div class="min-w-0 flex-1">
           <p class="font-bold text-sm">{{ comment.user?.name || 'Utilizador' }}</p>
           <p class="text-xs text-[var(--text-secondary)] line-clamp-2">{{ comment.content }}</p>
         </div>
-        <button class="text-xs font-bold text-red-400" (click)="deleteComment(comment)">Eliminar</button>
+        <button class="text-xs font-bold text-red-400 shrink-0" (click)="deleteComment(comment)">Eliminar</button>
       </div>
     }
   }

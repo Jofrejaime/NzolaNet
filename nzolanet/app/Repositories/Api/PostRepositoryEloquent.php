@@ -22,6 +22,7 @@ class PostRepositoryEloquent extends BaseRepository implements PostRepository
     public function getLatestPosts(int $perPage = 15, ?int $userId = null)
     {
         $query = $this->model
+            ->whereHas('user', fn ($q) => $q->where('is_active', true))
             ->with(['user'])
             ->withCount(['comments', 'bazes'])
             ->orderBy('created_at', 'desc');
@@ -37,13 +38,15 @@ class PostRepositoryEloquent extends BaseRepository implements PostRepository
 
     public function getLatestPostsForUser(int $userId, int $perPage = 15)
     {
-        // Get followed user IDs first
+        // Get followed user IDs first (only active users)
         $followingIds = \DB::table('follows')
             ->where('follower_id', $userId)
-            ->pluck('following_id')
+            ->join('users', 'users.id', '=', 'follows.following_id')
+            ->where('users.is_active', true)
+            ->pluck('follows.following_id')
             ->toArray();
 
-        // Include own posts
+        // Include own posts (even if inactive, you see your own)
         $followingIds[] = $userId;
 
         return $this->model

@@ -45,6 +45,20 @@ export interface Post {
   user?: NzolaUser;
 }
 
+export interface AdminDashboardData {
+  totalUsers: number;
+  activeUsers: number;
+  inactiveUsers: number;
+  totalPosts: number;
+  totalComments: number;
+  totalBazes: number;
+  totalAdmins: number;
+  recentUsers: NzolaUser[];
+  recentPosts: Post[];
+  usersByMonth: Record<string, number>;
+  postsByMonth: Record<string, number>;
+}
+
 export interface Comment {
   id: number;
   post_id: number;

@@ -46,6 +46,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Painel administrativo
     Route::middleware('admin')->prefix('admin')->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'dashboard']);
         Route::get('/users', [AdminController::class, 'users']);
         Route::patch('/users/{id}/toggle', [AdminController::class, 'toggleUser']);
         Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);

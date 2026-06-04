@@ -1,12 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { ApiUrlService } from './api-url.service';
-import { ApiResponse, Comment, NzolaUser, PaginatedResponse, Post } from '../models/api.models';
+import { AdminDashboardData, ApiResponse, Comment, NzolaUser, PaginatedResponse, Post } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   constructor(private http: HttpClient, private apiUrl: ApiUrlService) {}
+
+  getDashboard(): Observable<AdminDashboardData> {
+    return this.http
+      .get<ApiResponse<AdminDashboardData>>(`${this.apiUrl.apiUrl}/admin/dashboard`)
+      .pipe(map((r) => r.data));
+  }
 
   listUsers(search = '') {
     const params = search ? `?search=${encodeURIComponent(search)}` : '';

@@ -2,6 +2,7 @@
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  overflow-x: auto;
 }
 
 .admin-tab {
@@ -9,6 +10,7 @@
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 700;
+  white-space: nowrap;
   border: 1px solid var(--border-strong);
   color: var(--text-secondary);
 
@@ -26,4 +28,110 @@
   gap: 1rem;
   padding: 0.75rem 0;
   border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Stats Cards */
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 1rem 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+}
+
+.stat-card--success {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.stat-card--danger {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+/* Charts */
+.chart-section {
+  margin-bottom: 1.5rem;
+}
+
+.chart-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  height: 120px;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.chart-bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.chart-bar {
+  width: 100%;
+  max-width: 40px;
+  min-height: 4px;
+  border-radius: 4px 4px 0 0;
+  background: var(--bg-brand);
+  position: relative;
+  transition: height 0.3s ease;
+}
+
+.chart-bar--accent {
+  background: #a855f7;
+}
+
+.chart-bar-value {
+  position: absolute;
+  top: -1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.chart-bar-label {
+  font-size: 0.6rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Recent section */
+.recent-section {
+  margin-top: 0.5rem;
 }

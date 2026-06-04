@@ -61,7 +61,9 @@ class FollowRepositoryEloquent extends BaseRepository implements FollowRepositor
             return [];
         }
 
-        $users = \App\Models\User::whereIn('id', $followingIds)->get();
+        $users = \App\Models\User::whereIn('id', $followingIds)
+            ->where('is_active', true)
+            ->get();
         $result = [];
 
         foreach ($users as $user) {
@@ -93,7 +95,9 @@ class FollowRepositoryEloquent extends BaseRepository implements FollowRepositor
             return [];
         }
 
-        $users = \App\Models\User::whereIn('id', $followerIds)->get();
+        $users = \App\Models\User::whereIn('id', $followerIds)
+            ->where('is_active', true)
+            ->get();
         $result = [];
 
         foreach ($users as $user) {

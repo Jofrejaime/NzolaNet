@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Repositories\Api\Admin\AdminRepository;
+use App\Repositories\Api\Admin\AdminRepositoryEloquent;
 use App\Repositories\Api\UserRepository;
 use App\Repositories\Api\UserRepositoryEloquent;
 
@@ -33,6 +35,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             \App\Repositories\Api\PostBazeRepository::class,
             \App\Repositories\Api\PostBazeRepositoryEloquent::class
+        );
+        $this->app->bind(
+            AdminRepository::class,
+            AdminRepositoryEloquent::class
         );
     }
 
