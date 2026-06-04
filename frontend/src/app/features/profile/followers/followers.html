@@ -1,0 +1,68 @@
+<div class="followers-page">
+  <div class="followers-header">
+    <button class="back-btn" (click)="goBack()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </button>
+    <h1>Seguidores</h1>
+    <div class="placeholder"></div>
+  </div>
+
+  <!-- Barra de pesquisa -->
+  <div class="search-bar">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </svg>
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      (input)="filterFollowers()"
+      placeholder="Pesquisar seguidores..."
+      class="search-input"
+    >
+  </div>
+
+  @if (isLoading) {
+    <div class="loading">A carregar seguidores...</div>
+  }
+
+  @if (errorMessage) {
+    <div class="error-message">{{ errorMessage }}</div>
+  }
+
+  @if (!isLoading && filteredFollowers.length === 0 && searchTerm) {
+    <div class="empty-state">
+      <p>Nenhum seguidor encontrado para "{{ searchTerm }}"</p>
+    </div>
+  }
+
+  @if (!isLoading && filteredFollowers.length === 0 && !searchTerm) {
+    <div class="empty-state">
+      <p>Ainda não tens seguidores</p>
+    </div>
+  }
+
+  <div class="followers-list">
+    @for (follower of filteredFollowers; track follower.id) {
+      <div class="follower-item" (click)="goToProfile(follower.id)">
+        <div class="follower-avatar">
+          @if (photoUrl(follower.profile_photo)) {
+            <img [src]="photoUrl(follower.profile_photo)" [alt]="follower.name">
+          } @else {
+            <span>{{ initials(follower.name) }}</span>
+          }
+        </div>
+        <div class="follower-info">
+          <div class="follower-name">{{ follower.name }}</div>
+          <div class="follower-username">&#64;{{ follower.username }}</div>
+        </div>
+        @if (follower.is_following) {
+          <button class="following-btn" (click)="$event.stopPropagation()">Seguindo</button>
+        } @else {
+          <button class="follow-btn" (click)="$event.stopPropagation()">Seguir</button>
+        }
+      </div>
+    }
+  </div>
+</div>

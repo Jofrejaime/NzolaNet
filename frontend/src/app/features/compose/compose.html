@@ -2,7 +2,7 @@
 
   <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border-subtle)]">
     <button (click)="close()" class="p-2 rounded-full hover:bg-[var(--state-hover)] transition text-[var(--text-primary)]">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
     </button>
@@ -17,7 +17,7 @@
     </div>
   }
 
-  <!-- Área de escrita - sem flex-1 para não empurrar o footer -->
+  <!-- Área de escrita -->
   <div class="flex gap-3 px-4 pt-4">
     <div class="w-10 h-10 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-xs font-semibold text-[var(--text-secondary)] flex-shrink-0 overflow-hidden">
       @if (photoUrl(authService.currentUser()?.profile_photo)) {
@@ -33,35 +33,75 @@
       maxlength="500"
       (input)="onInput($event)"
       class="compose-textarea flex-1 bg-transparent border-none resize-none outline-none text-[var(--text-primary)] text-base placeholder:text-[var(--text-tertiary)] leading-relaxed"
-      rows="4"
+      rows="3"
     ></textarea>
   </div>
 
-  <!-- Footer - agora vai ficar logo após o textarea -->
+  <!-- Preview das Imagens (grid) -->
+  @if (imagePreviews.length > 0) {
+    <div class="px-4 mt-3">
+      <div class="grid grid-cols-2 gap-2">
+        @for (preview of imagePreviews; track $index) {
+          <div class="relative group">
+            <img [src]="preview" alt="Preview {{ $index + 1 }}" class="rounded-xl w-full h-32 object-cover">
+            <button (click)="removeImage($index)" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80 transition opacity-0 group-hover:opacity-100">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        }
+      </div>
+      <p class="text-xs text-[var(--text-tertiary)] mt-2">{{ images.length }} imagens</p>
+    </div>
+  }
+
+  <!-- Preview dos Vídeos (grid) -->
+  @if (videoPreviews.length > 0) {
+    <div class="px-4 mt-3">
+      <div class="grid grid-cols-1 gap-2">
+        @for (preview of videoPreviews; track $index) {
+          <div class="relative group">
+            <video [src]="preview" controls class="rounded-xl w-full max-h-[200px]"></video>
+            <button (click)="removeVideo($index)" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80 transition opacity-0 group-hover:opacity-100">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        }
+      </div>
+      <p class="text-xs text-[var(--text-tertiary)] mt-2">{{ videos.length }} vídeos</p>
+    </div>
+  }
+
+  <!-- Footer -->
   <div class="compose-footer border-t border-[var(--border-subtle)] px-4 py-3 flex items-center justify-between mt-4">
     <div class="flex gap-3">
       <label class="text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition p-1.5 rounded-full hover:bg-[var(--state-hover)] cursor-pointer">
-        <input type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, 'image')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <input type="file" accept="image/*" multiple class="hidden" (change)="onImageSelected($event)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
           <polyline points="21 15 16 10 5 21"/>
         </svg>
+        <span class="text-xs ml-1">Imagem</span>
       </label>
 
       <label class="text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition p-1.5 rounded-full hover:bg-[var(--state-hover)] cursor-pointer">
-        <input type="file" accept="video/*" class="hidden" (change)="onFileSelected($event, 'video')">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <input type="file" accept="video/*" multiple class="hidden" (change)="onVideoSelected($event)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
         </svg>
+        <span class="text-xs ml-1">Vídeo</span>
       </label>
     </div>
 
     <div class="flex items-center gap-3">
-      @if (imageFile) {
-        <span class="text-xs text-[var(--text-secondary)]">Imagem selecionada</span>
+      @if (images.length > 0) {
+        <span class="text-xs text-[var(--text-secondary)]">{{ images.length }} img</span>
       }
-      @if (videoFile) {
-        <span class="text-xs text-[var(--text-secondary)]">Vídeo selecionado</span>
+      @if (videos.length > 0) {
+        <span class="text-xs text-[var(--text-secondary)]">{{ videos.length }} vid</span>
       }
       <span class="text-xs text-[var(--text-tertiary)]">{{ charCount }}/500</span>
     </div>

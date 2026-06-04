@@ -1,58 +1,66 @@
 import { Component, OnInit, inject, ChangeDetectorRef, ApplicationRef, NgZone, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AvatarComponent } from '../../shared/components/avatar/avatar';
-import { Router, RouterLink } from '@angular/router';
 import { Post, NzolaUser } from '../../core/models/api.models';
 import { ApiUrlService } from '../../core/services/api-url.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PostService } from '../../core/services/post.service';
+import { UserService } from '../../core/services/user.service';
 
 @Component({
   selector: 'nzola-profile',
   standalone: true,
-  imports: [CommonModule, AvatarComponent, RouterLink, FormsModule],
+  imports: [CommonModule, FormsModule, AvatarComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
 })
 export class ProfileComponent implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private postService = inject(PostService);
-  private apiUrl = inject(ApiUrlService);
+  private userService = inject(UserService);
+  apiUrl = inject(ApiUrlService);
   private cdr = inject(ChangeDetectorRef);
   private appRef = inject(ApplicationRef);
   private ngZone = inject(NgZone);
 
   activeTab: 'posts' | 'replies' | 'highlights' | 'media' = 'posts';
-  user: NzolaUser | null = this.authService.currentUser();
+  user: NzolaUser | null = null;
   posts: Post[] = [];
   isLoading = false;
   errorMessage = '';
   
-  // Menu properties
+  followersCount = 0;
+  followingCount = 0;
+  
+  // Para controle de menu (apenas no próprio perfil)
   activeMenuId: number | null = null;
   editingPostId: number | null = null;
   editContent = '';
-  
-  // Dialog properties
   showConfirmDialog = false;
   postToDelete: Post | null = null;
+  
+  // Indica se é o próprio perfil
+  isOwnProfile = false;
 
   ngOnInit(): void {
-    this.loadProfile();
-  }
-
-  // Fechar menu ao clicar fora
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.menu-trigger')) {
-      this.activeMenuId = null;
+    const userId = this.route.snapshot.paramMap.get('id');
+    
+    if (userId) {
+      // Ver página de perfil de outro utilizador
+      this.loadUserProfile(Number(userId));
+      this.isOwnProfile = this.authService.currentUser()?.id === Number(userId);
+    } else {
+      // Página do próprio perfil
+      this.loadOwnProfile();
+      this.isOwnProfile = true;
     }
   }
 
-  loadProfile(): void {
+  loadOwnProfile(): void {
     this.ngZone.run(() => {
       this.isLoading = true;
       this.errorMessage = '';
@@ -64,11 +72,39 @@ export class ProfileComponent implements OnInit {
           this.user = user;
           this.cdr.detectChanges();
           this.loadPosts(user.id);
+          this.loadFollowersCount(user.id);
+          this.loadFollowingCount(user.id);
         });
       },
       error: (error) => {
         this.ngZone.run(() => {
-          this.errorMessage = error?.error?.message || 'Nao foi possivel carregar o perfil.';
+          this.errorMessage = error?.error?.message || 'Não foi possível carregar o perfil.';
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
+  loadUserProfile(userId: number): void {
+    this.ngZone.run(() => {
+      this.isLoading = true;
+      this.errorMessage = '';
+    });
+
+    this.userService.show(userId).subscribe({
+      next: (user) => {
+        this.ngZone.run(() => {
+          this.user = user;
+          this.cdr.detectChanges();
+          this.loadPosts(user.id);
+          this.loadFollowersCount(user.id);
+          this.loadFollowingCount(user.id);
+        });
+      },
+      error: (error) => {
+        this.ngZone.run(() => {
+          this.errorMessage = error?.error?.message || 'Não foi possível carregar o perfil.';
           this.isLoading = false;
           this.cdr.detectChanges();
         });
@@ -88,22 +124,45 @@ export class ProfileComponent implements OnInit {
       },
       error: (error) => {
         this.ngZone.run(() => {
-          this.errorMessage = error?.error?.message || 'Nao foi possivel carregar as publicacoes.';
+          this.errorMessage = error?.error?.message || 'Não foi possível carregar as publicações.';
           this.isLoading = false;
           this.cdr.detectChanges();
         });
       }
     });
   }
- // Adicionar este método na classe ProfileComponent
-initials(name?: string): string {
-  if (!name) return '?';
-  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-}
+
+  loadFollowersCount(userId: number): void {
+    this.userService.getFollowers(userId).subscribe({
+      next: (data: any) => {
+        this.followersCount = data.length || 0;
+        this.cdr.detectChanges();
+      },
+      error: (error: any) => console.error('Erro ao carregar seguidores:', error)
+    });
+  }
+
+  loadFollowingCount(userId: number): void {
+    this.userService.getFollowing(userId).subscribe({
+      next: (data: any) => {
+        this.followingCount = data.length || 0;
+        this.cdr.detectChanges();
+      },
+      error: (error: any) => console.error('Erro ao carregar seguindo:', error)
+    });
+  }
+
+  goToFollowers(): void {
+    this.router.navigate(['/profile', this.user?.id, 'followers']);
+  }
+
+  goToFollowing(): void {
+    this.router.navigate(['/profile', this.user?.id, 'following']);
+  }
+
   goToAccount(): void {
     this.router.navigate(['/settings/account']);
   }
-  
 
   goBack(): void {
     this.router.navigate(['/']);
@@ -111,6 +170,26 @@ initials(name?: string): string {
 
   goToThread(post: Post): void {
     this.router.navigate(['/post', post.id]);
+  }
+
+  followUser(): void {
+    if (!this.user) return;
+    this.userService.follow(this.user.id).subscribe({
+      next: () => {
+        // Atualizar estado
+      },
+      error: (error) => console.error('Erro ao seguir:', error)
+    });
+  }
+
+  unfollowUser(): void {
+    if (!this.user) return;
+    this.userService.unfollow(this.user.id).subscribe({
+      next: () => {
+        // Atualizar estado
+      },
+      error: (error) => console.error('Erro ao deixar de seguir:', error)
+    });
   }
 
   photoUrl(path?: string | null): string | null {
@@ -133,18 +212,20 @@ initials(name?: string): string {
     return hours < 24 ? `${hours}h` : `${Math.floor(hours / 24)}d`;
   }
 
-  isOwnProfile(): boolean {
-    return true; // Este é o perfil do próprio utilizador
+  initials(name?: string): string {
+    if (!name) return '?';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   }
 
-  // === MENU METHODS ===
+  // === MENU METHODS (apenas para próprio perfil) ===
   toggleMenu(postId: number, event: Event): void {
+    if (!this.isOwnProfile) return;
     event.stopPropagation();
     this.activeMenuId = this.activeMenuId === postId ? null : postId;
   }
 
-  // === EDIT METHODS ===
   beginEdit(post: Post): void {
+    if (!this.isOwnProfile) return;
     this.editingPostId = post.id;
     this.editContent = post.content || '';
     this.activeMenuId = null;
@@ -168,15 +249,15 @@ initials(name?: string): string {
       },
       error: (error) => {
         this.ngZone.run(() => {
-          this.errorMessage = error?.error?.message || 'Nao foi possivel editar o post.';
+          this.errorMessage = error?.error?.message || 'Não foi possível editar o post.';
           this.cdr.detectChanges();
         });
       }
     });
   }
 
-  // === DELETE METHODS ===
   confirmDelete(post: Post): void {
+    if (!this.isOwnProfile) return;
     this.postToDelete = post;
     this.showConfirmDialog = true;
     this.activeMenuId = null;
@@ -201,7 +282,7 @@ initials(name?: string): string {
       },
       error: (error) => {
         this.ngZone.run(() => {
-          this.errorMessage = error?.error?.message || 'Nao foi possivel excluir o post.';
+          this.errorMessage = error?.error?.message || 'Não foi possível excluir o post.';
           this.showConfirmDialog = false;
           this.postToDelete = null;
           this.cdr.detectChanges();
@@ -210,7 +291,6 @@ initials(name?: string): string {
     });
   }
 
-  // === BAZE METHODS ===
   toggleBaze(post: Post, event: Event): void {
     event.stopPropagation();
     

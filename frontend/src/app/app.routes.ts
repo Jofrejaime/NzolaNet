@@ -14,6 +14,8 @@ import { SecurityComponent } from './features/settings/security/security';
 import { HelpComponent } from './features/settings/help/help';
 import { AboutComponent } from './features/settings/about/about';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { FollowersComponent } from './features/profile/followers/followers';
+import { FollowingComponent } from './features/profile/following/following';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
@@ -35,6 +37,8 @@ export const routes: Routes = [
       { path: 'settings/help', component: HelpComponent },
       { path: 'settings/about', component: AboutComponent },
       { path: 'notifications', component: NotificationsComponent },
+      { path: 'profile/followers', component: FollowersComponent },
+{ path: 'profile/following', component: FollowingComponent },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
     ],
   },
