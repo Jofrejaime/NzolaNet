@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../../../core/services/user.service';
 import { ApiUrlService } from '../../../core/services/api-url.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -15,6 +15,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class FollowingComponent implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private userService = inject(UserService);
   apiUrl = inject(ApiUrlService);
   authService = inject(AuthService);
@@ -31,7 +32,8 @@ export class FollowingComponent implements OnInit {
 
   loadFollowing(): void {
     this.isLoading = true;
-    const userId = this.authService.currentUser()?.id;
+    const paramId = this.route.snapshot.paramMap.get('id');
+    const userId = paramId ? Number(paramId) : this.authService.currentUser()?.id;
     if (!userId) return;
     
     this.userService.getFollowing(userId).subscribe({
@@ -60,7 +62,12 @@ export class FollowingComponent implements OnInit {
   }
 
   goToProfile(userId: number): void {
-    this.router.navigate(['/user', userId]);
+    const ownId = this.authService.currentUser()?.id;
+    if (ownId === userId) {
+      this.router.navigate(['/profile']);
+      return;
+    }
+    this.router.navigate(['/profile', userId]);
   }
 
   photoUrl(path?: string): string | null {

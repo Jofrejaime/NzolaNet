@@ -81,20 +81,6 @@
       </label>
     </div>
 
-    <!-- Idioma -->
-    <button class="settings-row" (click)="onRowClick(languageItem)">
-      <div class="row-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-        </svg>
-      </div>
-      <div class="row-body">
-        <span class="row-label">Idioma</span>
-        <span class="row-desc">{{ currentLanguage }}</span>
-      </div>
-    </button>
-
     <!-- Notificações -->
     @for (item of preferenceItems; track item.id) {
       <button class="settings-row" (click)="onRowClick(item)">
@@ -118,6 +104,30 @@
       </button>
     }
   </div>
+
+  @if (adminItems.length > 0) {
+    <div class="settings-section">
+      <p class="section-title">Administração</p>
+      @for (item of adminItems; track item.id) {
+        <button class="settings-row" (click)="onRowClick(item)">
+          <div class="row-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <g [innerHTML]="item.icon"></g>
+            </svg>
+          </div>
+          <div class="row-body">
+            <span class="row-label">{{ item.label }}</span>
+            @if (item.description) {
+              <span class="row-desc">{{ item.description }}</span>
+            }
+          </div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </button>
+      }
+    </div>
+  }
 
   <!-- Secção suporte -->
   <div class="settings-section">

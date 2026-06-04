@@ -1,0 +1,59 @@
+<div class="admin-wrap px-4 py-3">
+  <header class="flex items-center gap-3 mb-4 pb-3 border-b border-[var(--border-subtle)]">
+    <button class="p-2 rounded-full hover:bg-[var(--state-hover)]" (click)="goBack()">←</button>
+    <h1 class="text-lg font-bold text-[var(--text-primary)]">Painel administrativo</h1>
+  </header>
+
+  <div class="admin-tabs">
+    <button class="admin-tab" [class.active]="activeTab() === 'users'" (click)="setTab('users')">Utilizadores</button>
+    <button class="admin-tab" [class.active]="activeTab() === 'posts'" (click)="setTab('posts')">Publicações</button>
+    <button class="admin-tab" [class.active]="activeTab() === 'comments'" (click)="setTab('comments')">Comentários</button>
+  </div>
+
+  @if (loading()) {
+    <p class="text-sm text-[var(--text-secondary)]">A carregar...</p>
+  }
+
+  @if (!loading() && activeTab() === 'users') {
+    <div class="mb-3 flex gap-2">
+      <input type="text" [(ngModel)]="userSearch" placeholder="Pesquisar..." class="flex-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2 text-sm" />
+      <button class="px-3 py-2 rounded-lg bg-[var(--bg-brand)] text-white text-xs font-bold" (click)="searchUsers()">Pesquisar</button>
+    </div>
+    @for (user of users(); track user.id) {
+      <div class="admin-row">
+        <div>
+          <p class="font-bold text-sm">{{ user.name }}</p>
+          <p class="text-xs text-[var(--text-secondary)]">{{ user.email }} · {{ user.role }}</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="text-xs font-bold" (click)="toggleUser(user)">{{ user.is_active ? 'Desactivar' : 'Activar' }}</button>
+          <button class="text-xs font-bold text-red-400" (click)="deleteUser(user)">Eliminar</button>
+        </div>
+      </div>
+    }
+  }
+
+  @if (!loading() && activeTab() === 'posts') {
+    @for (post of posts(); track post.id) {
+      <div class="admin-row">
+        <div>
+          <p class="font-bold text-sm">{{ post.user?.name || 'Autor' }}</p>
+          <p class="text-xs text-[var(--text-secondary)] line-clamp-2">{{ post.content }}</p>
+        </div>
+        <button class="text-xs font-bold text-red-400" (click)="deletePost(post)">Eliminar</button>
+      </div>
+    }
+  }
+
+  @if (!loading() && activeTab() === 'comments') {
+    @for (comment of comments(); track comment.id) {
+      <div class="admin-row">
+        <div>
+          <p class="font-bold text-sm">{{ comment.user?.name || 'Utilizador' }}</p>
+          <p class="text-xs text-[var(--text-secondary)] line-clamp-2">{{ comment.content }}</p>
+        </div>
+        <button class="text-xs font-bold text-red-400" (click)="deleteComment(comment)">Eliminar</button>
+      </div>
+    }
+  }
+</div>

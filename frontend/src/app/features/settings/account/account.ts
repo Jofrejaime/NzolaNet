@@ -21,13 +21,9 @@ export class AccountComponent {
   user = {
     name: '',
     email: '',
-    phone: '',
     bio: '',
-    website: '',
-    location: '',
-    birthDate: '',
     is_private: false,
-    profile_photo: null as string | null
+    profile_photo: null as string | null,
   };
 
   constructor(

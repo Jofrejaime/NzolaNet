@@ -47,10 +47,9 @@ export class FeedComponent implements OnInit {
   }
 
   @HostListener('document:click', ['$event'])
-  @HostListener('document:click', ['$event'])
-onDocumentClick(event: Event): void {
+  onDocumentClick(event: Event): void {
   const target = event.target as HTMLElement;
-  if (!target.closest('.menu-trigger') && !target.closest('.edit-textarea')) {
+  if (!target.closest('.menu-trigger') && !target.closest('.post-menu-dropdown') && !target.closest('.edit-textarea')) {
     // Se clicar fora do menu e fora do textarea de edição, cancela edição
     if (this.editingPostId) {
       this.cancelEdit();
@@ -95,12 +94,7 @@ onDocumentClick(event: Event): void {
   }
 
   mediaUrl(path?: string | null): string | null {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    if (path.startsWith('posts/')) {
-      return `http://localhost:8000/storage/${path}`;
-    }
-    return `http://localhost:8000/storage/${path}`;
+   return this.apiUrl.storageUrl(path);
   }
 
   goToThread(post: Post): void {

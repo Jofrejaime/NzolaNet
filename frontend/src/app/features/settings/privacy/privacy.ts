@@ -1,7 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../../core/services/auth.service';
+import { UserService } from '../../../core/services/user.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'nzola-privacy',
@@ -10,22 +13,44 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './privacy.html',
   styleUrls: ['./privacy.scss']
 })
-export class PrivacyComponent {
-  privacySettings = {
-    profileVisibility: 'public',
-    showEmail: false,
-    showPhone: false,
-    showLocation: true,
-    allowMentions: true,
-    allowDMs: true
-  };
+export class PrivacyComponent implements OnInit {
+  isPrivate = signal(false);
+  isSaving = signal(false);
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private userService: UserService,
+    private toast: ToastService
+  ) {}
+
+  ngOnInit(): void {
+    this.isPrivate.set(!!this.authService.currentUser()?.is_private);
+  }
 
   saveChanges(): void {
-    console.log('Guardar configurações de privacidade:', this.privacySettings);
-    // TODO: Implementar serviço
-    this.router.navigate(['/settings']);
+    const user = this.authService.currentUser();
+    if (!user) return;
+
+    this.isSaving.set(true);
+    this.userService
+      .updateProfile({
+        name: user.name,
+        bio: user.bio || '',
+        is_private: this.isPrivate(),
+      })
+      .subscribe({
+        next: (updated) => {
+          this.authService.setUser(updated);
+          this.isSaving.set(false);
+          this.toast.success('Guardado', 'Privacidade actualizada.');
+          this.router.navigate(['/settings']);
+        },
+        error: () => {
+          this.isSaving.set(false);
+          this.toast.error('Erro', 'Não foi possível guardar a privacidade.');
+        },
+      });
   }
 
   goBack(): void {

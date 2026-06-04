@@ -119,35 +119,30 @@ export class ComposeComponent {
     }
 
     this.isPublishing = true;
-    
-    const formData = new FormData();
-    formData.append('content', this.content);
-    
-    // Enviar imagens
-    this.images.forEach((image) => {
-      formData.append('images[]', image);
-    });
-    
-    // Enviar vídeos
-    this.videos.forEach((video) => {
-      formData.append('videos[]', video);
-    });
 
-    console.log('Enviando:', {
+    this.postService.create({
       content: this.content,
-      imagesCount: this.images.length,
-      videosCount: this.videos.length
-    });
-
-    this.postService.create(formData as any).subscribe({
+      image: this.images[0] ?? null,
+      video: this.videos[0] ?? null,
+    }).subscribe({
       next: (response: any) => {
         console.log('Publicado com sucesso:', response);
         this.router.navigate(['/home']);
       },
       error: (err: any) => {
-        console.error('Erro ao publicar:', err);
-        this.errorMessage = err?.error?.message || 'Não foi possível publicar. Verifica se tens sessão iniciada.';
+      console.error('Erro ao publicar:', err);
+        const validation = err?.error?.errors;
+        const firstValidationMsg =
+          validation && typeof validation === 'object'
+            ? Object.values(validation).flat()[0]
+            : null;
+        this.errorMessage =
+          firstValidationMsg ||
+          err?.error?.message ||
+          'Não foi possível publicar. Verifica se tens sessão iniciada.';
         this.isPublishing = false;
+        // Força a deteção de mudanças em caso de falha
+        this.cdr.detectChanges();
       },
       complete: () => {
         this.isPublishing = false;

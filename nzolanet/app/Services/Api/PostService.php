@@ -21,6 +21,11 @@ class PostService
      * Mostra posts de utilizadores seguidos + próprios posts
      * Se o utilizador não segue ninguém, mostra todos os posts
      */
+    public function getPostsByUser(int $authorId, ?int $viewerId = null, int $perPage = 20)
+    {
+        return $this->postRepository->getPostsByUser($authorId, $viewerId, $perPage);
+    }
+
     public function getFeed(?int $userId = null, int $perPage = 15)
     {
         if ($userId) {

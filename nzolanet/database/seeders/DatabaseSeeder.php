@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
                 'email' => $userData['email'],
                 'password' => bcrypt('password'),
                 'bio' => $userData['bio'],
+                'role' => $userData['email'] === 'test@example.com' ? 'administrador' : 'utilizador',
             ]);
 
             // Criar algumas publicações para cada utilizador

@@ -20,6 +20,7 @@ export interface NzolaUser {
   profile_photo?: string | null;
   is_private?: boolean;
   is_active?: boolean;
+  is_following?: boolean;
   role?: string;
   created_at?: string;
 }
@@ -48,9 +49,11 @@ export interface Comment {
   id: number;
   post_id: number;
   user_id: number;
+  parent_id?: number | null;
   content: string;
   created_at?: string;
   updated_at?: string;
   user?: NzolaUser;
-  
+  post?: Post;
+  replies?: Comment[];
 }

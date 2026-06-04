@@ -13,7 +13,8 @@ import { PrivacyComponent } from './features/settings/privacy/privacy';
 import { SecurityComponent } from './features/settings/security/security';
 import { HelpComponent } from './features/settings/help/help';
 import { AboutComponent } from './features/settings/about/about';
-import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { authGuard, adminGuard, guestGuard } from './core/guards/auth.guard';
+import { AdminComponent } from './features/admin/admin';
 import { FollowersComponent } from './features/profile/followers/followers';
 import { FollowingComponent } from './features/profile/following/following';
 
@@ -26,7 +27,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'home', component: FeedComponent },
+      { path: 'profile/followers', component: FollowersComponent },
+      { path: 'profile/following', component: FollowingComponent },
+      { path: 'profile/:id/followers', component: FollowersComponent },
+      { path: 'profile/:id/following', component: FollowingComponent },
+      { path: 'profile/:id', component: ProfileComponent },
       { path: 'profile', component: ProfileComponent },
+      { path: 'admin', component: AdminComponent, canActivate: [adminGuard] },
       { path: 'search', component: SearchComponent },
       { path: 'post/:id', component: ThreadComponent },
       { path: 'compose', component: ComposeComponent },
@@ -37,8 +44,6 @@ export const routes: Routes = [
       { path: 'settings/help', component: HelpComponent },
       { path: 'settings/about', component: AboutComponent },
       { path: 'notifications', component: NotificationsComponent },
-      { path: 'profile/followers', component: FollowersComponent },
-{ path: 'profile/following', component: FollowingComponent },
       { path: '', redirectTo: 'home', pathMatch: 'full' },
     ],
   },

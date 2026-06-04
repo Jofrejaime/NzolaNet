@@ -62,6 +62,10 @@ export class AuthService {
     );
   }
 
+  setUser(user: NzolaUser): void {
+    this.persistUser(user);
+  }
+
   logout(): void {
     const token = this.token;
 

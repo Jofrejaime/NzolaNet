@@ -29,11 +29,24 @@ class CommentService
      */
     public function create(CreateCommentData $dto, int $postId, int $userId): Comment
     {
+        if ($dto->parentId) {
+            $parent = $this->commentRepository->find($dto->parentId);
+            if ($parent->post_id !== $postId) {
+                throw new AuthorizationException('A resposta deve pertencer à mesma publicação.');
+            }
+        }
+
         return $this->commentRepository->create([
             'user_id' => $userId,
             'post_id' => $postId,
+            'parent_id' => $dto->parentId,
             'content' => $dto->content,
-        ]);
+        ])->load(['user', 'parent.user']);
+    }
+
+    public function getCommentsByUser(int $userId, int $perPage = 20)
+    {
+        return $this->commentRepository->getCommentsByUser($userId, $perPage);
     }
 
     /**

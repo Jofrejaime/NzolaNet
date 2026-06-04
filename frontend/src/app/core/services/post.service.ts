@@ -6,7 +6,7 @@ import { ApiResponse, PaginatedResponse, Post } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class PostService {
-  constructor(private http: HttpClient, private apiUrl: ApiUrlService) {}
+  constructor(private http: HttpClient, private apiUrl: ApiUrlService) { }
 
   list() {
     return this.http
@@ -23,7 +23,8 @@ export class PostService {
   create(payload: { content: string; image?: File | null; video?: File | null }) {
     const formData = new FormData();
 
-    if (payload.content.trim()) {
+    // ✅ Verificar se content existe antes de chamar trim()
+    if (payload.content && payload.content.trim()) {
       formData.append('content', payload.content.trim());
     }
 

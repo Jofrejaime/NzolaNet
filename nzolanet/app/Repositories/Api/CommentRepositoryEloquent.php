@@ -23,8 +23,18 @@ class CommentRepositoryEloquent extends BaseRepository implements CommentReposit
     {
         return $this->model
             ->where('post_id', $postId)
-            ->with(['user'])
+            ->whereNull('parent_id')
+            ->with(['user', 'replies.user'])
             ->orderBy('created_at', 'asc')
+            ->paginate($perPage);
+    }
+
+    public function getCommentsByUser(int $userId, int $perPage = 20)
+    {
+        return $this->model
+            ->where('user_id', $userId)
+            ->with(['user', 'post.user'])
+            ->orderBy('created_at', 'desc')
             ->paginate($perPage);
     }
 }

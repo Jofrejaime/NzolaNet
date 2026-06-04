@@ -21,26 +21,24 @@
   }
 
   <!-- Skeleton Loading -->
-  @if (isLoading) {
+  @if (isLoadingProfile) {
     <nzola-skeleton variant="profile-header" />
   }
 
-  @if (!isLoading && user) {
-    <!-- Cover -->
-    <div class="h-[150px] bg-gradient-to-r from-[var(--bg-brand)] to-[var(--bg-brand-subtle)]"></div>
-
+  @if (user) {
     <!-- Perfil Info -->
-    <div class="border-b border-[var(--border-subtle)] px-4 pb-4">
+    <div class="border-b border-[var(--border-subtle)] px-4 pt-4 pb-4">
       <!-- Avatar e Botão -->
-      <div class="flex justify-between items-end -mt-10 mb-3">
+      <div class="flex justify-between items-end mb-3">
         <nzola-avatar size="xl" [name]="user?.name || ''" [src]="photoUrl(user?.profile_photo) || undefined"></nzola-avatar>
         @if (isOwnProfile) {
           <button (click)="goToAccount()" class="border border-[var(--border-strong)] text-[var(--text-primary)] bg-transparent px-4 py-1.5 rounded-full text-sm font-bold hover:bg-[var(--state-hover)] transition">
             Editar Perfil
           </button>
         } @else {
-          <button (click)="followUser()" class="bg-[var(--bg-brand)] text-white px-4 py-1.5 rounded-full text-sm font-bold hover:bg-[#C9460A] transition">
-            Seguir
+          <button (click)="toggleFollow()" class="px-4 py-1.5 rounded-full text-sm font-bold transition"
+            [ngClass]="user?.is_following ? 'border border-[var(--border-strong)] text-[var(--text-primary)]' : 'bg-[var(--bg-brand)] text-white hover:bg-[#C9460A]'">
+            {{ user?.is_following ? 'A seguir' : 'Seguir' }}
           </button>
         }
       </div>
@@ -83,16 +81,16 @@
     <!-- Tabs -->
     <div class="flex border-b border-[var(--border-subtle)]">
       <button class="tab-item flex-1 py-3 text-sm font-medium text-center transition hover:bg-[var(--state-hover)]"
-        [class.active]="activeTab === 'posts'" (click)="activeTab = 'posts'">Posts</button>
+        [class.active]="activeTab === 'posts'" (click)="setTab('posts')">Posts</button>
       <button class="tab-item flex-1 py-3 text-sm font-medium text-center transition hover:bg-[var(--state-hover)]"
-        [class.active]="activeTab === 'replies'" (click)="activeTab = 'replies'">Respostas</button>
+        [class.active]="activeTab === 'replies'" (click)="setTab('replies')">Respostas</button>
       <button class="tab-item flex-1 py-3 text-sm font-medium text-center transition hover:bg-[var(--state-hover)]"
-        [class.active]="activeTab === 'media'" (click)="activeTab = 'media'">Mídia</button>
+        [class.active]="activeTab === 'media'" (click)="setTab('media')">Mídia</button>
     </div>
 
     <!-- Posts Tab -->
     @if (activeTab === 'posts') {
-      @if (isLoading) {
+      @if (isLoadingPosts) {
         @for (item of skeletonItems; track $index) {
           <nzola-skeleton variant="post" />
         }
@@ -127,7 +125,7 @@
                     </button>
                     
                     @if (activeMenuId === post.id) {
-                      <div class="absolute right-0 top-8 z-20 min-w-[120px] bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg shadow-lg overflow-hidden">
+                      <div class="post-menu-dropdown absolute right-0 top-8 z-20 min-w-[120px] bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg shadow-lg overflow-hidden">
                         <button class="w-full px-4 py-2 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--state-hover)] transition" (click)="beginEdit(post)">Editar</button>
                         <button class="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-[var(--state-hover)] transition" (click)="confirmDelete(post)">Excluir</button>
                       </div>
@@ -170,20 +168,13 @@
                   <span class="text-xs">{{ post.bazes_count || 0 }}</span>
                 </button>
                 
-                <button class="post-action ml-auto text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition" (click)="$event.stopPropagation()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                    <polyline points="16 6 12 2 8 6" />
-                    <line x1="12" y1="2" x2="12" y2="15" />
-                  </svg>
-                </button>
               </div>
             </div>
           </div>
         </article>
       }
 
-      @if (!isLoading && posts.length === 0) {
+      @if (!isLoadingPosts && posts.length === 0) {
         <div class="empty-state text-center py-12">
           <p class="text-[var(--text-secondary)]">Ainda não há posts.</p>
         </div>
@@ -191,15 +182,41 @@
     }
 
     @if (activeTab === 'replies') {
-      <div class="empty-state text-center py-12">
-        <p class="text-[var(--text-secondary)]">Ainda não há respostas.</p>
-      </div>
+      @if (isLoadingTab) {
+        <p class="text-center py-8 text-sm text-[var(--text-secondary)]">A carregar respostas...</p>
+      }
+      @for (comment of userComments; track comment.id) {
+        <article class="px-4 py-4 border-b border-[var(--border-subtle)] hover:bg-[var(--state-hover)] cursor-pointer" (click)="goToCommentPost(comment)">
+          <p class="text-sm text-[var(--text-primary)] mb-1">{{ comment.content }}</p>
+          <p class="text-xs text-[var(--text-secondary)]">
+            Em publicação de {{ comment.post?.user?.name || 'utilizador' }} · {{ relativeTime(comment.created_at) }}
+          </p>
+        </article>
+      }
+      @if (!isLoadingTab && userComments.length === 0) {
+        <div class="empty-state text-center py-12">
+          <p class="text-[var(--text-secondary)]">Ainda não há comentários.</p>
+        </div>
+      }
     }
 
     @if (activeTab === 'media') {
-      <div class="empty-state text-center py-12">
-        <p class="text-[var(--text-secondary)]">Ainda não há mídias.</p>
+      <div class="grid grid-cols-2 gap-2 p-4">
+        @for (post of mediaPosts; track post.id) {
+          <div class="cursor-pointer rounded-xl overflow-hidden border border-[var(--border-subtle)]" (click)="goToThread(post)">
+            @if (mediaUrl(post.image)) {
+              <img [src]="mediaUrl(post.image)" alt="Mídia" class="w-full h-36 object-cover">
+            } @else if (mediaUrl(post.video)) {
+              <video [src]="mediaUrl(post.video)" class="w-full h-36 object-cover"></video>
+            }
+          </div>
+        }
       </div>
+      @if (mediaPosts.length === 0) {
+        <div class="empty-state text-center py-12">
+          <p class="text-[var(--text-secondary)]">Ainda não há mídias nas publicações.</p>
+        </div>
+      }
     }
   }
 

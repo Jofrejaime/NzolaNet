@@ -32,14 +32,12 @@ export class SettingsComponent {
     return this.themeService.theme() === 'dark';
   }
 
-  currentLanguage = 'Português';
-
   // ── Itens — Conta ────────────────────────────────────
   accountItems: SettingsItem[] = [
     {
       id: 'account',
       label: 'Conta',
-      description: 'Username, email, telefone',
+      description: 'Nome, email e biografia',
       icon: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
       routeTo: '/settings/account',
     },
@@ -53,7 +51,7 @@ export class SettingsComponent {
     {
       id: 'security',
       label: 'Segurança',
-      description: 'Palavra-passe, 2FA',
+      description: 'Alterar palavra-passe',
       icon: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
       routeTo: '/settings/security',
     },
@@ -66,19 +64,24 @@ export class SettingsComponent {
       label: 'Notificações',
       description: 'Bazes, comentários, seguidores',
       icon: '<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>',
-      badge: '3',
       routeTo: '/notifications',
     },
   ];
 
-  // ── Item idioma (separado para o template) ───────────
-  languageItem: SettingsItem = {
-    id: 'language',
-    label: 'Idioma',
-    description: this.currentLanguage,
-    icon: '<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>',
-    routeTo: '/settings/language',
-  };
+  get adminItems(): SettingsItem[] {
+    if (this.authService.currentUser()?.role !== 'administrador') {
+      return [];
+    }
+    return [
+      {
+        id: 'admin',
+        label: 'Administração',
+        description: 'Utilizadores, publicações e comentários',
+        icon: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
+        routeTo: '/admin',
+      },
+    ];
+  }
 
   // ── Itens — Suporte ──────────────────────────────────
   supportItems: SettingsItem[] = [

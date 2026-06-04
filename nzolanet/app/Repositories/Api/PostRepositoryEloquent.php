@@ -53,4 +53,21 @@ class PostRepositoryEloquent extends BaseRepository implements PostRepository
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
     }
+
+    public function getPostsByUser(int $authorId, ?int $viewerId = null, int $perPage = 20)
+    {
+        $query = $this->model
+            ->where('user_id', $authorId)
+            ->with(['user'])
+            ->withCount(['comments', 'bazes'])
+            ->orderBy('created_at', 'desc');
+
+        if ($viewerId) {
+            $query->withExists([
+                'bazes as has_bazed' => fn ($q) => $q->where('user_id', $viewerId),
+            ]);
+        }
+
+        return $query->paginate($perPage);
+    }
 }

@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, ChangeDetectorRef, ApplicationRef, NgZone, HostListener } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { AvatarComponent } from '../../shared/components/avatar/avatar';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
-import { Post, NzolaUser } from '../../core/models/api.models';
+import { Comment, Post, NzolaUser } from '../../core/models/api.models';
 import { ApiUrlService } from '../../core/services/api-url.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PostService } from '../../core/services/post.service';
@@ -26,14 +27,15 @@ export class ProfileComponent implements OnInit {
   private userService = inject(UserService);
   apiUrl = inject(ApiUrlService);
   private cdr = inject(ChangeDetectorRef);
-  private appRef = inject(ApplicationRef);
-  private ngZone = inject(NgZone);
   private toastService = inject(ToastService);
 
-  activeTab: 'posts' | 'replies' | 'highlights' | 'media' = 'posts';
+  activeTab: 'posts' | 'replies' | 'media' = 'posts';
   user: NzolaUser | null = null;
   posts: Post[] = [];
-  isLoading = false;
+  userComments: Comment[] = [];
+  isLoadingProfile = false;
+  isLoadingPosts = false;
+  isLoadingTab = false;
   errorMessage = '';
   
   followersCount = 0;
@@ -63,7 +65,7 @@ export class ProfileComponent implements OnInit {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
-    if (!target.closest('.menu-trigger') && !target.closest('.edit-textarea')) {
+    if (!target.closest('.menu-trigger') && !target.closest('.post-menu-dropdown') && !target.closest('.edit-textarea')) {
       if (this.editingPostId) {
         this.cancelEdit();
       }
@@ -72,106 +74,101 @@ export class ProfileComponent implements OnInit {
   }
 
   loadOwnProfile(): void {
-    this.ngZone.run(() => {
-      this.isLoading = true;
-      this.errorMessage = '';
-    });
+    this.isLoadingProfile = true;
+    this.errorMessage = '';
 
     this.authService.loadUser().subscribe({
       next: (user) => {
-        this.ngZone.run(() => {
-          this.user = user;
-          this.cdr.detectChanges();
-          this.loadPosts(user.id);
-          this.loadFollowersCount(user.id);
-          this.loadFollowingCount(user.id);
-        });
+        this.user = user;
+        this.isLoadingProfile = false;
+        this.loadProfileStats(user.id);
       },
       error: (error) => {
-        this.ngZone.run(() => {
-          this.errorMessage = error?.error?.message || 'Não foi possível carregar o perfil.';
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        });
+        this.errorMessage = error?.error?.message || 'Não foi possível carregar o perfil.';
+        this.isLoadingProfile = false;
         this.toastService.error('Erro!', 'Não foi possível carregar o perfil.');
-      }
+      },
     });
   }
 
   loadUserProfile(userId: number): void {
-    this.ngZone.run(() => {
-      this.isLoading = true;
-      this.errorMessage = '';
-    });
+    this.isLoadingProfile = true;
+    this.errorMessage = '';
 
     this.userService.show(userId).subscribe({
       next: (user) => {
-        this.ngZone.run(() => {
-          this.user = user;
-          this.cdr.detectChanges();
-          this.loadPosts(user.id);
-          this.loadFollowersCount(user.id);
-          this.loadFollowingCount(user.id);
-        });
+        this.user = user;
+        this.isLoadingProfile = false;
+        this.loadProfileStats(user.id);
       },
       error: (error) => {
-        this.ngZone.run(() => {
-          this.errorMessage = error?.error?.message || 'Não foi possível carregar o perfil.';
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        });
+        this.errorMessage = error?.error?.message || 'Não foi possível carregar o perfil.';
+        this.isLoadingProfile = false;
         this.toastService.error('Erro!', 'Não foi possível carregar o perfil.');
-      }
+      },
     });
   }
 
-  loadPosts(userId: number): void {
-    this.postService.list().subscribe({
-      next: (page) => {
-        this.ngZone.run(() => {
-          this.posts = [...page.data.filter((post) => post.user_id === userId)];
-          this.isLoading = false;
-          this.cdr.detectChanges();
-          this.appRef.tick();
-        });
+  private loadProfileStats(userId: number): void {
+    this.isLoadingPosts = true;
+
+    forkJoin({
+      posts: this.userService.getUserPosts(userId),
+      followers: this.userService.getFollowers(userId),
+      following: this.userService.getFollowing(userId),
+    }).subscribe({
+      next: ({ posts, followers, following }) => {
+        this.posts = [...posts.data];
+        this.followersCount = followers.length;
+        this.followingCount = following.length;
+        this.isLoadingPosts = false;
+        this.cdr.detectChanges();
       },
-      error: (error) => {
-        this.ngZone.run(() => {
-          this.errorMessage = error?.error?.message || 'Não foi possível carregar as publicações.';
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        });
+      error: () => {
+        this.isLoadingPosts = false;
+        this.errorMessage = 'Não foi possível carregar os dados do perfil.';
         this.toastService.error('Erro!', 'Não foi possível carregar as publicações.');
-      }
+      },
     });
   }
 
-  loadFollowersCount(userId: number): void {
-    this.userService.getFollowers(userId).subscribe({
-      next: (data: any) => {
-        this.followersCount = data.length || 0;
-        this.cdr.detectChanges();
-      },
-      error: (error: any) => console.error('Erro ao carregar seguidores:', error)
-    });
+  get mediaPosts(): Post[] {
+    return this.posts.filter((post) => !!post.image || !!post.video);
   }
 
-  loadFollowingCount(userId: number): void {
-    this.userService.getFollowing(userId).subscribe({
-      next: (data: any) => {
-        this.followingCount = data.length || 0;
+  setTab(tab: 'posts' | 'replies' | 'media'): void {
+    this.activeTab = tab;
+    if (!this.user) return;
+    if (tab === 'replies' && this.userComments.length === 0) {
+      this.loadUserComments(this.user.id);
+    }
+  }
+
+  loadUserComments(userId: number): void {
+    this.isLoadingTab = true;
+    this.userService.getUserComments(userId).subscribe({
+      next: (page) => {
+        this.userComments = [...page.data];
+        this.isLoadingTab = false;
         this.cdr.detectChanges();
       },
-      error: (error: any) => console.error('Erro ao carregar seguindo:', error)
+      error: () => {
+        this.isLoadingTab = false;
+        this.toastService.error('Erro!', 'Não foi possível carregar as respostas.');
+      },
     });
   }
 
   goToFollowers(): void {
-    this.router.navigate(['/profile', this.user?.id, 'followers']);
+    const id = this.user?.id;
+    if (!id) return;
+    this.router.navigate(this.isOwnProfile ? ['/profile/followers'] : ['/profile', id, 'followers']);
   }
 
   goToFollowing(): void {
-    this.router.navigate(['/profile', this.user?.id, 'following']);
+    const id = this.user?.id;
+    if (!id) return;
+    this.router.navigate(this.isOwnProfile ? ['/profile/following'] : ['/profile', id, 'following']);
   }
 
   goToAccount(): void {
@@ -186,28 +183,29 @@ export class ProfileComponent implements OnInit {
     this.router.navigate(['/post', post.id]);
   }
 
-  followUser(): void {
+  toggleFollow(): void {
     if (!this.user) return;
-    this.userService.follow(this.user.id).subscribe({
+    const request = this.user.is_following
+      ? this.userService.unfollow(this.user.id)
+      : this.userService.follow(this.user.id);
+
+    request.subscribe({
       next: () => {
-        this.toastService.success('Seguindo!', `Agora segues ${this.user?.name}.`);
+        this.user = { ...this.user!, is_following: !this.user!.is_following };
+        this.toastService.success(
+          this.user.is_following ? 'Seguindo!' : 'Deixaste de seguir',
+          this.user.name || ''
+        );
+        this.cdr.detectChanges();
       },
-      error: (error) => {
-        this.toastService.error('Erro!', 'Não foi possível seguir este utilizador.');
-      }
+      error: () => this.toastService.error('Erro!', 'Não foi possível actualizar o seguimento.'),
     });
   }
 
-  unfollowUser(): void {
-    if (!this.user) return;
-    this.userService.unfollow(this.user.id).subscribe({
-      next: () => {
-        this.toastService.info('Deixaste de seguir', `${this.user?.name}.`);
-      },
-      error: (error) => {
-        this.toastService.error('Erro!', 'Não foi possível deixar de seguir.');
-      }
-    });
+  goToCommentPost(comment: Comment): void {
+    if (comment.post_id) {
+      this.router.navigate(['/post', comment.post_id]);
+    }
   }
 
   photoUrl(path?: string | null): string | null {
@@ -263,18 +261,14 @@ export class ProfileComponent implements OnInit {
 
     this.postService.update(post.id, { content: this.editContent }).subscribe({
       next: (updatedPost) => {
-        this.ngZone.run(() => {
-          this.posts = this.posts.map(p => p.id === post.id ? updatedPost : p);
-          this.cancelEdit();
-          this.cdr.detectChanges();
-        });
+        this.posts = this.posts.map(p => p.id === post.id ? updatedPost : p);
+        this.cancelEdit();
+        this.cdr.detectChanges();
         this.toastService.success('Editado!', 'Publicação atualizada com sucesso.');
       },
       error: (error) => {
-        this.ngZone.run(() => {
-          this.errorMessage = error?.error?.message || 'Não foi possível editar o post.';
-          this.cdr.detectChanges();
-        });
+        this.errorMessage = error?.error?.message || 'Não foi possível editar o post.';
+        this.cdr.detectChanges();
         this.toastService.error('Erro!', 'Não foi possível editar a publicação.');
       }
     });
@@ -297,21 +291,17 @@ export class ProfileComponent implements OnInit {
 
     this.postService.delete(this.postToDelete.id).subscribe({
       next: () => {
-        this.ngZone.run(() => {
-          this.posts = this.posts.filter(p => p.id !== this.postToDelete?.id);
-          this.showConfirmDialog = false;
-          this.postToDelete = null;
-          this.cdr.detectChanges();
-        });
+        this.posts = this.posts.filter(p => p.id !== this.postToDelete?.id);
+        this.showConfirmDialog = false;
+        this.postToDelete = null;
+        this.cdr.detectChanges();
         this.toastService.success('Eliminado!', 'Publicação removida com sucesso.');
       },
       error: (error) => {
-        this.ngZone.run(() => {
-          this.errorMessage = error?.error?.message || 'Não foi possível excluir o post.';
-          this.showConfirmDialog = false;
-          this.postToDelete = null;
-          this.cdr.detectChanges();
-        });
+        this.errorMessage = error?.error?.message || 'Não foi possível excluir o post.';
+        this.showConfirmDialog = false;
+        this.postToDelete = null;
+        this.cdr.detectChanges();
         this.toastService.error('Erro!', 'Não foi possível excluir a publicação.');
       }
     });

@@ -60,7 +60,7 @@
                 </button>
                 
                 @if (activeMenuId === post.id) {
-                  <div class="absolute right-0 top-8 z-20 min-w-[120px] bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg shadow-lg overflow-hidden">
+                  <div class="post-menu-dropdown absolute right-0 top-8 z-20 min-w-[120px] bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg shadow-lg overflow-hidden">
                     <button class="w-full px-4 py-2 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--state-hover)] transition"
                             (click)="beginEdit(post)">Editar</button>
                     <button class="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-[var(--state-hover)] transition"

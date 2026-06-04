@@ -8,10 +8,16 @@
     <h1>Segurança</h1>
   </div>
 
+  @if (errorMessage()) {
+    <div class="mx-4 mt-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+      {{ errorMessage() }}
+    </div>
+  }
+
   <div class="settings-form">
     <div class="form-section">
       <h2>Alterar palavra-passe</h2>
-      
+
       <div class="form-group">
         <label>Palavra-passe actual</label>
         <input type="password" [(ngModel)]="passwordData.currentPassword" class="form-input" placeholder="********">
@@ -27,20 +33,9 @@
         <input type="password" [(ngModel)]="passwordData.confirmPassword" class="form-input" placeholder="********">
       </div>
 
-      <button class="update-btn" (click)="updatePassword()">Actualizar palavra-passe</button>
-    </div>
-
-    <div class="form-section">
-      <div class="toggle-row">
-        <div class="toggle-info">
-          <h2>Autenticação de dois factores (2FA)</h2>
-          <span class="toggle-desc">Adiciona uma camada extra de segurança à tua conta</span>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" [(ngModel)]="twoFactorEnabled" (change)="toggleTwoFactor()">
-          <span class="toggle-track"><span class="toggle-thumb"></span></span>
-        </label>
-      </div>
+      <button class="update-btn" [disabled]="isSaving()" (click)="updatePassword()">
+        {{ isSaving() ? 'A guardar...' : 'Actualizar palavra-passe' }}
+      </button>
     </div>
   </div>
 </div>

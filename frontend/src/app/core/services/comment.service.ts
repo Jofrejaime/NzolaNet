@@ -14,9 +14,13 @@ export class CommentService {
       .pipe(map((response) => response.data));
   }
 
-  create(postId: number, content: string) {
+  create(postId: number, content: string, parentId?: number | null) {
+    const body: { content: string; parent_id?: number } = { content };
+    if (parentId) {
+      body.parent_id = parentId;
+    }
     return this.http
-      .post<ApiResponse<Comment>>(`${this.apiUrl.apiUrl}/posts/${postId}/comments`, { content })
+      .post<ApiResponse<Comment>>(`${this.apiUrl.apiUrl}/posts/${postId}/comments`, body)
       .pipe(map((response) => response.data));
   }
 

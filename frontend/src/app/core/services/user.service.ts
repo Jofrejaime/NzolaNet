@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs';
 import { ApiUrlService } from './api-url.service';
-import { ApiResponse, NzolaUser } from '../models/api.models';
+import { ApiResponse, Comment, NzolaUser, PaginatedResponse, Post } from '../models/api.models';
 
 export interface UserWithFollow extends NzolaUser {
   is_following: boolean;
@@ -69,5 +69,25 @@ export class UserService {
     return this.http
       .get<ApiResponse<UserWithFollow[]>>(`${this.apiUrl.apiUrl}/users/${id}/following`)
       .pipe(map((response) => response.data));
+  }
+
+  getUserPosts(id: number) {
+    return this.http
+      .get<ApiResponse<PaginatedResponse<Post>>>(`${this.apiUrl.apiUrl}/users/${id}/posts`)
+      .pipe(map((response) => response.data));
+  }
+
+  getUserComments(id: number) {
+    return this.http
+      .get<ApiResponse<PaginatedResponse<Comment>>>(`${this.apiUrl.apiUrl}/users/${id}/comments`)
+      .pipe(map((response) => response.data));
+  }
+
+  changePassword(currentPassword: string, password: string, passwordConfirmation: string) {
+    return this.http.put<ApiResponse<null>>(`${this.apiUrl.apiUrl}/profile/password`, {
+      current_password: currentPassword,
+      password,
+      password_confirmation: passwordConfirmation,
+    });
   }
 }

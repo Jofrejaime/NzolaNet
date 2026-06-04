@@ -9,13 +9,16 @@ use App\Data\Api\User\LoginData;
 use App\Data\Api\User\UpdateProfileData;
 use App\Repositories\Api\UserRepository;
 use App\Models\User;
+use App\Repositories\Api\FollowRepository;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class UserService
 {
     public function __construct(
-        protected UserRepository $userRepository
+        protected UserRepository $userRepository,
+        protected FollowRepository $followRepository,
     ) {}
 
     /**
@@ -112,10 +115,34 @@ class UserService
     /**
      * Obter usuário por ID
      */
-    public function getUserById(int $id): ?array
+    public function getUserById(int $id, ?int $viewerId = null): ?array
     {
         $user = $this->userRepository->find($id);
-        return $user ? $user->toArray() : null;
+        if (!$user) {
+            return null;
+        }
+
+        $data = $user->toArray();
+        unset($data['password']);
+
+        if ($viewerId) {
+            $data['is_following'] = $this->followRepository->isFollowing($viewerId, $id);
+        }
+
+        return $data;
+    }
+
+    public function changePassword(int $userId, string $currentPassword, string $newPassword): void
+    {
+        $user = User::findOrFail($userId);
+
+        if (!Hash::check($currentPassword, $user->password)) {
+            throw ValidationException::withMessages([
+                'current_password' => ['A palavra-passe actual está incorrecta.'],
+            ]);
+        }
+
+        $user->update(['password' => bcrypt($newPassword)]);
     }
 
     /**

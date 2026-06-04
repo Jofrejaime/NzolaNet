@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService, UserWithFollow } from '../../../core/services/user.service';
 import { ApiUrlService } from '../../../core/services/api-url.service';
@@ -11,8 +11,8 @@ import { ApiUrlService } from '../../../core/services/api-url.service';
   styleUrls: ['./right-sidebar.scss']
 })
 export class RightSidebarComponent implements OnInit {
-  loading = true;
-  users: UserWithFollow[] = [];
+  readonly loading = signal(true);
+  readonly users = signal<UserWithFollow[]>([]);
 
   constructor(
     private userService: UserService,
@@ -24,32 +24,37 @@ export class RightSidebarComponent implements OnInit {
   }
 
   loadSuggestions(): void {
-    this.loading = true;
+    this.loading.set(true);
     this.userService.list().subscribe({
       next: (users) => {
-        this.users = users.slice(0, 5);
-        this.loading = false;
+        this.users.set(users.slice(0, 5));
+        this.loading.set(false);
       },
       error: () => {
-        this.loading = false;
+        this.loading.set(false);
       }
     });
   }
 
   toggleFollow(user: UserWithFollow): void {
-    if (user.is_following) {
-      this.userService.unfollow(user.id).subscribe({
-        next: () => {
-          user.is_following = false;
-        }
-      });
-    } else {
-      this.userService.follow(user.id).subscribe({
-        next: () => {
-          user.is_following = true;
-        }
-      });
-    }
+    const request = user.is_following
+      ? this.userService.unfollow(user.id)
+      : this.userService.follow(user.id);
+
+    request.subscribe({
+      next: () => {
+        this.users.update((list) =>
+          list.map((item) =>
+            item.id === user.id
+              ? { ...item, is_following: !user.is_following }
+              : item
+          )
+        );
+      },
+      error: (err) => {
+        console.error('Erro ao atualizar seguir:', err);
+      }
+    });
   }
 
   photoUrl(path?: string | null): string | null {

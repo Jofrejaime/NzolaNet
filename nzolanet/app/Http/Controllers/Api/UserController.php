@@ -9,8 +9,11 @@ use App\Http\Requests\Api\UpdateProfileRequest;
 use App\Http\Requests\Api\UploadProfilePhotoRequest;
 use App\Http\Requests\Api\RecoverPasswordRequest;
 use App\Http\Requests\Api\ResetPasswordRequest;
+use App\Http\Requests\Api\ChangePasswordRequest;
 use App\Services\Api\UserService;
 use App\Services\Api\FollowService;
+use App\Services\Api\PostService;
+use App\Services\Api\CommentService;
 use App\Data\Api\User\RegisterData;
 use App\Data\Api\User\LoginData;
 use App\Data\Api\User\UpdateProfileData;
@@ -22,7 +25,9 @@ class UserController extends Controller
 {
     public function __construct(
         protected UserService $userService,
-        protected FollowService $followService
+        protected FollowService $followService,
+        protected PostService $postService,
+        protected CommentService $commentService,
     ) {}
 
     /**
@@ -189,10 +194,11 @@ class UserController extends Controller
      * Obter usuário por ID
      * GET /api/users/{id}
      */
-    public function show(int $id): JsonResponse
+    public function show(int $id, Request $request): JsonResponse
     {
         try {
-            $user = $this->userService->getUserById($id);
+            $viewerId = $request->user()?->id;
+            $user = $this->userService->getUserById($id, $viewerId);
             
             if (!$user) {
                 return response()->json([
@@ -242,6 +248,67 @@ class UserController extends Controller
      * Alterar foto de perfil
      * POST /api/profile/photo
      */
+    public function changePassword(ChangePasswordRequest $request): JsonResponse
+    {
+        try {
+            $this->userService->changePassword(
+                $request->user()->id,
+                $request->current_password,
+                $request->password
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Palavra-passe alterada com sucesso!',
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro de validação',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao alterar palavra-passe: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function userPosts(int $id, Request $request): JsonResponse
+    {
+        try {
+            $posts = $this->postService->getPostsByUser($id, $request->user()->id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $posts,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao listar publicações: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function userComments(int $id): JsonResponse
+    {
+        try {
+            $comments = $this->commentService->getCommentsByUser($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => $comments,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao listar comentários: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function updateProfilePhoto(UploadProfilePhotoRequest $request): JsonResponse
     {
         try {

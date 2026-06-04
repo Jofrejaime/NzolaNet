@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef, ApplicationRef, NgZone, HostListe
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { Comment, Post } from '../../core/models/api.models';
 import { ApiUrlService } from '../../core/services/api-url.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -27,21 +28,21 @@ export class ThreadComponent implements OnInit {
   editPostContent = '';
   editingCommentId: number | null = null;
   editCommentContent = '';
-  
+
   // Menu properties
   showPostMenu = false;
   activeCommentMenuId: number | null = null;
-  
+
   // Reply properties
   replyingToCommentId: number | null = null;
   replyContent = '';
   isReplying = false;
-  
+
   // Dialog properties
   showDeletePostDialog = false;
   showDeleteCommentDialog = false;
   commentToDelete: Comment | null = null;
-  
+
   // Baze animation
   isBazing = false;
 
@@ -55,7 +56,7 @@ export class ThreadComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private appRef: ApplicationRef,
     private ngZone: NgZone
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -72,57 +73,39 @@ export class ThreadComponent implements OnInit {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
-    if (!target.closest('.menu-trigger') && !target.closest('.comment-menu-trigger')) {
+    if (
+      !target.closest('.menu-trigger') &&
+      !target.closest('.comment-menu-trigger') &&
+      !target.closest('.post-menu-dropdown')
+    ) {
       this.showPostMenu = false;
       this.activeCommentMenuId = null;
     }
-    if (!target.closest('.reply-container')) {
+    if (!target.closest('.reply-container') && !target.closest('.reply-trigger')) {
       this.replyingToCommentId = null;
       this.replyContent = '';
     }
   }
 
   loadThread(id: number): void {
-    this.ngZone.run(() => {
-      this.isLoading = true;
-      this.errorMessage = '';
-    });
+    this.isLoading = true;
+    this.errorMessage = '';
 
-    this.postService.show(id).subscribe({
-      next: (post) => {
-        this.ngZone.run(() => {
-          this.post = post;
-          this.cdr.detectChanges();
-          this.loadComments(post.id);
-        });
+    forkJoin({
+      post: this.postService.show(id),
+      comments: this.commentService.list(id),
+    }).subscribe({
+      next: ({ post, comments }) => {
+        this.post = post;
+        this.comments = [...comments.data];
+        this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
-        this.ngZone.run(() => {
-          this.errorMessage = error?.error?.message || 'Nao foi possivel carregar a publicacao.';
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        });
-      }
-    });
-  }
-
-  loadComments(postId: number): void {
-    this.commentService.list(postId).subscribe({
-      next: (page) => {
-        this.ngZone.run(() => {
-          this.comments = [...page.data];
-          this.isLoading = false;
-          this.cdr.detectChanges();
-          this.appRef.tick();
-        });
+        this.errorMessage = error?.error?.message || 'Nao foi possivel carregar a publicacao.';
+        this.isLoading = false;
+        this.cdr.detectChanges();
       },
-      error: (error) => {
-        this.ngZone.run(() => {
-          console.error('Erro ao carregar comentários:', error);
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        });
-      }
     });
   }
 
@@ -135,7 +118,7 @@ export class ThreadComponent implements OnInit {
       this.isCommenting = true;
     });
 
-    this.commentService.create(this.post.id, this.commentContent.trim()).subscribe({
+    this.commentService.create(this.post.id, this.commentContent.trim(), null).subscribe({
       next: (comment) => {
         this.ngZone.run(() => {
           this.comments = [...this.comments, comment];
@@ -159,9 +142,11 @@ export class ThreadComponent implements OnInit {
   }
 
   // Reply to comment
-  startReply(comment: Comment): void {
+  startReply(comment: Comment, event: Event): void {
+    event.stopPropagation();
     this.replyingToCommentId = comment.id;
     this.replyContent = '';
+    this.cdr.detectChanges();
   }
 
   cancelReply(): void {
@@ -171,15 +156,19 @@ export class ThreadComponent implements OnInit {
 
   submitReply(comment: Comment): void {
     if (!this.replyContent.trim()) return;
-    
+
     this.ngZone.run(() => {
       this.isReplying = true;
     });
 
-    this.commentService.create(this.post!.id, this.replyContent.trim()).subscribe({
-      next: (newComment) => {
+    this.commentService.create(this.post!.id, this.replyContent.trim(), comment.id).subscribe({
+      next: (newReply) => {
         this.ngZone.run(() => {
-          this.comments = [...this.comments, newComment];
+          this.comments = this.comments.map((item) =>
+            item.id === comment.id
+              ? { ...item, replies: [...(item.replies || []), newReply] }
+              : item
+          );
           if (this.post) {
             this.post = {
               ...this.post,
@@ -366,33 +355,33 @@ export class ThreadComponent implements OnInit {
   // === BAZE WITH ANIMATION ===
   toggleBaze(event: MouseEvent): void {
     if (!this.post) return;
-    
+
     const burst = document.createElement('div');
     burst.className = 'baze-burst';
     burst.innerHTML = '❤️';
     burst.style.left = (event.clientX - 15) + 'px';
     burst.style.top = (event.clientY - 15) + 'px';
     document.body.appendChild(burst);
-    
+
     setTimeout(() => {
       burst.remove();
     }, 500);
-    
+
     this.isBazing = true;
     setTimeout(() => {
       this.isBazing = false;
     }, 300);
-    
+
     const nextHasBazed = !this.post.has_bazed;
     const nextCount = Math.max((this.post.bazes_count || 0) + (nextHasBazed ? 1 : -1), 0);
-    
+
     const previousState = { ...this.post };
     this.post = { ...this.post, has_bazed: nextHasBazed, bazes_count: nextCount };
-    
+
     const request = nextHasBazed
       ? this.postService.addBaze(this.post.id)
       : this.postService.removeBaze(this.post.id);
-    
+
     request.subscribe({
       error: () => {
         this.post = previousState;
