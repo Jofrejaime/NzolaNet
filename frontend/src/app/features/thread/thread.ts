@@ -94,6 +94,14 @@ export class ThreadComponent implements OnInit {
     }
   }
 
+  // Navegar para o perfil do utilizador
+  goToUserProfile(userId: number | undefined, event: Event): void {
+    event.stopPropagation();
+    if (userId) {
+      this.router.navigate(['/profile', userId]);
+    }
+  }
+
   loadThread(id: number): void {
     this.isLoading = true;
     this.errorMessage = '';

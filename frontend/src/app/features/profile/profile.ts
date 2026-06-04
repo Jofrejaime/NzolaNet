@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule} from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { AvatarComponent } from '../../shared/components/avatar/avatar';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
@@ -15,13 +15,13 @@ import { ToastService } from '../../core/services/toast.service';
 @Component({
   selector: 'nzola-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, AvatarComponent, SkeletonComponent], // Apenas RouterLink aqui
+  imports: [CommonModule, FormsModule, AvatarComponent, SkeletonComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
 })
 export class ProfileComponent implements OnInit {
-  private router = inject(Router);        // Serviços vão aqui
-  private route = inject(ActivatedRoute); // Serviços vão aqui
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private postService = inject(PostService);
   private userService = inject(UserService);
@@ -51,15 +51,18 @@ export class ProfileComponent implements OnInit {
   skeletonItems = [1, 2, 3];
 
   ngOnInit(): void {
-    const userId = this.route.snapshot.paramMap.get('id');
-    
-    if (userId) {
-      this.loadUserProfile(Number(userId));
-      this.isOwnProfile = this.authService.currentUser()?.id === Number(userId);
-    } else {
-      this.loadOwnProfile();
-      this.isOwnProfile = true;
-    }
+    // ESCUTAR MUDANÇAS nos parâmetros da rota (IMPORTANTE!)
+    this.route.paramMap.subscribe(params => {
+      const userId = params.get('id');
+      
+      if (userId) {
+        this.loadUserProfile(Number(userId));
+        this.isOwnProfile = this.authService.currentUser()?.id === Number(userId);
+      } else {
+        this.loadOwnProfile();
+        this.isOwnProfile = true;
+      }
+    });
   }
 
   @HostListener('document:click', ['$event'])
@@ -76,6 +79,12 @@ export class ProfileComponent implements OnInit {
   loadOwnProfile(): void {
     this.isLoadingProfile = true;
     this.errorMessage = '';
+    // Limpar dados anteriores
+    this.posts = [];
+    this.userComments = [];
+    this.user = null;
+    this.followersCount = 0;
+    this.followingCount = 0;
 
     this.authService.loadUser().subscribe({
       next: (user) => {
@@ -94,6 +103,12 @@ export class ProfileComponent implements OnInit {
   loadUserProfile(userId: number): void {
     this.isLoadingProfile = true;
     this.errorMessage = '';
+    // Limpar dados anteriores
+    this.posts = [];
+    this.userComments = [];
+    this.user = null;
+    this.followersCount = 0;
+    this.followingCount = 0;
 
     this.userService.show(userId).subscribe({
       next: (user) => {
@@ -162,13 +177,15 @@ export class ProfileComponent implements OnInit {
   goToFollowers(): void {
     const id = this.user?.id;
     if (!id) return;
-    this.router.navigate(this.isOwnProfile ? ['/profile/followers'] : ['/profile', id, 'followers']);
+    // Sempre passa o ID para a navegação
+    this.router.navigate(['/profile', id, 'followers']);
   }
 
   goToFollowing(): void {
     const id = this.user?.id;
     if (!id) return;
-    this.router.navigate(this.isOwnProfile ? ['/profile/following'] : ['/profile', id, 'following']);
+    // Sempre passa o ID para a navegação
+    this.router.navigate(['/profile', id, 'following']);
   }
 
   goToAccount(): void {
@@ -176,11 +193,17 @@ export class ProfileComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/']);
+    window.history.back();
   }
 
   goToThread(post: Post): void {
     this.router.navigate(['/post', post.id]);
+  }
+
+  goToCommentPost(comment: Comment): void {
+    if (comment.post_id) {
+      this.router.navigate(['/post', comment.post_id]);
+    }
   }
 
   toggleFollow(): void {
@@ -200,12 +223,6 @@ export class ProfileComponent implements OnInit {
       },
       error: () => this.toastService.error('Erro!', 'Não foi possível actualizar o seguimento.'),
     });
-  }
-
-  goToCommentPost(comment: Comment): void {
-    if (comment.post_id) {
-      this.router.navigate(['/post', comment.post_id]);
-    }
   }
 
   photoUrl(path?: string | null): string | null {
