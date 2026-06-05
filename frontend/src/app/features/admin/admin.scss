@@ -37,6 +37,26 @@
   }
 }
 
+// Admin Badge
+.admin-badge {
+  font-size: 0.65rem;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-weight: 700;
+  margin-left: auto;
+  white-space: nowrap;
+  
+  &.super {
+    background: #a855f7;
+    color: white;
+  }
+  
+  &.admin {
+    background: #3b82f6;
+    color: white;
+  }
+}
+
 // Dashboard Stats Grid
 .dashboard-stats {
   display: grid;
@@ -264,6 +284,8 @@
 
 .action-btn--danger {
   color: #ef4444;
+  border: 1px solid var(--border-default);
+  background: var(--bg-elevated);
 
   &:hover {
     background: rgba(239, 68, 68, 0.1);
@@ -329,7 +351,7 @@
   }
 }
 
-// Modal styles (keep existing)
+// Modal styles
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -466,6 +488,11 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+// Cursor pointer
+.cursor-pointer {
+  cursor: pointer;
 }
 
 // Responsive
