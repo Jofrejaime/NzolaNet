@@ -75,6 +75,34 @@
   }
 }
 
+// Card de sucesso (verde)
+.stat-card-success {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border: none;
+  
+  .stat-value {
+    color: white;
+  }
+  
+  .stat-label {
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+// Card de perigo (vermelho)
+.stat-card-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: none;
+  
+  .stat-value {
+    color: white;
+  }
+  
+  .stat-label {
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
 // Charts
 .chart-bars {
   border-bottom: 1px solid var(--border-subtle);

@@ -12,27 +12,27 @@
 
   <!-- Tabs -->
   <div class="admin-tabs border-b border-[var(--border-subtle)]">
-  <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
-          [ngClass]="{'active': activeTab() === 'dashboard'}"
-          (click)="setTab('dashboard')">
-    Dashboard
-  </button>
-  <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
-          [ngClass]="{'active': activeTab() === 'users'}"
-          (click)="setTab('users')">
-    Utilizadores
-  </button>
-  <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
-          [ngClass]="{'active': activeTab() === 'posts'}"
-          (click)="setTab('posts')">
-    Publicações
-  </button>
-  <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
-          [ngClass]="{'active': activeTab() === 'comments'}"
-          (click)="setTab('comments')">
-    Comentários
-  </button>
-</div>
+    <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
+            [ngClass]="{'active': activeTab() === 'dashboard'}"
+            (click)="setTab('dashboard')">
+      Dashboard
+    </button>
+    <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
+            [ngClass]="{'active': activeTab() === 'users'}"
+            (click)="setTab('users')">
+      Utilizadores
+    </button>
+    <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
+            [ngClass]="{'active': activeTab() === 'posts'}"
+            (click)="setTab('posts')">
+      Publicações
+    </button>
+    <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
+            [ngClass]="{'active': activeTab() === 'comments'}"
+            (click)="setTab('comments')">
+      Comentários
+    </button>
+  </div>
 
   <!-- Loading -->
   @if (loading()) {
@@ -53,13 +53,13 @@
             <span class="stat-label text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Utilizadores</span>
             <span class="stat-value text-2xl font-bold text-[var(--text-primary)] block mt-1">{{ d.totalUsers }}</span>
           </div>
-          <div class="stat-card p-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-success)] text-center">
-            <span class="stat-label text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Activos</span>
-            <span class="stat-value text-2xl font-bold text-[var(--text-success)] block mt-1">{{ d.activeUsers }}</span>
+          <div class="stat-card stat-card-success p-4 rounded-xl text-center">
+            <span class="stat-label text-xs font-semibold text-white/80 uppercase tracking-wide">Activos</span>
+            <span class="stat-value text-2xl font-bold text-white block mt-1">{{ d.activeUsers }}</span>
           </div>
-          <div class="stat-card p-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-danger)] text-center">
-            <span class="stat-label text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Inactivos</span>
-            <span class="stat-value text-2xl font-bold text-[var(--text-danger)] block mt-1">{{ d.inactiveUsers }}</span>
+          <div class="stat-card stat-card-danger p-4 rounded-xl text-center">
+            <span class="stat-label text-xs font-semibold text-white/80 uppercase tracking-wide">Inactivos</span>
+            <span class="stat-value text-2xl font-bold text-white block mt-1">{{ d.inactiveUsers }}</span>
           </div>
           <div class="stat-card p-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-default)] text-center">
             <span class="stat-label text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Publicações</span>
@@ -123,8 +123,7 @@
                   <p class="text-xs text-[var(--text-secondary)]">{{ user.email }}</p>
                 </div>
               </div>
-              <span class="text-xs px-2 py-1 rounded-full font-medium"
-                    [class]="user.is_active ? 'bg-[var(--bg-success)] text-[var(--text-success)]' : 'bg-[var(--bg-danger)] text-[var(--text-danger)]'">
+              <span class="status-badge" [class.status-active]="user.is_active" [class.status-inactive]="!user.is_active">
                 {{ user.is_active ? 'Activo' : 'Inactivo' }}
               </span>
             </div>
@@ -152,26 +151,28 @@
               <p class="text-xs text-[var(--text-secondary)] mt-0.5">
                 {{ user.email }} · 
                 <span class="capitalize">{{ user.role }}</span>
-                @if (!user.is_active) {
-                  <span class="text-[var(--text-danger)]"> (desactivado)</span>
-                }
               </p>
             </div>
-            <div class="flex gap-2 items-center flex-shrink-0">
-              @if (user.role !== 'administrador') {
-                <button class="text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-default)] text-[var(--text-primary)] hover:bg-[var(--state-hover)] transition"
-                        (click)="openToggleUserModal(user)">
-                  {{ user.is_active ? 'Desactivar' : 'Activar' }}
-                </button>
-              }
-              @if (canDeleteUser(user)) {
-                <button class="text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-danger)] text-[var(--text-danger)] hover:bg-[var(--bg-danger)] transition"
-                        (click)="openDeleteUserModal(user)">
-                  Eliminar
-                </button>
-              } @else {
-                <span class="text-xs text-[var(--text-tertiary)] italic">Protegido</span>
-              }
+            <div class="flex items-center gap-3 flex-shrink-0">
+              <span class="status-badge" [class.status-active]="user.is_active" [class.status-inactive]="!user.is_active">
+                {{ user.is_active ? 'Activo' : 'Inactivo' }}
+              </span>
+              <div class="flex gap-2">
+                @if (user.role !== 'administrador') {
+                  <button class="text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-default)] text-[var(--text-primary)] hover:bg-[var(--state-hover)] transition"
+                          (click)="openToggleUserModal(user)">
+                    {{ user.is_active ? 'Desactivar' : 'Activar' }}
+                  </button>
+                }
+                @if (canDeleteUser(user)) {
+                  <button class="text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-danger)] text-[var(--text-danger)] hover:bg-[var(--bg-danger)] transition"
+                          (click)="openDeleteUserModal(user)">
+                    Eliminar
+                  </button>
+                } @else {
+                  <span class="text-xs text-[var(--text-tertiary)] italic">Protegido</span>
+                }
+              </div>
             </div>
           </div>
         }
