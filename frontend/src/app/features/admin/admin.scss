@@ -1,137 +1,115 @@
-.admin-tabs {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  overflow-x: auto;
+.admin-wrap {
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--bg-base);
 }
 
-.admin-tab {
-  padding: 0.375rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  white-space: nowrap;
-  border: 1px solid var(--border-strong);
-  color: var(--text-secondary);
+.admin-header {
+  background: var(--bg-base);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
 
-  &.active {
-    background: var(--bg-brand);
-    border-color: var(--bg-brand);
-    color: #fff;
+.back-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    background: var(--state-hover);
   }
 }
 
-.admin-row {
+.admin-tabs {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--border-subtle);
+  gap: 0;
+  background: var(--bg-base);
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-/* Stats Cards */
-.stat-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  padding: 1rem 0.75rem;
-  border-radius: 0.75rem;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
-}
-
-.stat-card--success {
-  border-color: #22c55e;
-  background: rgba(34, 197, 94, 0.08);
-}
-
-.stat-card--danger {
-  border-color: #ef4444;
-  background: rgba(239, 68, 68, 0.08);
-}
-
-.stat-label {
-  font-size: 0.7rem;
-  font-weight: 600;
+.admin-tab {
+  background: transparent;
+  border: none;
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+
+  &.active {
+    color: var(--text-primary);
+    font-weight: 600;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--bg-brand);
+    }
+  }
 }
 
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  line-height: 1;
+// Stats Cards
+.stat-card {
+  transition: transform var(--duration-fast) var(--ease-out);
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
 }
 
-/* Charts */
-.chart-section {
-  margin-bottom: 1.5rem;
-}
-
-.chart-title {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 0.75rem;
-}
-
+// Charts
 .chart-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-  height: 120px;
-  padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border-subtle);
-}
-
-.chart-bar-group {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 100%;
-  justify-content: flex-end;
 }
 
 .chart-bar {
-  width: 100%;
-  max-width: 40px;
+  transition: height var(--duration-moderate) var(--ease-out);
   min-height: 4px;
-  border-radius: 4px 4px 0 0;
-  background: var(--bg-brand);
-  position: relative;
-  transition: height 0.3s ease;
 }
 
-.chart-bar--accent {
-  background: #a855f7;
+// Admin Rows
+.admin-row {
+  transition: background var(--duration-fast) var(--ease-out);
 }
 
-.chart-bar-value {
-  position: absolute;
-  top: -1.2rem;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  white-space: nowrap;
-}
-
-.chart-bar-label {
-  font-size: 0.6rem;
-  color: var(--text-secondary);
-  margin-top: 0.25rem;
-  text-align: center;
-  white-space: nowrap;
-}
-
-/* Recent section */
-.recent-section {
-  margin-top: 0.5rem;
+// Responsive
+@media (max-width: 640px) {
+  .admin-wrap {
+    padding-bottom: 80px;
+  }
+  
+  .dashboard-stats .grid {
+    gap: 8px;
+  }
+  
+  .stat-card {
+    padding: 12px;
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
+  }
+  
+  .chart-bar-value {
+    font-size: 0.6rem;
+    white-space: nowrap;
+  }
+  
+  .chart-bar-label {
+    font-size: 0.55rem;
+  }
 }

@@ -6,11 +6,12 @@ import { AdminService } from '../../core/services/admin.service';
 import { AdminDashboardData, Comment, NzolaUser, Post } from '../../core/models/api.models';
 import { ToastService } from '../../core/services/toast.service';
 import { AuthService } from '../../core/services/auth.service';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
 @Component({
   selector: 'nzola-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SkeletonComponent],
   templateUrl: './admin.html',
   styleUrls: ['./admin.scss'],
   host: { class: 'block w-full' },
@@ -37,6 +38,30 @@ export class AdminComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadTab();
+  }
+
+  // Navegação - aceita undefined
+  goToProfile(userId: number | undefined, event?: Event): void {
+    if (event) event.stopPropagation();
+    if (userId) {
+      this.router.navigate(['/profile', userId]);
+    }
+  }
+
+  goToThread(postId: number | undefined, event?: Event): void {
+    if (event) event.stopPropagation();
+    if (postId) {
+      this.router.navigate(['/post', postId]);
+    }
+  }
+
+  relativeTime(date?: string): string {
+    if (!date) return 'agora';
+    const minutes = Math.max(1, Math.floor((Date.now() - new Date(date).getTime()) / 60000));
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h`;
+    return `${Math.floor(hours / 24)}d`;
   }
 
   setTab(tab: 'dashboard' | 'users' | 'posts' | 'comments'): void {
@@ -107,9 +132,7 @@ export class AdminComponent implements OnInit {
   }
 
   canDeleteUser(user: NzolaUser): boolean {
-    // Cannot delete administrators
     if (user.role === 'administrador') return false;
-    // Cannot delete yourself
     if (user.id === this.currentUserId) return false;
     return true;
   }
@@ -129,7 +152,8 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  deletePost(post: Post): void {
+  deletePost(post: Post, event?: Event): void {
+    if (event) event.stopPropagation();
     if (!confirm('Eliminar esta publicação?')) return;
     this.adminService.deletePost(post.id).subscribe({
       next: () => {
@@ -140,7 +164,8 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  deleteComment(comment: Comment): void {
+  deleteComment(comment: Comment, event?: Event): void {
+    if (event) event.stopPropagation();
     if (!confirm('Eliminar este comentário?')) return;
     this.adminService.deleteComment(comment.id).subscribe({
       next: () => {
@@ -155,9 +180,6 @@ export class AdminComponent implements OnInit {
     this.router.navigate(['/settings']);
   }
 
-  /**
-   * Converte dados de usersByMonth ou postsByMonth para array ordenado
-   */
   chartData(data: Record<string, number> | undefined): { label: string; value: number }[] {
     if (!data) return [];
     return Object.entries(data).map(([label, value]) => ({ label, value }));

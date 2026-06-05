@@ -22,21 +22,32 @@
     >
   </div>
 
+  <!-- Skeleton Loading -->
   @if (isLoading) {
-    <div class="loading">A carregar...</div>
+    <div class="skeleton-container">
+      @for (item of skeletonItems; track $index) {
+        <div class="skeleton-user-item">
+          <div class="skeleton-avatar"></div>
+          <div class="skeleton-lines">
+            <div class="skeleton-line w-32"></div>
+            <div class="skeleton-line w-24 mt-1"></div>
+          </div>
+        </div>
+      }
+    </div>
   }
 
-  @if (errorMessage) {
+  @if (errorMessage && !isLoading) {
     <div class="error-message">{{ errorMessage }}</div>
   }
 
-  @if (!isLoading && filteredFollowing.length === 0 && searchTerm) {
+  @if (!isLoading && filteredFollowing.length === 0 && searchTerm && !errorMessage) {
     <div class="empty-state">
       <p>Nenhum resultado encontrado para "{{ searchTerm }}"</p>
     </div>
   }
 
-  @if (!isLoading && filteredFollowing.length === 0 && !searchTerm) {
+  @if (!isLoading && filteredFollowing.length === 0 && !searchTerm && !errorMessage) {
     <div class="empty-state">
       <p>Ainda não estás a seguir ninguém</p>
     </div>

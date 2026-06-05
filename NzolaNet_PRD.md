@@ -821,7 +821,7 @@ O sistema será uma Single Page Application (SPA) desenvolvida com Angular no fr
 **Actores:** Administrador  
 **Pré-condições:** Utilizador com perfil de Administrador autenticado.  
 **Fluxo principal:**
-1. Administrador identifica comentário ofensivo.
+1.  identifica comentário ofensivo.
 2. Selecciona "Remover".
 3. Sistema elimina o comentário.
 
