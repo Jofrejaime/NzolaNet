@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             ['name' => 'TechNews Angola',      'email' => 'tech@teste.com',       'bio' => 'Notícias de tecnologia em Angola', 'role' => 'utilizador'],
             ['name' => 'Design Daily',         'email' => 'design@teste.com',     'bio' => 'Design e criatividade',            'role' => 'utilizador'],
             ['name' => 'Test User',            'email' => 'test@example.com',     'bio' => 'Conta de teste principal',         'role' => 'administrador'],
-            ['name' => 'Super Admin',          'email' => 'super@nzola.com',      'bio' => 'Conta superadmin',                 'role' => 'superadmin'],
+            ['name' => 'Super Admin',          'email' => 'super@nzola.com',      'bio' => 'Conta superadmin',                 'role' => 'superadministrador'],
             ['name' => 'Kizua Mbala',          'email' => 'kizua@teste.com',      'bio' => 'Músico & produtor · Luanda',       'role' => 'utilizador'],
             ['name' => 'Esperança Lopes',      'email' => 'esperanca@teste.com',  'bio' => 'Estudante de Direito · Luanda',    'role' => 'utilizador'],
             ['name' => 'Tiago Neto',           'email' => 'tiago@teste.com',      'bio' => 'Empreendedor & investidor',        'role' => 'utilizador'],
