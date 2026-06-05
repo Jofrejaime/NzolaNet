@@ -71,16 +71,21 @@ export class SettingsComponent {
   ];
 
   get adminItems(): SettingsItem[] {
-    if (this.authService.currentUser()?.role !== 'administrador') {
+    const role = this.authService.currentUser()?.role;
+    if (role !== 'superadministrador' && role !== 'administrador') {
       return [];
     }
+    const isSuper = role === 'superadministrador';
     return [
       {
         id: 'admin',
-        label: 'Administração',
-        description: 'Utilizadores, publicações e comentários',
+        label: isSuper ? 'Super Administração' : 'Administração',
+        description: isSuper
+          ? 'Gerir admins, utilizadores, publicações e comentários'
+          : 'Utilizadores, publicações e comentários',
         icon: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
         routeTo: '/admin',
+        badge: isSuper ? 'Super' : undefined,
       },
     ];
   }

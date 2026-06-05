@@ -130,13 +130,20 @@ class AdminRepositoryEloquent implements AdminRepository
         $user->delete();
     }
 
-    public function listPosts(int $perPage = 20): array
+    public function listPosts(string $search = '', int $perPage = 20): array
     {
-        $posts = Post::query()
+        $query = Post::query()
             ->with(['user'])
-            ->withCount(['comments', 'bazes'])
-            ->orderByDesc('created_at')
-            ->paginate($perPage);
+            ->withCount(['comments', 'bazes']);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('content', 'like', "%{$search}%")
+                    ->orWhereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $posts = $query->orderByDesc('created_at')->paginate($perPage);
 
         return $posts->toArray();
     }
@@ -158,12 +165,19 @@ class AdminRepositoryEloquent implements AdminRepository
         $post->delete();
     }
 
-    public function listComments(int $perPage = 20): array
+    public function listComments(string $search = '', int $perPage = 20): array
     {
-        $comments = Comment::query()
-            ->with(['user', 'post'])
-            ->orderByDesc('created_at')
-            ->paginate($perPage);
+        $query = Comment::query()
+            ->with(['user', 'post']);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('content', 'like', "%{$search}%")
+                    ->orWhereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $comments = $query->orderByDesc('created_at')->paginate($perPage);
 
         return $comments->toArray();
     }
@@ -171,5 +185,72 @@ class AdminRepositoryEloquent implements AdminRepository
     public function deleteComment(int $id): void
     {
         Comment::findOrFail($id)->delete();
+    }
+
+    public function promoteToAdmin(int $id, int $superAdminId): array
+    {
+        $user = User::findOrFail($id);
+
+        // Cannot promote yourself
+        if ($user->id === $superAdminId) {
+            throw ValidationException::withMessages([
+                'user' => ['Não pode alterar a sua própria função.'],
+            ]);
+        }
+
+        // Cannot promote superadmins
+        if ($user->role === 'superadministrador') {
+            throw ValidationException::withMessages([
+                'user' => ['Este utilizador já é super-administrador.'],
+            ]);
+        }
+
+        // If already admin, promote to superadmin
+        if ($user->role === 'administrador') {
+            $user->update(['role' => 'superadministrador']);
+            $this->forceLogoutUser($user->id);
+            return $user->fresh()->toArray();
+        }
+
+        // Regular user -> promote to admin
+        $user->update(['role' => 'administrador', 'is_active' => true]);
+        return $user->fresh()->toArray();
+    }
+
+    public function demoteFromAdmin(int $id, int $superAdminId): array
+    {
+        $user = User::findOrFail($id);
+
+        // Cannot demote yourself
+        if ($user->id === $superAdminId) {
+            throw ValidationException::withMessages([
+                'user' => ['Não pode alterar a sua própria função.'],
+            ]);
+        }
+
+        // Cannot demote other superadmins
+        if ($user->role === 'superadministrador') {
+            throw ValidationException::withMessages([
+                'user' => ['Não é possível alterar a função de outro super-administrador.'],
+            ]);
+        }
+
+        // Only admins can be demoted
+        if ($user->role !== 'administrador') {
+            throw ValidationException::withMessages([
+                'user' => ['Este utilizador não é administrador.'],
+            ]);
+        }
+
+        $user->update(['role' => 'utilizador']);
+        $this->forceLogoutUser($user->id);
+        return $user->fresh()->toArray();
+    }
+
+    public function forceLogoutUser(int $id): void
+    {
+        $user = User::findOrFail($id);
+        // Delete all tokens to force logout
+        $user->tokens()->delete();
     }
 }

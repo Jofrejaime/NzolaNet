@@ -6,21 +6,19 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class EnsureAdmin
+class EnsureSuperAdmin
 {
     /**
-     * Allow both superadministrador and administrador roles
+     * Only superadministrador can access these routes
      */
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
 
-        $allowedRoles = ['superadministrador', 'administrador'];
-
-        if (!$user || !in_array($user->role, $allowedRoles)) {
+        if (!$user || $user->role !== 'superadministrador') {
             return response()->json([
                 'success' => false,
-                'message' => 'Acesso negado. Permissões de administrador necessárias.',
+                'message' => 'Acesso negado. Permissões de super-administrador necessárias.',
             ], 403);
         }
 

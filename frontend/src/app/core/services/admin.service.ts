@@ -48,4 +48,12 @@ export class AdminService {
   deleteComment(id: number) {
     return this.http.delete<ApiResponse<null>>(`${this.apiUrl.apiUrl}/admin/comments/${id}`);
   }
+
+  promoteToAdmin(id: number) {
+    return this.http.post<ApiResponse<NzolaUser>>(`${this.apiUrl.apiUrl}/admin/users/${id}/promote`, {});
+  }
+
+  demoteFromAdmin(id: number) {
+    return this.http.post<ApiResponse<NzolaUser>>(`${this.apiUrl.apiUrl}/admin/users/${id}/demote`, {});
+  }
 }

@@ -1,350 +1,209 @@
-<div class="admin-wrap">
-  
-  <!-- Header Sticky -->
-  <div class="admin-header sticky top-0 z-10 px-4 py-3 border-b border-[var(--border-subtle)] flex items-center gap-4 bg-[var(--bg-base)]">
-    <button class="back-btn p-2 rounded-full hover:bg-[var(--state-hover)] transition text-[var(--text-primary)]" (click)="goBack()">
+<div class="admin-wrap px-4 py-3">
+  <header class="flex items-center gap-3 mb-4 pb-3" style="border-bottom: 1px solid var(--border-subtle);">
+    <button class="p-2 rounded-full" style="background: transparent; border: none; cursor: pointer; color: var(--text-primary);" (click)="goBack()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M15 18l-6-6 6-6"/>
       </svg>
     </button>
-    <h1 class="text-lg font-bold text-[var(--text-primary)]">Administração</h1>
+    <h1 style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin: 0;">Painel administrativo</h1>
+    @if (isSuperAdmin) {
+      <span style="font-size: 0.65rem; padding: 2px 10px; border-radius: 9999px; background: #a855f7; color: white; font-weight: 700; margin-left: auto; white-space: nowrap;">SuperAdmin</span>
+    } @else {
+      <span style="font-size: 0.65rem; padding: 2px 10px; border-radius: 9999px; background: #3b82f6; color: white; font-weight: 700; margin-left: auto; white-space: nowrap;">Admin</span>
+    }
+  </header>
+
+  <div class="admin-tabs">
+    <button class="admin-tab" [class.active]="activeTab() === 'dashboard'" (click)="setTab('dashboard')">Dashboard</button>
+    <button class="admin-tab" [class.active]="activeTab() === 'users'" (click)="setTab('users')">Utilizadores</button>
+    <button class="admin-tab" [class.active]="activeTab() === 'posts'" (click)="setTab('posts')">Publicações</button>
+    <button class="admin-tab" [class.active]="activeTab() === 'comments'" (click)="setTab('comments')">Comentários</button>
   </div>
 
-  <!-- Tabs -->
-  <div class="admin-tabs border-b border-[var(--border-subtle)]">
-    <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
-            [ngClass]="{'active': activeTab() === 'dashboard'}"
-            (click)="setTab('dashboard')">
-      Dashboard
-    </button>
-    <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
-            [ngClass]="{'active': activeTab() === 'users'}"
-            (click)="setTab('users')">
-      Utilizadores
-    </button>
-    <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
-            [ngClass]="{'active': activeTab() === 'posts'}"
-            (click)="setTab('posts')">
-      Publicações
-    </button>
-    <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
-            [ngClass]="{'active': activeTab() === 'comments'}"
-            (click)="setTab('comments')">
-      Comentários
-    </button>
-  </div>
-
-  <!-- Loading -->
   @if (loading()) {
-    <div class="px-4 py-8">
-      <nzola-skeleton variant="post" />
-      <nzola-skeleton variant="user" />
-      <nzola-skeleton variant="user" />
-    </div>
+    <p style="font-size: 0.875rem; color: var(--text-secondary);">A carregar...</p>
   }
 
-  <!-- DASHBOARD -->
+  <!-- ===== DASHBOARD ===== -->
   @if (!loading() && activeTab() === 'dashboard') {
     @if (dashboard(); as d) {
-      <!-- Cards de estatísticas -->
-      <div class="dashboard-stats p-4">
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div class="stat-card p-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-default)] text-center">
-            <span class="stat-label text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Utilizadores</span>
-            <span class="stat-value text-2xl font-bold text-[var(--text-primary)] block mt-1">{{ d.totalUsers }}</span>
-          </div>
-          <div class="stat-card stat-card-success p-4 rounded-xl text-center">
-            <span class="stat-label text-xs font-semibold text-white/80 uppercase tracking-wide">Activos</span>
-            <span class="stat-value text-2xl font-bold text-white block mt-1">{{ d.activeUsers }}</span>
-          </div>
-          <div class="stat-card stat-card-danger p-4 rounded-xl text-center">
-            <span class="stat-label text-xs font-semibold text-white/80 uppercase tracking-wide">Inactivos</span>
-            <span class="stat-value text-2xl font-bold text-white block mt-1">{{ d.inactiveUsers }}</span>
-          </div>
-          <div class="stat-card p-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-default)] text-center">
-            <span class="stat-label text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Publicações</span>
-            <span class="stat-value text-2xl font-bold text-[var(--text-primary)] block mt-1">{{ d.totalPosts }}</span>
-          </div>
-          <div class="stat-card p-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-default)] text-center">
-            <span class="stat-label text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Comentários</span>
-            <span class="stat-value text-2xl font-bold text-[var(--text-primary)] block mt-1">{{ d.totalComments }}</span>
-          </div>
-          <div class="stat-card p-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-default)] text-center">
-            <span class="stat-label text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wide">Bazes</span>
-            <span class="stat-value text-2xl font-bold text-[var(--text-brand)] block mt-1">{{ d.totalBazes }}</span>
-          </div>
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 2px; color: var(--text-secondary);">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+          </svg>
+          <span class="stat-label">Utilizadores</span>
+          <span class="stat-value">{{ d.totalUsers }}</span>
+        </div>
+        <div class="stat-card stat-card--success">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" style="margin-bottom: 2px;">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            <line x1="22" y1="11" x2="18" y2="15"/><line x1="16" y1="11" x2="18" y2="15"/>
+          </svg>
+          <span class="stat-label">Activos</span>
+          <span class="stat-value">{{ d.activeUsers }}</span>
+        </div>
+        <div class="stat-card stat-card--danger">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" style="margin-bottom: 2px;">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            <line x1="22" y1="11" x2="16" y2="17"/><line x1="16" y1="11" x2="22" y2="17"/>
+          </svg>
+          <span class="stat-label">Inactivos</span>
+          <span class="stat-value">{{ d.inactiveUsers }}</span>
+        </div>
+        <div class="stat-card">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 2px; color: var(--text-secondary);">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span class="stat-label">Publicações</span>
+          <span class="stat-value">{{ d.totalPosts }}</span>
+        </div>
+        <div class="stat-card">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 2px; color: var(--text-secondary);">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+          </svg>
+          <span class="stat-label">Comentários</span>
+          <span class="stat-value">{{ d.totalComments }}</span>
+        </div>
+        <div class="stat-card">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 2px; color: var(--text-secondary);">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span class="stat-label">Bazes</span>
+          <span class="stat-value">{{ d.totalBazes }}</span>
         </div>
       </div>
 
-      <!-- Gráfico de Utilizadores -->
-      <div class="chart-section p-4 border-t border-[var(--border-subtle)]">
-        <h3 class="chart-title text-sm font-bold text-[var(--text-primary)] mb-4">Utilizadores registados (últimos 6 meses)</h3>
-        <div class="chart-bars flex items-end gap-2 h-32 pb-6">
+      <div class="chart-section">
+        <h3 class="chart-title">Utilizadores registados (últimos 6 meses)</h3>
+        <div class="chart-bars">
           @for (item of chartData(d.usersByMonth); track item.label) {
-            <div class="chart-bar-group flex-1 flex flex-col items-center justify-end h-full">
-              <div class="chart-bar relative w-full max-w-[40px] bg-[var(--bg-brand)] rounded-t-md transition-all"
-                   [style.height.%]="(item.value / maxChartValue) * 100">
-                <span class="chart-bar-value absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-bold text-[var(--text-primary)] whitespace-nowrap">{{ item.value }}</span>
+            <div class="chart-bar-group">
+              <div class="chart-bar" [style.height.%]="(item.value / maxChartValue) * 100">
+                <span class="chart-bar-value">{{ item.value }}</span>
               </div>
-              <span class="chart-bar-label text-xs text-[var(--text-secondary)] mt-1">{{ item.label.slice(5) }}/{{ item.label.slice(0,4) }}</span>
+              <span class="chart-bar-label">{{ item.label.slice(5) }}/{{ item.label.slice(0,4) }}</span>
             </div>
           }
         </div>
       </div>
 
-      <!-- Gráfico de Publicações -->
-      <div class="chart-section p-4 border-t border-[var(--border-subtle)]">
-        <h3 class="chart-title text-sm font-bold text-[var(--text-primary)] mb-4">Publicações criadas (últimos 6 meses)</h3>
-        <div class="chart-bars flex items-end gap-2 h-32 pb-6">
+      <div class="chart-section">
+        <h3 class="chart-title">Publicações criadas (últimos 6 meses)</h3>
+        <div class="chart-bars">
           @for (item of chartData(d.postsByMonth); track item.label) {
-            <div class="chart-bar-group flex-1 flex flex-col items-center justify-end h-full">
-              <div class="chart-bar relative w-full max-w-[40px] bg-[#A855F7] rounded-t-md transition-all"
-                   [style.height.%]="(item.value / maxChartValue) * 100">
-                <span class="chart-bar-value absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-bold text-[var(--text-primary)] whitespace-nowrap">{{ item.value }}</span>
+            <div class="chart-bar-group">
+              <div class="chart-bar chart-bar--accent" [style.height.%]="(item.value / maxChartValue) * 100">
+                <span class="chart-bar-value">{{ item.value }}</span>
               </div>
-              <span class="chart-bar-label text-xs text-[var(--text-secondary)] mt-1">{{ item.label.slice(5) }}/{{ item.label.slice(0,4) }}</span>
+              <span class="chart-bar-label">{{ item.label.slice(5) }}/{{ item.label.slice(0,4) }}</span>
             </div>
           }
         </div>
       </div>
 
-      <!-- Utilizadores recentes -->
-      <div class="recent-section p-4 border-t border-[var(--border-subtle)]">
-        <h3 class="text-sm font-bold text-[var(--text-primary)] mb-4">Utilizadores recentes</h3>
-        <div class="flex flex-col gap-3">
-          @for (user of d.recentUsers; track user.id) {
-            <div class="flex items-center justify-between gap-3 cursor-pointer hover:bg-[var(--state-hover)] transition rounded-lg p-2" (click)="goToProfile(user.id)">
-              <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-xs font-semibold text-[var(--text-secondary)]">
-                  {{ user.name?.charAt(0) || '?' }}
-                </div>
-                <div>
-                  <p class="font-semibold text-sm text-[var(--text-primary)]">{{ user.name }}</p>
-                  <p class="text-xs text-[var(--text-secondary)]">{{ user.email }}</p>
-                </div>
+      <div style="margin-top: 0.5rem;">
+        <h3 class="chart-title">Utilizadores recentes</h3>
+        @for (user of d.recentUsers; track user.id) {
+          <div class="admin-row">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--bg-brand); display: flex; align-items: center; justify-content: center; color: white; font-size: 0.75rem; font-weight: 700;">
+                {{ user.name?.charAt(0) || '?' }}
               </div>
-              <span class="status-badge" [class.status-active]="user.is_active" [class.status-inactive]="!user.is_active">
-                {{ user.is_active ? 'Activo' : 'Inactivo' }}
-              </span>
+              <div>
+                <p style="font-weight: 700; font-size: 0.875rem; color: var(--text-primary); margin: 0;">{{ user.name }}</p>
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">{{ user.email }}</p>
+              </div>
             </div>
+            <span class="status-badge" [class.status-active]="user.is_active" [class.status-inactive]="!user.is_active">
+              {{ user.is_active ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <!-- ===== UTILIZADORES ===== -->
+  @if (!loading() && activeTab() === 'users') {
+    <div class="search-bar">
+      <input type="text" [(ngModel)]="userSearch" placeholder="Pesquisar..." class="search-input" />
+      <button class="search-btn" (click)="searchUsers()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        Pesquisar
+      </button>
+    </div>
+    @for (user of users(); track user.id) {
+      <div class="admin-row">
+        <div>
+          <p style="font-weight: 700; font-size: 0.875rem; color: var(--text-primary); margin: 0;">
+            {{ user.name }}
+            @if (user.role === 'superadministrador') {
+              <span class="role-badge role-badge--super">Super</span>
+            } @else if (user.role === 'administrador') {
+              <span class="role-badge role-badge--admin">Admin</span>
+            }
+          </p>
+          <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0; margin-top: 2px;">
+            {{ user.email }} · {{ user.role }}
+            @if (!user.is_active) {
+              <span style="color: #ef4444;"> (desactivado)</span>
+            }
+          </p>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          @if (user.role !== 'superadministrador' && user.role !== 'administrador') {
+            <button class="action-btn action-btn--toggle" (click)="toggleUser(user)">{{ user.is_active ? 'Desactivar' : 'Activar' }}</button>
+          }
+          @if (canPromote(user)) {
+            <button class="action-btn action-btn--promote" (click)="promote(user)">{{ user.role === 'utilizador' ? 'Promover' : 'Super' }}</button>
+          }
+          @if (canDemote(user)) {
+            <button class="action-btn action-btn--demote" (click)="demote(user)">Rebaixar</button>
+          }
+          @if (canDeleteUser(user)) {
+            <button class="action-btn action-btn--danger" (click)="deleteUser(user)">Eliminar</button>
           }
         </div>
       </div>
     }
   }
 
-  <!-- UTILIZADORES -->
-  @if (!loading() && activeTab() === 'users') {
-    <div class="users-section p-4">
-      <div class="search-bar flex gap-2 mb-4">
-        <input type="text" [(ngModel)]="userSearch" placeholder="Pesquisar utilizadores..." 
-               class="flex-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-sunken)] px-4 py-2 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none focus:border-[var(--border-brand)] transition"/>
-        <button class="px-4 py-2 rounded-lg bg-[var(--bg-brand)] text-white text-sm font-semibold hover:bg-[#C9460A] transition-all" (click)="searchUsers()">
-          Pesquisar
-        </button>
-      </div>
-      <div class="flex flex-col gap-3">
-        @for (user of users(); track user.id) {
-          <div class="admin-row flex items-center justify-between gap-3 p-3 rounded-lg hover:bg-[var(--state-hover)] transition">
-            <div class="flex-1 min-w-0 cursor-pointer" (click)="goToProfile(user.id)">
-              <p class="font-semibold text-sm text-[var(--text-primary)]">{{ user.name }}</p>
-              <p class="text-xs text-[var(--text-secondary)] mt-0.5">
-                {{ user.email }} · 
-                <span class="capitalize">{{ user.role }}</span>
-              </p>
-            </div>
-            <div class="flex items-center gap-3 flex-shrink-0">
-              <span class="status-badge" [class.status-active]="user.is_active" [class.status-inactive]="!user.is_active">
-                {{ user.is_active ? 'Activo' : 'Inactivo' }}
-              </span>
-              <div class="flex gap-2">
-                @if (user.role !== 'administrador') {
-                  <button class="text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-default)] text-[var(--text-primary)] hover:bg-[var(--state-hover)] transition"
-                          (click)="openToggleUserModal(user)">
-                    {{ user.is_active ? 'Desactivar' : 'Activar' }}
-                  </button>
-                }
-                @if (canDeleteUser(user)) {
-                  <button class="text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-danger)] text-[var(--text-danger)] hover:bg-[var(--bg-danger)] transition"
-                          (click)="openDeleteUserModal(user)">
-                    Eliminar
-                  </button>
-                } @else {
-                  <span class="text-xs text-[var(--text-tertiary)] italic">Protegido</span>
-                }
-              </div>
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-  }
-
-  <!-- PUBLICAÇÕES -->
+  <!-- ===== PUBLICAÇÕES ===== -->
   @if (!loading() && activeTab() === 'posts') {
-    <div class="posts-section p-4">
-      <div class="flex flex-col gap-3">
-        @for (post of posts(); track post.id) {
-          <div class="admin-row flex items-start justify-between gap-3 p-3 rounded-lg hover:bg-[var(--state-hover)] transition cursor-pointer" (click)="goToThread(post.id)">
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <div class="w-6 h-6 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-[10px] font-semibold text-[var(--text-secondary)] cursor-pointer hover:opacity-80"
-                     (click)="goToProfile(post.user?.id, $event)">
-                  {{ post.user?.name?.charAt(0) || '?' }}
-                </div>
-                <span class="font-semibold text-sm text-[var(--text-primary)] cursor-pointer hover:text-[var(--text-brand)] transition"
-                      (click)="goToProfile(post.user?.id, $event)">
-                  {{ post.user?.name || 'Autor desconhecido' }}
-                </span>
-                <span class="text-xs text-[var(--text-secondary)]">{{ relativeTime(post.created_at) }}</span>
-              </div>
-              <p class="text-sm text-[var(--text-primary)] line-clamp-2">{{ post.content }}</p>
-              <div class="flex gap-4 mt-2 text-xs text-[var(--text-secondary)]">
-                <div class="flex items-center gap-1">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
-                  <span>{{ post.comments_count ?? 0 }}</span>
-                </div>
-                <div class="flex items-center gap-1">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                  </svg>
-                  <span>{{ post.bazes_count ?? 0 }}</span>
-                </div>
-              </div>
-            </div>
-            <button class="text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-danger)] text-[var(--text-danger)] hover:bg-[var(--bg-danger)] transition flex-shrink-0"
-                    (click)="openDeletePostModal(post, $event)">
-              Eliminar
-            </button>
-          </div>
-        }
-      </div>
-    </div>
-  }
-
-  <!-- COMENTÁRIOS -->
-  @if (!loading() && activeTab() === 'comments') {
-    <div class="comments-section p-4">
-      <div class="flex flex-col gap-3">
-        @for (comment of comments(); track comment.id) {
-          <div class="admin-row flex items-start justify-between gap-3 p-3 rounded-lg hover:bg-[var(--state-hover)] transition cursor-pointer" (click)="goToThread(comment.post_id)">
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <div class="w-6 h-6 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-[10px] font-semibold text-[var(--text-secondary)] cursor-pointer hover:opacity-80"
-                     (click)="goToProfile(comment.user?.id, $event)">
-                  {{ comment.user?.name?.charAt(0) || '?' }}
-                </div>
-                <span class="font-semibold text-sm text-[var(--text-primary)] cursor-pointer hover:text-[var(--text-brand)] transition"
-                      (click)="goToProfile(comment.user?.id, $event)">
-                  {{ comment.user?.name || 'Utilizador' }}
-                </span>
-                <span class="text-xs text-[var(--text-secondary)]">{{ relativeTime(comment.created_at) }}</span>
-              </div>
-              <p class="text-sm text-[var(--text-secondary)] line-clamp-2">{{ comment.content }}</p>
-            </div>
-            <button class="text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-danger)] text-[var(--text-danger)] hover:bg-[var(--bg-danger)] transition flex-shrink-0"
-                    (click)="openDeleteCommentModal(comment, $event)">
-              Eliminar
-            </button>
-          </div>
-        }
-      </div>
-    </div>
-  }
-
-</div>
-
-<!-- Modal de Confirmação para Utilizador -->
-@if (showUserModal) {
-  <div class="modal-overlay" (click)="closeModals()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>{{ userModalTitle }}</h3>
-        <button class="modal-close" (click)="closeModals()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>{{ userModalMessage }}</p>
-        @if (userModalAction === 'delete') {
-          <div class="warning-box mt-3">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
+    @for (post of posts(); track post.id) {
+      <div class="admin-row">
+        <div>
+          <p style="font-weight: 700; font-size: 0.875rem; color: var(--text-primary); margin: 0;">{{ post.user?.name || 'Autor' }}</p>
+          <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ post.content }}</p>
+          <p class="post-meta">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
-            <span>Esta ação não pode ser desfeita!</span>
-          </div>
-        }
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" (click)="closeModals()">Cancelar</button>
-        <button class="btn-danger" (click)="confirmUserAction()">
-          {{ userModalConfirmText }}
-        </button>
-      </div>
-    </div>
-  </div>
-}
-
-<!-- Modal de Confirmação para Publicação -->
-@if (showPostModal) {
-  <div class="modal-overlay" (click)="closeModals()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Eliminar publicação</h3>
-        <button class="modal-close" (click)="closeModals()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>Tens a certeza que queres eliminar esta publicação?</p>
-        <div class="warning-box mt-3">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <span>Todos os comentários e bazes serão também eliminados.</span>
+            {{ post.comments_count ?? 0 }}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            {{ post.bazes_count ?? 0 }}
+          </p>
         </div>
+        <button class="action-btn action-btn--danger" (click)="deletePost(post)">Eliminar</button>
       </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" (click)="closeModals()">Cancelar</button>
-        <button class="btn-danger" (click)="confirmPostDelete()">Eliminar</button>
-      </div>
-    </div>
-  </div>
-}
+    }
+  }
 
-<!-- Modal de Confirmação para Comentário -->
-@if (showCommentModal) {
-  <div class="modal-overlay" (click)="closeModals()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Eliminar comentário</h3>
-        <button class="modal-close" (click)="closeModals()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
+  <!-- ===== COMENTÁRIOS ===== -->
+  @if (!loading() && activeTab() === 'comments') {
+    @for (comment of comments(); track comment.id) {
+      <div class="admin-row">
+        <div>
+          <p style="font-weight: 700; font-size: 0.875rem; color: var(--text-primary); margin: 0;">{{ comment.user?.name || 'Utilizador' }}</p>
+          <p style="font-size: 0.75rem; color: var(--text-secondary); margin: 0; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ comment.content }}</p>
+        </div>
+        <button class="action-btn action-btn--danger" (click)="deleteComment(comment)">Eliminar</button>
       </div>
-      <div class="modal-body">
-        <p>Tens a certeza que queres eliminar este comentário?</p>
-        <p class="text-sm text-[var(--text-secondary)] mt-2">Esta ação não pode ser desfeita.</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" (click)="closeModals()">Cancelar</button>
-        <button class="btn-danger" (click)="confirmCommentDelete()">Eliminar</button>
-      </div>
-    </div>
-  </div>
-}
+    }
+  }
+</div>
