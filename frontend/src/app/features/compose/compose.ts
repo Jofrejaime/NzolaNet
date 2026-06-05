@@ -166,15 +166,24 @@ export class ComposeComponent {
     });
   }
 
-  close(): void {
-    if (this.content.trim() || this.images.length > 0 || this.videos.length > 0) {
-      if (confirm('Tens conteúdo não publicado. Descartar alterações?')) {
-        this.router.navigate(['/home']);
-      }
-    } else {
-      this.router.navigate(['/home']);
-    }
+  showDiscardModal = false;
+
+close(): void {
+  if (this.content.trim() || this.images.length > 0 || this.videos.length > 0) {
+    this.showDiscardModal = true;
+  } else {
+    this.router.navigate(['/home']);
   }
+}
+
+confirmDiscard(): void {
+  this.showDiscardModal = false;
+  this.router.navigate(['/home']);
+}
+
+cancelDiscard(): void {
+  this.showDiscardModal = false;
+}
 
   photoUrl(path?: string | null): string | null {
     return this.apiUrl.storageUrl(path);

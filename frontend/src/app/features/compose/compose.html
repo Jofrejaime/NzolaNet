@@ -109,5 +109,33 @@
       </span>
     </div>
   </div>
-
+@if (showDiscardModal) {
+  <div class="modal-overlay" (click)="cancelDiscard()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Descartar publicação</h3>
+        <button class="modal-close" (click)="cancelDiscard()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Tens conteúdo não publicado. Tens a certeza que queres sair?</p>
+        <div class="warning-box mt-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>O teu rascunho será perdido.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="cancelDiscard()">Continuar a editar</button>
+        <button class="btn-danger" (click)="confirmDiscard()">Descartar</button>
+      </div>
+    </div>
+  </div>
+}
 </div>
