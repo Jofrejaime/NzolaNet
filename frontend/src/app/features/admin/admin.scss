@@ -278,6 +278,8 @@
 
 .action-btn--demote {
   color: #f97316;
+  border: 1px solid var(--border-default);
+  background: var(--bg-elevated);
 
   &:hover {
     background: rgba(249, 115, 22, 0.1);
