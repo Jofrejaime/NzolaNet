@@ -208,4 +208,9 @@ class UserService
             'password' => bcrypt($newPassword)
         ], $userArray['id']);
     }
+
+    public function deleteAccount(int $userId): void
+{
+    User::findOrFail($userId)->delete();
+}
 }

@@ -17,6 +17,7 @@ Route::post('/reset-password', [UserController::class, 'resetPassword']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UserController::class, 'logout']);
     Route::get('/user', [UserController::class, 'user']);
+    Route::delete('/user', [UserController::class, 'deleteAccount']);
 
     // Gestão de Perfil e Seguidores
     Route::put('/profile', [UserController::class, 'updateProfile']);

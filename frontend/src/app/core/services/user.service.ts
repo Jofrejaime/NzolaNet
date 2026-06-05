@@ -98,7 +98,7 @@ deactivateAccount(password: string): Observable<any> {
 }
 
 deleteAccount(password: string): Observable<any> {
-  return this.http.post(`${this.apiUrl.apiUrl}/user/delete`, { password })
+  return this.http.delete(`${this.apiUrl.apiUrl}/user`, { body: { password } })
     .pipe(map((response: any) => response.data));
 }
 

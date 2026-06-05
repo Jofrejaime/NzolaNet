@@ -20,6 +20,7 @@ use App\Data\Api\User\UpdateProfileData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -436,4 +437,32 @@ class UserController extends Controller
             ], 500);
         }
     }
+
+    public function deleteAccount(Request $request): JsonResponse
+{
+    try {
+        $user = $request->user();
+
+        // Verificar a password
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Palavra-passe incorreta.'
+            ], 401);
+        }
+
+        $this->userService->deleteAccount($user->id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Conta eliminada com sucesso.'
+        ], 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Erro ao eliminar conta: ' . $e->getMessage()
+        ], 500);
+    }
+}
 }
