@@ -163,8 +163,7 @@
           <button class="action-btn action-btn--toggle" (click)="openToggleUserModal(user)">
             {{ user.is_active ? 'Desactivar' : 'Activar' }}
           </button>
-          <button class="action-btn action-btn--danger" (click)="openDeleteUserModal(user)">Eliminar</button>
-        }
+         }
         @if (canPromote(user)) {
           <button class="action-btn action-btn--promote" (click)="openPromoteModal(user)">
             {{ user.role === 'utilizador' ? 'Promover' : 'Super' }}

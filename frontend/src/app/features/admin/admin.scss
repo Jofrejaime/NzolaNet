@@ -268,6 +268,8 @@
 
 .action-btn--promote {
   color: #a855f7;
+  border: 1px solid var(--border-default);
+  background: var(--bg-elevated);
 
   &:hover {
     background: rgba(168, 85, 247, 0.1);
