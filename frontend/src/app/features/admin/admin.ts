@@ -6,12 +6,11 @@ import { AdminService } from '../../core/services/admin.service';
 import { AdminDashboardData, Comment, NzolaUser, Post } from '../../core/models/api.models';
 import { ToastService } from '../../core/services/toast.service';
 import { AuthService } from '../../core/services/auth.service';
-import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
 @Component({
   selector: 'nzola-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, SkeletonComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin.html',
   styleUrls: ['./admin.scss'],
   host: { class: 'block w-full' },
@@ -26,18 +25,7 @@ export class AdminComponent implements OnInit {
   comments = signal<Comment[]>([]);
   dashboard = signal<AdminDashboardData | null>(null);
   currentUserId: number;
-
-  // Modal states
-  showUserModal = false;
-  showPostModal = false;
-  showCommentModal = false;
-  userModalTitle = '';
-  userModalMessage = '';
-  userModalConfirmText = '';
-  userModalAction: 'toggle' | 'delete' = 'toggle';
-  pendingUser: NzolaUser | null = null;
-  pendingPost: Post | null = null;
-  pendingComment: Comment | null = null;
+  currentUserRole: string;
 
   constructor(
     private adminService: AdminService,
@@ -46,102 +34,31 @@ export class AdminComponent implements OnInit {
     private authService: AuthService
   ) {
     this.currentUserId = this.authService.currentUser()?.id ?? 0;
+    this.currentUserRole = this.authService.currentUser()?.role ?? 'utilizador';
   }
 
-  ngOnInit(): void {
-    this.loadTab();
+  /** Only superadministrador can promote/demote/delete users */
+  get isSuperAdmin(): boolean {
+    return this.currentUserRole === 'superadministrador';
   }
 
-  // Modal methods for Users
-  openToggleUserModal(user: NzolaUser): void {
-    this.pendingUser = user;
-    this.userModalTitle = user.is_active ? 'Desactivar utilizador' : 'Activar utilizador';
-    this.userModalMessage = user.is_active 
-      ? `Tens a certeza que queres desactivar "${user.name}"? O utilizador não poderá aceder à plataforma.`
-      : `Tens a certeza que queres activar "${user.name}"? O utilizador poderá voltar a aceder à plataforma.`;
-    this.userModalConfirmText = user.is_active ? 'Desactivar' : 'Activar';
-    this.userModalAction = 'toggle';
-    this.showUserModal = true;
+  /** Both superadmin and admin can manage */
+  get isAdmin(): boolean {
+    return this.currentUserRole === 'superadministrador' || this.currentUserRole === 'administrador';
   }
 
-  openDeleteUserModal(user: NzolaUser): void {
-    this.pendingUser = user;
-    this.userModalTitle = 'Eliminar utilizador';
-    this.userModalMessage = `Tens a certeza que queres eliminar "${user.name}" permanentemente? Todos os seus dados serão removidos.`;
-    this.userModalConfirmText = 'Eliminar';
-    this.userModalAction = 'delete';
-    this.showUserModal = true;
-  }
-
-  confirmUserAction(): void {
-    if (!this.pendingUser) return;
-    
-    if (this.userModalAction === 'toggle') {
-      this.toggleUser(this.pendingUser);
-    } else {
-      this.deleteUser(this.pendingUser);
-    }
-    this.closeModals();
-  }
-
-  // Modal methods for Posts
-  openDeletePostModal(post: Post, event: Event): void {
-    event.stopPropagation();
-    this.pendingPost = post;
-    this.showPostModal = true;
-  }
-
-  confirmPostDelete(): void {
-    if (!this.pendingPost) return;
-    this.deletePost(this.pendingPost);
-    this.closeModals();
-  }
-
-  // Modal methods for Comments
-  openDeleteCommentModal(comment: Comment, event: Event): void {
-    event.stopPropagation();
-    this.pendingComment = comment;
-    this.showCommentModal = true;
-  }
-
-  confirmCommentDelete(): void {
-    if (!this.pendingComment) return;
-    this.deleteComment(this.pendingComment);
-    this.closeModals();
-  }
-
-  closeModals(): void {
-    this.showUserModal = false;
-    this.showPostModal = false;
-    this.showCommentModal = false;
-    this.pendingUser = null;
-    this.pendingPost = null;
-    this.pendingComment = null;
-  }
-
-  // Navegação
-  goToProfile(userId: number | undefined, event?: Event): void {
-    if (event) event.stopPropagation();
-    if (userId) {
-      this.router.navigate(['/profile', userId]);
-    }
-  }
-
-  goToThread(postId: number | undefined, event?: Event): void {
-    if (event) event.stopPropagation();
-    if (postId) {
-      this.router.navigate(['/post', postId]);
-    }
-  }
-
-  relativeTime(date?: string): string {
-    if (!date) return 'agora';
-    const minutes = Math.max(1, Math.floor((Date.now() - new Date(date).getTime()) / 60000));
-    if (minutes < 60) return `${minutes}m`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours}h`;
-    return `${Math.floor(hours / 24)}d`;
-  }
+ ngOnInit(): void {
+  const currentUser = this.authService.currentUser();
+  console.log('Usuário atual no admin:', {
+    id: currentUser?.id,
+    name: currentUser?.name,
+    email: currentUser?.email,
+    role: currentUser?.role,
+    is_active: currentUser?.is_active
+  });
+  
+  this.loadTab();
+}
 
   setTab(tab: 'dashboard' | 'users' | 'posts' | 'comments'): void {
     this.activeTab.set(tab);
@@ -211,12 +128,18 @@ export class AdminComponent implements OnInit {
   }
 
   canDeleteUser(user: NzolaUser): boolean {
-    if (user.role === 'administrador') return false;
+    if (!this.isSuperAdmin) return false;
+    if (user.role === 'superadministrador' || user.role === 'administrador') return false;
     if (user.id === this.currentUserId) return false;
     return true;
   }
 
   deleteUser(user: NzolaUser): void {
+    if (!this.canDeleteUser(user)) {
+      this.toast.error('Impossível', 'Não tem permissão para eliminar este utilizador.');
+      return;
+    }
+    if (!confirm(`Eliminar ${user.name} permanentemente?`)) return;
     this.adminService.deleteUser(user.id).subscribe({
       next: () => {
         this.toast.success('Eliminado', 'Utilizador removido.');
@@ -226,7 +149,52 @@ export class AdminComponent implements OnInit {
     });
   }
 
+  /** Only superadmin: promote user to admin, or admin to superadmin */
+  promote(user: NzolaUser): void {
+    if (!this.isSuperAdmin) return;
+    const nextRole = user.role === 'utilizador' ? 'administrador' : 'superadministrador';
+    const label = nextRole === 'superadministrador' ? 'super-administrador' : 'administrador';
+    if (!confirm(`Promover ${user.name} a ${label}?`)) return;
+
+    this.adminService.promoteToAdmin(user.id).subscribe({
+      next: () => {
+        this.toast.success('Promovido', `${user.name} agora é ${label}.`);
+        this.loadTab();
+      },
+      error: (err) => this.toast.error('Erro', err?.error?.message || 'Não foi possível promover.'),
+    });
+  }
+
+  /** Only superadmin: demote admin to regular user */
+  demote(user: NzolaUser): void {
+    if (!this.isSuperAdmin) return;
+    if (!confirm(`Remover função de administrador de ${user.name}?`)) return;
+
+    this.adminService.demoteFromAdmin(user.id).subscribe({
+      next: () => {
+        this.toast.success('Actualizado', `${user.name} voltou a ser utilizador.`);
+        this.loadTab();
+      },
+      error: (err) => this.toast.error('Erro', err?.error?.message || 'Não foi possível rebaixar.'),
+    });
+  }
+
+  canPromote(user: NzolaUser): boolean {
+    if (!this.isSuperAdmin) return false;
+    if (user.id === this.currentUserId) return false;
+    // Can promote regular users to admin, and admins to superadmin
+    return user.role === 'utilizador' || user.role === 'administrador';
+  }
+
+  canDemote(user: NzolaUser): boolean {
+    if (!this.isSuperAdmin) return false;
+    if (user.id === this.currentUserId) return false;
+    // Can only demote admins
+    return user.role === 'administrador';
+  }
+
   deletePost(post: Post): void {
+    if (!confirm('Eliminar esta publicação?')) return;
     this.adminService.deletePost(post.id).subscribe({
       next: () => {
         this.toast.success('Eliminado', 'Publicação removida.');
@@ -237,6 +205,7 @@ export class AdminComponent implements OnInit {
   }
 
   deleteComment(comment: Comment): void {
+    if (!confirm('Eliminar este comentário?')) return;
     this.adminService.deleteComment(comment.id).subscribe({
       next: () => {
         this.toast.success('Eliminado', 'Comentário removido.');

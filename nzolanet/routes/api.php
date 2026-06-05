@@ -44,15 +44,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/comments/{id}', [CommentController::class, 'update']);
     Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
 
-    // Painel administrativo
+    // Painel administrativo (admin + superadmin)
     Route::middleware('admin')->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard']);
         Route::get('/users', [AdminController::class, 'users']);
         Route::patch('/users/{id}/toggle', [AdminController::class, 'toggleUser']);
-        Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
         Route::get('/posts', [AdminController::class, 'posts']);
         Route::delete('/posts/{id}', [AdminController::class, 'deletePost']);
         Route::get('/comments', [AdminController::class, 'comments']);
         Route::delete('/comments/{id}', [AdminController::class, 'deleteComment']);
+
+        // SuperAdmin apenas: gerir admins e eliminar users
+        Route::middleware('superadmin')->group(function () {
+            Route::post('/users/{id}/promote', [AdminController::class, 'promoteToAdmin']);
+            Route::post('/users/{id}/demote', [AdminController::class, 'demoteFromAdmin']);
+            Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
+        });
     });
 });

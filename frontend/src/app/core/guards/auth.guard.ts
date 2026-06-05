@@ -32,7 +32,8 @@ export const adminGuard: CanActivateFn = () => {
     return router.createUrlTree(['/login']);
   }
 
-  if (authService.currentUser()?.role === 'administrador') {
+  const role = authService.currentUser()?.role;
+  if (role === 'superadministrador' || role === 'administrador') {
     return true;
   }
 

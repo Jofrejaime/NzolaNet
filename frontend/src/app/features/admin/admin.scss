@@ -1,10 +1,11 @@
 // Admin Tabs
 .admin-tabs {
   display: flex;
-  gap: 0;
+  gap: var(--space-2);
   background: var(--bg-base);
   overflow-x: auto;
   scrollbar-width: none;
+  margin-bottom: var(--space-4);
 
   &::-webkit-scrollbar {
     display: none;
@@ -18,28 +19,142 @@
   cursor: pointer;
   white-space: nowrap;
   position: relative;
+  padding: 12px 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
   transition: all var(--duration-fast) var(--ease-out);
-  
+  border-radius: var(--radius-full);
+
   &:hover {
     color: var(--text-primary);
     background: var(--state-hover);
   }
-  
+
   &.active {
     color: var(--text-primary);
     font-weight: var(--weight-semibold);
+    background: var(--bg-elevated);
   }
-  
-  &.active::after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--bg-brand);
-    border-radius: var(--radius-full);
+}
+
+// Dashboard Stats Grid
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
   }
+}
+
+// Stats Cards
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  text-align: center;
+  transition: transform var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.stat-card--success {
+  border-color: rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.06);
+}
+
+.stat-card--danger {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.06);
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  font-size: 1.35rem;
+  font-weight: var(--weight-extrabold);
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+// Charts
+.chart-section {
+  margin-bottom: var(--space-5);
+}
+
+.chart-title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+}
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  height: 120px;
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.chart-bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.chart-bar {
+  width: 100%;
+  max-width: 36px;
+  min-height: 4px;
+  border-radius: 4px 4px 0 0;
+  background: var(--bg-brand);
+  position: relative;
+  transition: height var(--duration-moderate) var(--ease-out);
+}
+
+.chart-bar--accent {
+  background: #a855f7;
+}
+
+.chart-bar-value {
+  position: absolute;
+  top: -1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6rem;
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.chart-bar-label {
+  font-size: 0.55rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  text-align: center;
+  white-space: nowrap;
 }
 
 // Status Badges
@@ -55,42 +170,166 @@
 }
 
 .status-active {
-  background: var(--bg-success);
-  color: var(--text-success);
-  border: 1px solid var(--border-success);
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.25);
 }
 
 .status-inactive {
-  background: var(--bg-danger);
-  color: var(--text-danger);
-  border: 1px solid var(--border-danger);
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
-// Stats Cards
-.stat-card {
-  transition: transform var(--duration-fast) var(--ease-out);
-  
-  &:hover {
-    transform: translateY(-2px);
-  }
+// Role badges
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.65rem;
+  font-weight: var(--weight-bold);
+  line-height: 1.3;
+  white-space: nowrap;
+  vertical-align: middle;
+  margin-left: 4px;
 }
 
-// Charts
-.chart-bars {
-  border-bottom: 1px solid var(--border-subtle);
+.role-badge--super {
+  background: rgba(168, 85, 247, 0.15);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
-.chart-bar {
-  transition: height var(--duration-moderate) var(--ease-out);
-  min-height: 4px;
+.role-badge--admin {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
 // Admin Rows
 .admin-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--border-subtle);
   transition: background var(--duration-fast) var(--ease-out);
 }
 
-// Modal styles
+// Action buttons
+.action-btn {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  background: transparent;
+  color: var(--text-secondary);
+  line-height: 1.3;
+
+  &:hover {
+    background: var(--state-hover);
+  }
+}
+
+.action-btn--toggle {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+
+  &:hover {
+    background: var(--state-hover);
+  }
+}
+
+.action-btn--promote {
+  color: #a855f7;
+
+  &:hover {
+    background: rgba(168, 85, 247, 0.1);
+  }
+}
+
+.action-btn--demote {
+  color: #f97316;
+
+  &:hover {
+    background: rgba(249, 115, 22, 0.1);
+  }
+}
+
+.action-btn--danger {
+  color: #ef4444;
+
+  &:hover {
+    background: rgba(239, 68, 68, 0.1);
+  }
+}
+
+// Search bar
+.search-bar {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.search-input {
+  flex: 1;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+  background: var(--bg-elevated);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  outline: none;
+
+  &:focus {
+    border-color: var(--border-brand);
+  }
+
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+}
+
+.search-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--bg-brand);
+  color: white;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+// Post metadata
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+
+  svg {
+    vertical-align: middle;
+  }
+}
+
+// Modal styles (keep existing)
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -122,14 +361,14 @@
   justify-content: space-between;
   padding: var(--space-5) var(--space-6);
   border-bottom: 1px solid var(--border-subtle);
-  
+
   h3 {
     font-size: var(--text-lg);
     font-weight: var(--weight-bold);
     color: var(--text-primary);
     margin: 0;
   }
-  
+
   .modal-close {
     background: transparent;
     border: none;
@@ -140,7 +379,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    
+
     &:hover {
       background: var(--state-hover);
       color: var(--text-primary);
@@ -150,14 +389,14 @@
 
 .modal-body {
   padding: var(--space-6);
-  
+
   p {
     margin: 0;
     line-height: var(--leading-relaxed);
     color: var(--text-primary);
     font-size: var(--text-sm);
   }
-  
+
   .warning-box {
     display: flex;
     align-items: center;
@@ -178,7 +417,7 @@
   gap: var(--space-3);
   padding: var(--space-4) var(--space-6);
   border-top: 1px solid var(--border-subtle);
-  
+
   .btn-cancel {
     background: transparent;
     border: 1px solid var(--border-default);
@@ -189,12 +428,12 @@
     font-weight: var(--weight-medium);
     cursor: pointer;
     transition: all var(--duration-fast) var(--ease-out);
-    
+
     &:hover {
       background: var(--state-hover);
     }
   }
-  
+
   .btn-danger {
     background: #f87171;
     border: none;
@@ -205,7 +444,7 @@
     font-weight: var(--weight-semibold);
     cursor: pointer;
     transition: all var(--duration-fast) var(--ease-out);
-    
+
     &:hover {
       background: #ef4444;
     }
@@ -234,41 +473,36 @@
   .admin-wrap {
     padding-bottom: 80px;
   }
-  
-  .dashboard-stats .grid {
-    gap: 8px;
-  }
-  
+
   .stat-card {
-    padding: 12px;
+    padding: var(--space-3);
   }
-  
+
   .stat-value {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
   }
-  
+
   .chart-bar-value {
-    font-size: 0.6rem;
-    white-space: nowrap;
-  }
-  
-  .chart-bar-label {
     font-size: 0.55rem;
   }
-  
+
+  .chart-bar-label {
+    font-size: 0.5rem;
+  }
+
+  .admin-tab {
+    padding: 10px 14px;
+    font-size: 0.8125rem;
+  }
+
   .modal-content {
     margin: var(--space-4);
   }
-  
+
   .modal-header,
   .modal-body,
   .modal-footer {
     padding: var(--space-4);
-  }
-  
-  .admin-tab {
-    padding: 12px 16px;
-    font-size: 13px;
   }
 }
 
@@ -281,7 +515,7 @@
     animation: none;
     transition: none;
   }
-  
+
   .stat-card:hover {
     transform: none;
   }

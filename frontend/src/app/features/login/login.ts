@@ -39,22 +39,20 @@ export class LoginComponent {
   private toastService = inject(ToastService);
 
   login(): void {
+    if (this.isLoading) return;
     this.errorMessage = '';
     this.isLoading = true;
 
     this.authService.login(this.loginForm).subscribe({
       next: () => {
+        this.isLoading = false;
         this.toastService.success('Bem-vindo!', 'Login realizado com sucesso.');
         this.router.navigate(['/home']);
       },
       error: (error) => {
-        const msg = error?.error?.message || this.firstValidationError(error) || 'Não foi possível entrar. Verifica os dados e tenta novamente.';
+        this.isLoading = false;
+        const msg = error?.error?.message || this.firstValidationError(error) || 'Email ou palavra-passe incorrectos.';
         this.errorMessage = msg;
-        this.toastService.error('Erro!', msg);
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
       }
     });
   }

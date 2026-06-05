@@ -13,8 +13,7 @@ class AdminController extends Controller
 {
     public function __construct(
         protected AdminService $adminService
-    ) {
-    }
+    ) {}
 
     /**
      * Dashboard com estatísticas e gráficos
@@ -126,11 +125,7 @@ class AdminController extends Controller
      */
     public function posts(Request $request): JsonResponse
     {
-        // CORREÇÃO: primeiro parâmetro é $search (string), segundo é $perPage (int)
-        $search = $request->query('search', '');
-        $perPage = (int) $request->query('per_page', 20);
-
-        $data = $this->adminService->listPosts($search, $perPage);
+        $data = $this->adminService->listPosts((int) $request->query('per_page', 20));
 
         return response()->json(['success' => true, 'data' => $data]);
     }
@@ -153,10 +148,7 @@ class AdminController extends Controller
      */
     public function comments(Request $request): JsonResponse
     {
-        $search = $request->query('search', '');
-        $perPage = (int) $request->query('per_page', 20);
-
-        $data = $this->adminService->listComments($search, $perPage);
+        $data = $this->adminService->listComments((int) $request->query('per_page', 20));
 
         return response()->json(['success' => true, 'data' => $data]);
     }

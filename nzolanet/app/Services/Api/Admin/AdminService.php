@@ -35,9 +35,9 @@ class AdminService
         $this->adminRepository->deleteUser($id, $adminId);
     }
 
-    public function listPosts(int $perPage = 20): array
+    public function listPosts(string $search = '', int $perPage = 20): array
     {
-        return $this->adminRepository->listPosts($perPage);
+        return $this->adminRepository->listPosts($search, $perPage);
     }
 
     public function deletePost(int $id): void
@@ -45,13 +45,28 @@ class AdminService
         $this->adminRepository->deletePost($id);
     }
 
-    public function listComments(int $perPage = 20): array
+    public function listComments(string $search = '', int $perPage = 20): array
     {
-        return $this->adminRepository->listComments($perPage);
+        return $this->adminRepository->listComments($search, $perPage);
     }
 
     public function deleteComment(int $id): void
     {
         $this->adminRepository->deleteComment($id);
+    }
+
+    public function promoteToAdmin(int $id, int $superAdminId): array
+    {
+        return $this->adminRepository->promoteToAdmin($id, $superAdminId);
+    }
+
+    public function demoteFromAdmin(int $id, int $superAdminId): array
+    {
+        return $this->adminRepository->demoteFromAdmin($id, $superAdminId);
+    }
+
+    public function forceLogoutUser(int $id): void
+    {
+        $this->adminRepository->forceLogoutUser($id);
     }
 }
