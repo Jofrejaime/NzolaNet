@@ -27,6 +27,18 @@ export class AdminComponent implements OnInit {
   dashboard = signal<AdminDashboardData | null>(null);
   currentUserId: number;
 
+  // Modal states
+  showUserModal = false;
+  showPostModal = false;
+  showCommentModal = false;
+  userModalTitle = '';
+  userModalMessage = '';
+  userModalConfirmText = '';
+  userModalAction: 'toggle' | 'delete' = 'toggle';
+  pendingUser: NzolaUser | null = null;
+  pendingPost: Post | null = null;
+  pendingComment: Comment | null = null;
+
   constructor(
     private adminService: AdminService,
     private router: Router,
@@ -40,7 +52,74 @@ export class AdminComponent implements OnInit {
     this.loadTab();
   }
 
-  // Navegação - aceita undefined
+  // Modal methods for Users
+  openToggleUserModal(user: NzolaUser): void {
+    this.pendingUser = user;
+    this.userModalTitle = user.is_active ? 'Desactivar utilizador' : 'Activar utilizador';
+    this.userModalMessage = user.is_active 
+      ? `Tens a certeza que queres desactivar "${user.name}"? O utilizador não poderá aceder à plataforma.`
+      : `Tens a certeza que queres activar "${user.name}"? O utilizador poderá voltar a aceder à plataforma.`;
+    this.userModalConfirmText = user.is_active ? 'Desactivar' : 'Activar';
+    this.userModalAction = 'toggle';
+    this.showUserModal = true;
+  }
+
+  openDeleteUserModal(user: NzolaUser): void {
+    this.pendingUser = user;
+    this.userModalTitle = 'Eliminar utilizador';
+    this.userModalMessage = `Tens a certeza que queres eliminar "${user.name}" permanentemente? Todos os seus dados serão removidos.`;
+    this.userModalConfirmText = 'Eliminar';
+    this.userModalAction = 'delete';
+    this.showUserModal = true;
+  }
+
+  confirmUserAction(): void {
+    if (!this.pendingUser) return;
+    
+    if (this.userModalAction === 'toggle') {
+      this.toggleUser(this.pendingUser);
+    } else {
+      this.deleteUser(this.pendingUser);
+    }
+    this.closeModals();
+  }
+
+  // Modal methods for Posts
+  openDeletePostModal(post: Post, event: Event): void {
+    event.stopPropagation();
+    this.pendingPost = post;
+    this.showPostModal = true;
+  }
+
+  confirmPostDelete(): void {
+    if (!this.pendingPost) return;
+    this.deletePost(this.pendingPost);
+    this.closeModals();
+  }
+
+  // Modal methods for Comments
+  openDeleteCommentModal(comment: Comment, event: Event): void {
+    event.stopPropagation();
+    this.pendingComment = comment;
+    this.showCommentModal = true;
+  }
+
+  confirmCommentDelete(): void {
+    if (!this.pendingComment) return;
+    this.deleteComment(this.pendingComment);
+    this.closeModals();
+  }
+
+  closeModals(): void {
+    this.showUserModal = false;
+    this.showPostModal = false;
+    this.showCommentModal = false;
+    this.pendingUser = null;
+    this.pendingPost = null;
+    this.pendingComment = null;
+  }
+
+  // Navegação
   goToProfile(userId: number | undefined, event?: Event): void {
     if (event) event.stopPropagation();
     if (userId) {
@@ -138,11 +217,6 @@ export class AdminComponent implements OnInit {
   }
 
   deleteUser(user: NzolaUser): void {
-    if (!this.canDeleteUser(user)) {
-      this.toast.error('Impossível', 'Não é possível eliminar este utilizador.');
-      return;
-    }
-    if (!confirm(`Eliminar ${user.name}?`)) return;
     this.adminService.deleteUser(user.id).subscribe({
       next: () => {
         this.toast.success('Eliminado', 'Utilizador removido.');
@@ -152,9 +226,7 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  deletePost(post: Post, event?: Event): void {
-    if (event) event.stopPropagation();
-    if (!confirm('Eliminar esta publicação?')) return;
+  deletePost(post: Post): void {
     this.adminService.deletePost(post.id).subscribe({
       next: () => {
         this.toast.success('Eliminado', 'Publicação removida.');
@@ -164,9 +236,7 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  deleteComment(comment: Comment, event?: Event): void {
-    if (event) event.stopPropagation();
-    if (!confirm('Eliminar este comentário?')) return;
+  deleteComment(comment: Comment): void {
     this.adminService.deleteComment(comment.id).subscribe({
       next: () => {
         this.toast.success('Eliminado', 'Comentário removido.');

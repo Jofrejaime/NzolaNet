@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiUrlService } from '../../../core/services/api-url.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'nzola-account',
@@ -18,6 +19,14 @@ export class AccountComponent {
   savedMessage = signal('');
   errorMessage = signal('');
 
+  // Modal states
+  showDeactivateModal = false;
+  showDeleteModal = false;
+  confirmPassword = '';
+  confirmText = '';
+  isProcessing = false;
+  modalError = '';
+
   user = {
     name: '',
     email: '',
@@ -30,7 +39,8 @@ export class AccountComponent {
     private router: Router,
     private authService: AuthService,
     private userService: UserService,
-    private apiUrl: ApiUrlService
+    private apiUrl: ApiUrlService,
+    private toastService: ToastService
   ) {
     const currentUser = this.authService.currentUser();
     if (currentUser) {
@@ -89,6 +99,78 @@ export class AccountComponent {
       },
       complete: () => {
         this.isLoading.set(false);
+      }
+    });
+  }
+
+  // Modal methods
+  openDeactivateModal(): void {
+    this.showDeactivateModal = true;
+    this.confirmPassword = '';
+    this.modalError = '';
+  }
+
+  openDeleteModal(): void {
+    this.showDeleteModal = true;
+    this.confirmPassword = '';
+    this.confirmText = '';
+    this.modalError = '';
+  }
+
+  closeModals(): void {
+    this.showDeactivateModal = false;
+    this.showDeleteModal = false;
+    this.confirmPassword = '';
+    this.confirmText = '';
+    this.modalError = '';
+    this.isProcessing = false;
+  }
+
+  deactivateAccount(): void {
+    if (!this.confirmPassword.trim()) {
+      this.modalError = 'Digita a tua palavra-passe para confirmar.';
+      return;
+    }
+
+    this.isProcessing = true;
+    this.modalError = '';
+
+    this.userService.deactivateAccount(this.confirmPassword).subscribe({
+      next: () => {
+        this.toastService.info('Conta desativada', 'O teu perfil ficou oculto. Podes reativar fazendo login.');
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        this.modalError = error?.error?.message || 'Palavra-passe incorreta.';
+        this.isProcessing = false;
+      }
+    });
+  }
+
+  deleteAccount(): void {
+    if (this.confirmText !== 'ELIMINAR') {
+      this.modalError = 'Digita ELIMINAR para confirmar a eliminação.';
+      return;
+    }
+
+    if (!this.confirmPassword.trim()) {
+      this.modalError = 'Digita a tua palavra-passe para confirmar.';
+      return;
+    }
+
+    this.isProcessing = true;
+    this.modalError = '';
+
+    this.userService.deleteAccount(this.confirmPassword).subscribe({
+      next: () => {
+        this.toastService.success('Conta eliminada', 'A tua conta foi removida permanentemente.');
+        this.authService.logout();
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        this.modalError = error?.error?.message || 'Palavra-passe incorreta.';
+        this.isProcessing = false;
       }
     });
   }

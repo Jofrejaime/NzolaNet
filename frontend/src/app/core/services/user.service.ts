@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { ApiUrlService } from './api-url.service';
 import { ApiResponse, Comment, NzolaUser, PaginatedResponse, Post } from '../models/api.models';
 
@@ -90,4 +90,20 @@ export class UserService {
       password_confirmation: passwordConfirmation,
     });
   }
+  // Adicionar estes métodos no UserService
+
+deactivateAccount(password: string): Observable<any> {
+  return this.http.post(`${this.apiUrl.apiUrl}/user/deactivate`, { password })
+    .pipe(map((response: any) => response.data));
+}
+
+deleteAccount(password: string): Observable<any> {
+  return this.http.post(`${this.apiUrl.apiUrl}/user/delete`, { password })
+    .pipe(map((response: any) => response.data));
+}
+
+reactivateAccount(): Observable<any> {
+  return this.http.post(`${this.apiUrl.apiUrl}/user/reactivate`, {})
+    .pipe(map((response: any) => response.data));
+}
 }

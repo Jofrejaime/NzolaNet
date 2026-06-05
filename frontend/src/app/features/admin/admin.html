@@ -12,23 +12,27 @@
 
   <!-- Tabs -->
   <div class="admin-tabs border-b border-[var(--border-subtle)]">
-    <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
-      [class.active]="activeTab() === 'dashboard'" (click)="setTab('dashboard')">
-      Dashboard
-    </button>
-    <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
-      [class.active]="activeTab() === 'users'" (click)="setTab('users')">
-      Utilizadores
-    </button>
-    <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
-      [class.active]="activeTab() === 'posts'" (click)="setTab('posts')">
-      Publicações
-    </button>
-    <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
-      [class.active]="activeTab() === 'comments'" (click)="setTab('comments')">
-      Comentários
-    </button>
-  </div>
+  <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
+          [ngClass]="{'active': activeTab() === 'dashboard'}"
+          (click)="setTab('dashboard')">
+    Dashboard
+  </button>
+  <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
+          [ngClass]="{'active': activeTab() === 'users'}"
+          (click)="setTab('users')">
+    Utilizadores
+  </button>
+  <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
+          [ngClass]="{'active': activeTab() === 'posts'}"
+          (click)="setTab('posts')">
+    Publicações
+  </button>
+  <button class="admin-tab px-4 py-3 text-sm font-medium transition hover:bg-[var(--state-hover)]"
+          [ngClass]="{'active': activeTab() === 'comments'}"
+          (click)="setTab('comments')">
+    Comentários
+  </button>
+</div>
 
   <!-- Loading -->
   @if (loading()) {
@@ -156,13 +160,13 @@
             <div class="flex gap-2 items-center flex-shrink-0">
               @if (user.role !== 'administrador') {
                 <button class="text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-default)] text-[var(--text-primary)] hover:bg-[var(--state-hover)] transition"
-                        (click)="toggleUser(user)">
+                        (click)="openToggleUserModal(user)">
                   {{ user.is_active ? 'Desactivar' : 'Activar' }}
                 </button>
               }
               @if (canDeleteUser(user)) {
                 <button class="text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-danger)] text-[var(--text-danger)] hover:bg-[var(--bg-danger)] transition"
-                        (click)="deleteUser(user)">
+                        (click)="openDeleteUserModal(user)">
                   Eliminar
                 </button>
               } @else {
@@ -183,12 +187,10 @@
           <div class="admin-row flex items-start justify-between gap-3 p-3 rounded-lg hover:bg-[var(--state-hover)] transition cursor-pointer" (click)="goToThread(post.id)">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1">
-                <!-- Avatar clicável -->
                 <div class="w-6 h-6 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-[10px] font-semibold text-[var(--text-secondary)] cursor-pointer hover:opacity-80"
                      (click)="goToProfile(post.user?.id, $event)">
                   {{ post.user?.name?.charAt(0) || '?' }}
                 </div>
-                <!-- Nome clicável -->
                 <span class="font-semibold text-sm text-[var(--text-primary)] cursor-pointer hover:text-[var(--text-brand)] transition"
                       (click)="goToProfile(post.user?.id, $event)">
                   {{ post.user?.name || 'Autor desconhecido' }}
@@ -197,14 +199,12 @@
               </div>
               <p class="text-sm text-[var(--text-primary)] line-clamp-2">{{ post.content }}</p>
               <div class="flex gap-4 mt-2 text-xs text-[var(--text-secondary)]">
-                <!-- Ícone de comentários como no feed -->
                 <div class="flex items-center gap-1">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                   </svg>
                   <span>{{ post.comments_count ?? 0 }}</span>
                 </div>
-                <!-- Ícone de baze como no feed -->
                 <div class="flex items-center gap-1">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -214,7 +214,7 @@
               </div>
             </div>
             <button class="text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-danger)] text-[var(--text-danger)] hover:bg-[var(--bg-danger)] transition flex-shrink-0"
-                    (click)="deletePost(post, $event)">
+                    (click)="openDeletePostModal(post, $event)">
               Eliminar
             </button>
           </div>
@@ -231,12 +231,10 @@
           <div class="admin-row flex items-start justify-between gap-3 p-3 rounded-lg hover:bg-[var(--state-hover)] transition cursor-pointer" (click)="goToThread(comment.post_id)">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1">
-                <!-- Avatar clicável -->
                 <div class="w-6 h-6 rounded-full bg-[var(--bg-overlay)] flex items-center justify-center text-[10px] font-semibold text-[var(--text-secondary)] cursor-pointer hover:opacity-80"
                      (click)="goToProfile(comment.user?.id, $event)">
                   {{ comment.user?.name?.charAt(0) || '?' }}
                 </div>
-                <!-- Nome clicável -->
                 <span class="font-semibold text-sm text-[var(--text-primary)] cursor-pointer hover:text-[var(--text-brand)] transition"
                       (click)="goToProfile(comment.user?.id, $event)">
                   {{ comment.user?.name || 'Utilizador' }}
@@ -246,7 +244,7 @@
               <p class="text-sm text-[var(--text-secondary)] line-clamp-2">{{ comment.content }}</p>
             </div>
             <button class="text-xs font-semibold px-3 py-1 rounded-full border border-[var(--border-danger)] text-[var(--text-danger)] hover:bg-[var(--bg-danger)] transition flex-shrink-0"
-                    (click)="deleteComment(comment, $event)">
+                    (click)="openDeleteCommentModal(comment, $event)">
               Eliminar
             </button>
           </div>
@@ -256,3 +254,96 @@
   }
 
 </div>
+
+<!-- Modal de Confirmação para Utilizador -->
+@if (showUserModal) {
+  <div class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>{{ userModalTitle }}</h3>
+        <button class="modal-close" (click)="closeModals()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>{{ userModalMessage }}</p>
+        @if (userModalAction === 'delete') {
+          <div class="warning-box mt-3">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>Esta ação não pode ser desfeita!</span>
+          </div>
+        }
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModals()">Cancelar</button>
+        <button class="btn-danger" (click)="confirmUserAction()">
+          {{ userModalConfirmText }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal de Confirmação para Publicação -->
+@if (showPostModal) {
+  <div class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Eliminar publicação</h3>
+        <button class="modal-close" (click)="closeModals()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Tens a certeza que queres eliminar esta publicação?</p>
+        <div class="warning-box mt-3">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>Todos os comentários e bazes serão também eliminados.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModals()">Cancelar</button>
+        <button class="btn-danger" (click)="confirmPostDelete()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal de Confirmação para Comentário -->
+@if (showCommentModal) {
+  <div class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Eliminar comentário</h3>
+        <button class="modal-close" (click)="closeModals()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Tens a certeza que queres eliminar este comentário?</p>
+        <p class="text-sm text-[var(--text-secondary)] mt-2">Esta ação não pode ser desfeita.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModals()">Cancelar</button>
+        <button class="btn-danger" (click)="confirmCommentDelete()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+}

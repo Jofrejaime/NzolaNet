@@ -28,6 +28,7 @@
   }
 
   <div class="settings-content">
+    <!-- Avatar Section -->
     <div class="avatar-section">
       <div class="avatar-large">
         @if (photoUrl()) {
@@ -46,6 +47,7 @@
       </div>
     </div>
 
+    <!-- Form Sections -->
     <div class="form-grid">
       <div class="form-group">
         <label>Nome</label>
@@ -83,5 +85,132 @@
       <input type="checkbox" [(ngModel)]="user.is_private">
       <span>Perfil privado</span>
     </label>
+
+    <!-- ⚠️ DANGER ZONE - Desativar/Eliminar Conta -->
+    <div class="danger-zone">
+      <div class="danger-zone-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <div>
+          <h3>Zona de perigo</h3>
+          <p>Ações irreversíveis ou que alteram significativamente a tua conta</p>
+        </div>
+      </div>
+      
+      <div class="danger-option">
+        <div class="danger-info">
+          <span class="danger-label">Desativar conta</span>
+          <span class="danger-desc">O teu perfil fica oculto. Podes reativar a qualquer momento.</span>
+        </div>
+        <button class="danger-btn deactivate-btn" (click)="openDeactivateModal()">
+          Desativar conta
+        </button>
+      </div>
+      
+      <div class="danger-option">
+        <div class="danger-info">
+          <span class="danger-label">Eliminar conta</span>
+          <span class="danger-desc">Remove permanentemente a tua conta e todos os dados associados.</span>
+        </div>
+        <button class="danger-btn delete-btn" (click)="openDeleteModal()">
+          Eliminar conta
+        </button>
+      </div>
+    </div>
   </div>
 </div>
+
+<!-- Modal de Desativar Conta -->
+@if (showDeactivateModal) {
+  <div class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Desativar conta</h3>
+        <button class="modal-close" (click)="closeModals()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Tens a certeza que queres desativar a tua conta?</p>
+        <p class="text-sm text-[var(--text-secondary)] mt-2">O teu perfil ficará oculto para outros utilizadores. As tuas publicações e comentários não serão visíveis. Podes reativar a conta a qualquer momento fazendo login.</p>
+        
+        <div class="form-group mt-4">
+          <label>Confirma a tua palavra-passe</label>
+          <input type="password" [(ngModel)]="confirmPassword" placeholder="Digita a tua palavra-passe" class="modal-input">
+        </div>
+        
+        @if (modalError) {
+          <div class="modal-error">{{ modalError }}</div>
+        }
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModals()">Cancelar</button>
+        <button class="btn-danger" (click)="deactivateAccount()" [disabled]="isProcessing">
+          {{ isProcessing ? 'A processar...' : 'Desativar conta' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal de Eliminar Conta -->
+@if (showDeleteModal) {
+  <div class="modal-overlay" (click)="closeModals()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Eliminar conta</h3>
+        <button class="modal-close" (click)="closeModals()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="warning-box">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>Esta ação é IRREVERSÍVEL!</span>
+        </div>
+        <p class="mt-3">Tens a certeza que queres eliminar a tua conta permanentemente?</p>
+        <ul class="delete-consequences">
+          <li>✅ Todos os teus posts serão eliminados</li>
+          <li>✅ Todos os teus comentários serão eliminados</li>
+          <li>✅ Os teus bazes serão removidos</li>
+          <li>✅ Perderás todos os teus seguidores</li>
+          <li>✅ O teu username ficará disponível para outros</li>
+          <li>✅ Esta ação não pode ser desfeita</li>
+        </ul>
+        
+        <div class="form-group mt-4">
+          <label>Digita <span class="confirm-text">ELIMINAR</span> para confirmar</label>
+          <input type="text" [(ngModel)]="confirmText" placeholder="Digita ELIMINAR" class="modal-input">
+        </div>
+        
+        <div class="form-group mt-3">
+          <label>Confirma a tua palavra-passe</label>
+          <input type="password" [(ngModel)]="confirmPassword" placeholder="Digita a tua palavra-passe" class="modal-input">
+        </div>
+        
+        @if (modalError) {
+          <div class="modal-error">{{ modalError }}</div>
+        }
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModals()">Cancelar</button>
+        <button class="btn-danger" (click)="deleteAccount()" [disabled]="isProcessing || confirmText !== 'ELIMINAR'">
+          {{ isProcessing ? 'A processar...' : 'Eliminar conta' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
