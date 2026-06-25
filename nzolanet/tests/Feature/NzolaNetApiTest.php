@@ -47,6 +47,11 @@ class NzolaNetApiTest extends TestCase
             'follower_id' => $user1->id,
             'following_id' => $user2->id,
         ]);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $user2->id,
+            'type' => 'follow',
+            'from_user_id' => $user1->id,
+        ]);
 
         // Unfollow
         $response = $this->actingAs($user1, 'sanctum')->deleteJson("/api/users/{$user2->id}/follow");
@@ -169,5 +174,80 @@ class NzolaNetApiTest extends TestCase
         $this->assertDatabaseMissing('comments', [
             'id' => $commentId,
         ]);
+    }
+
+    public function test_comment_creates_notification_for_post_owner(): void
+    {
+        $owner = User::factory()->create();
+        $commenter = User::factory()->create();
+        $post = Post::create([
+            'user_id' => $owner->id,
+            'content' => 'Original Post',
+        ]);
+
+        $response = $this->actingAs($commenter, 'sanctum')->postJson("/api/posts/{$post->id}/comments", [
+            'content' => 'Nice post',
+        ]);
+
+        $response->assertStatus(201);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $owner->id,
+            'type' => 'comment',
+            'from_user_id' => $commenter->id,
+            'post_id' => $post->id,
+        ]);
+    }
+
+    public function test_notifications_can_be_listed_and_marked_as_read(): void
+    {
+        $owner = User::factory()->create();
+        $fan = User::factory()->create();
+        $post = Post::create([
+            'user_id' => $owner->id,
+            'content' => 'Original Post',
+        ]);
+
+        $this->actingAs($fan, 'sanctum')->postJson("/api/posts/{$post->id}/baze")
+            ->assertStatus(200);
+
+        $listResponse = $this->actingAs($owner, 'sanctum')->getJson('/api/notifications');
+        $listResponse->assertStatus(200);
+        $listResponse->assertJsonFragment(['type' => 'baze']);
+
+        $notificationId = $listResponse->json('data.data.0.id');
+        $this->actingAs($owner, 'sanctum')->putJson("/api/notifications/{$notificationId}/read")
+            ->assertStatus(200);
+
+        $this->assertDatabaseHas('notifications', [
+            'id' => $notificationId,
+            'is_read' => true,
+        ]);
+    }
+
+    public function test_private_profile_posts_are_visible_only_to_followers_or_owner(): void
+    {
+        $privateUser = User::factory()->create(['is_private' => true]);
+        $stranger = User::factory()->create();
+        $follower = User::factory()->create();
+
+        $post = Post::create([
+            'user_id' => $privateUser->id,
+            'content' => 'Private post',
+        ]);
+
+        $this->actingAs($stranger, 'sanctum')->getJson('/api/posts')
+            ->assertStatus(200)
+            ->assertJsonMissing(['content' => 'Private post']);
+
+        $this->actingAs($follower, 'sanctum')->postJson("/api/users/{$privateUser->id}/follow")
+            ->assertStatus(200);
+
+        $this->actingAs($follower, 'sanctum')->getJson('/api/posts')
+            ->assertStatus(200)
+            ->assertJsonFragment(['content' => 'Private post']);
+
+        $this->actingAs($privateUser, 'sanctum')->getJson("/api/posts/{$post->id}")
+            ->assertStatus(200)
+            ->assertJsonFragment(['content' => 'Private post']);
     }
 }

@@ -71,3 +71,17 @@ export interface Comment {
   post?: Post;
   replies?: Comment[];
 }
+
+export interface NzolaNotification {
+  id: number;
+  user_id: number;
+  type: 'baze' | 'comment' | 'follow';
+  from_user_id: number;
+  post_id?: number | null;
+  comment_id?: number | null;
+  is_read: boolean;
+  created_at?: string;
+  from_user?: NzolaUser;
+  post?: Post | null;
+  comment?: Comment | null;
+}

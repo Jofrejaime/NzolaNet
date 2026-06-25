@@ -8,12 +8,12 @@
         <span class="unread-badge">{{ unreadCount }}</span>
       }
     </div>
-    @if (!isLoading && allNotifications.length > 0) {
-      <button class="mark-all-btn" (click)="markAllAsRead()">
+    @if (!isLoading && unreadCount > 0) {
+      <button class="mark-all-btn" type="button" (click)="markAllAsRead()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="20 6 9 17 4 12"/>
         </svg>
-        <span>Marcar todas como lidas</span>
+        <span>Marcar todas</span>
       </button>
     }
   </header>
@@ -95,7 +95,14 @@
             <div class="notif-footer">
               <span class="notif-time" [class.brand]="notif.isToday">{{ notif.time }}</span>
               @if (!notif.read) {
-                <button class="mark-read-btn" (click)="markAsRead(notif, $event)">Marcar como lida</button>
+                <button
+                  class="mark-read-btn"
+                  type="button"
+                  title="Marcar como lida"
+                  (click)="markAsRead(notif, $event)"
+                >
+                  Marcar como lida
+                </button>
               }
             </div>
           </div>

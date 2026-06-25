@@ -6,6 +6,7 @@ use Prettus\Repository\Eloquent\BaseRepository;
 use Prettus\Repository\Criteria\RequestCriteria;
 use App\Repositories\Api\PostRepository;
 use App\Models\Post;
+use Illuminate\Support\Facades\DB;
 
 class PostRepositoryEloquent extends BaseRepository implements PostRepository
 {
@@ -22,7 +23,10 @@ class PostRepositoryEloquent extends BaseRepository implements PostRepository
     public function getLatestPosts(int $perPage = 15, ?int $userId = null)
     {
         $query = $this->model
-            ->whereHas('user', fn ($q) => $q->where('is_active', true))
+            ->whereHas('user', function ($q) use ($userId) {
+                $q->where('is_active', true);
+                $this->applyUserPrivacy($q, $userId);
+            })
             ->with(['user'])
             ->withCount(['comments', 'bazes'])
             ->orderBy('created_at', 'desc');
@@ -61,6 +65,10 @@ class PostRepositoryEloquent extends BaseRepository implements PostRepository
     {
         $query = $this->model
             ->where('user_id', $authorId)
+            ->whereHas('user', function ($q) use ($viewerId) {
+                $q->where('is_active', true);
+                $this->applyUserPrivacy($q, $viewerId);
+            })
             ->with(['user'])
             ->withCount(['comments', 'bazes'])
             ->orderBy('created_at', 'desc');
@@ -72,5 +80,26 @@ class PostRepositoryEloquent extends BaseRepository implements PostRepository
         }
 
         return $query->paginate($perPage);
+    }
+
+    private function applyUserPrivacy($query, ?int $viewerId): void
+    {
+        if (!$viewerId) {
+            $query->where('is_private', false);
+            return;
+        }
+
+        $query->where(function ($privacy) use ($viewerId) {
+            $privacy
+                ->where('is_private', false)
+                ->orWhere('users.id', $viewerId)
+                ->orWhereExists(function ($followQuery) use ($viewerId) {
+                    $followQuery
+                        ->select(DB::raw(1))
+                        ->from('follows')
+                        ->where('follower_id', $viewerId)
+                        ->whereColumn('following_id', 'users.id');
+                });
+        });
     }
 }

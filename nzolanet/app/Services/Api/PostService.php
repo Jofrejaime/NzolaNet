@@ -8,6 +8,7 @@ use App\Data\Api\Post\CreatePostData;
 use App\Repositories\Api\PostRepository;
 use App\Models\Post;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class PostService
@@ -48,6 +49,27 @@ class PostService
     public function getPostById(int $id, ?int $userId = null): ?Post
     {
         $query = Post::query()
+            ->whereHas('user', function ($q) use ($userId) {
+                $q->where('is_active', true);
+
+                if (!$userId) {
+                    $q->where('is_private', false);
+                    return;
+                }
+
+                $q->where(function ($privacy) use ($userId) {
+                    $privacy
+                        ->where('is_private', false)
+                        ->orWhere('users.id', $userId)
+                        ->orWhereExists(function ($followQuery) use ($userId) {
+                            $followQuery
+                                ->select(DB::raw(1))
+                                ->from('follows')
+                                ->where('follower_id', $userId)
+                                ->whereColumn('following_id', 'users.id');
+                        });
+                });
+            })
             ->with(['user'])
             ->withCount(['comments', 'bazes']);
 

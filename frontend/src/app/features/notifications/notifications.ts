@@ -1,6 +1,11 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core'; // ✅ Adicionar ChangeDetectorRef
+import { Component, OnDestroy, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router'; // ✅ Adicionar RouterModule
+import { Router, RouterModule } from '@angular/router';
+import { finalize } from 'rxjs';
+import { NzolaNotification } from '../../core/models/api.models';
+import { AuthService } from '../../core/services/auth.service';
+import { NotificationService } from '../../core/services/notification.service';
+import { RealtimeService } from '../../core/services/realtime.service';
 import { ToastService } from '../../core/services/toast.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
@@ -33,148 +38,201 @@ export interface NotifGroup {
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [CommonModule, SkeletonComponent, RouterModule], // ✅ Adicionar RouterModule
+  imports: [CommonModule, SkeletonComponent, RouterModule],
   templateUrl: './notifications.html',
   styleUrls: ['./notifications.scss'],
   host: { class: 'block w-full' },
 })
-export class NotificationsComponent implements OnInit {
+export class NotificationsComponent implements OnInit, OnDestroy {
   private router = inject(Router);
+  private authService = inject(AuthService);
+  private notificationService = inject(NotificationService);
+  private realtimeService = inject(RealtimeService);
   private toastService = inject(ToastService);
-  private cdr = inject(ChangeDetectorRef); // ✅ Adicionar
+  private cdr = inject(ChangeDetectorRef);
 
   allNotifications: Notification[] = [];
   groupedNotifications: NotifGroup[] = [];
   isLoading = true;
   skeletonItems = [1, 2, 3, 4, 5];
 
-  // Dados mockados (simulando API)
-  private mockNotifications: Notification[] = [
-    {
-      id: 1,
-      type: 'like',
-      read: false,
-      isToday: true,
-      user: { name: 'Miguel Sousa', initials: 'MS', colorClass: 'color-orange' },
-      message: 'deu baze no teu post.',
-      time: 'Há 10 min',
-      postThumb: true,
-    },
-    {
-      id: 2,
-      type: 'comment',
-      read: false,
-      isToday: true,
-      user: { name: 'Sara Lima', initials: 'SL', colorClass: 'color-blue' },
-      message: 'comentou a tua publicação:',
-      quote: 'Grande foto, a luz está incrível!',
-      time: 'Há 45 min',
-    },
-    {
-      id: 3,
-      type: 'follow',
-      read: true,
-      isToday: false,
-      user: { name: 'Tiago Mendes', initials: 'TM', colorClass: 'color-green' },
-      message: 'começou a seguir-te.',
-      time: 'Ontem, 21:30',
-    },
-    {
-      id: 4,
-      type: 'like',
-      read: true,
-      isToday: false,
-      user: { name: 'Carlos Silva', initials: 'CS', colorClass: 'color-purple' },
-      message: 'deu baze no teu post.',
-      time: 'Ontem, 14:15',
-      postThumb: true,
-    },
-    {
-      id: 5,
-      type: 'repost',
-      read: true,
-      isToday: false,
-      user: { name: 'Ana Ferreira', initials: 'AF', colorClass: 'color-yellow' },
-      message: 'repostou a tua publicação.',
-      time: 'Ontem, 09:42',
-    },
-  ];
-
   ngOnInit(): void {
     this.loadNotifications();
+    this.listenForRealtimeNotifications();
+  }
+
+  ngOnDestroy(): void {
+    this.realtimeService.disconnectFromNotifications();
   }
 
   loadNotifications(): void {
     this.isLoading = true;
-    this.cdr.detectChanges(); // ✅ Forçar atualização do loading
-    
-    // Simular carregamento de API
-    setTimeout(() => {
-      this.allNotifications = [...this.mockNotifications];
-      this.buildGroups();
-      this.isLoading = false;
-      this.cdr.detectChanges(); // ✅ Forçar atualização da UI
-      this.toastService.info('Notificações', `${this.unreadCount} novas notificações.`);
-    }, 1000);
+
+    this.notificationService
+      .list()
+      .pipe(finalize(() => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (page) => {
+          this.allNotifications = page.data.map((item, index) => this.mapNotification(item, index));
+          this.buildGroups();
+        },
+        error: () => {
+          this.toastService.error('Erro', 'Nao foi possivel carregar as notificacoes.');
+        },
+      });
   }
 
   buildGroups(): void {
-    const today = this.allNotifications.filter(n => n.isToday);
-    const yesterday = this.allNotifications.filter(n => !n.isToday);
+    const today = this.allNotifications.filter((n) => n.isToday);
+    const previous = this.allNotifications.filter((n) => !n.isToday);
 
     this.groupedNotifications = [];
     if (today.length) this.groupedNotifications.push({ label: 'Hoje', items: today });
-    if (yesterday.length) this.groupedNotifications.push({ label: 'Ontem', items: yesterday });
-    
-    this.cdr.detectChanges(); // ✅ Forçar atualização
+    if (previous.length) this.groupedNotifications.push({ label: 'Anteriores', items: previous });
   }
 
   markAsRead(notif: Notification, event: Event): void {
     event.stopPropagation();
-    if (!notif.read) {
-      notif.read = true;
-      this.cdr.detectChanges(); // ✅ Forçar atualização
-      this.toastService.success('Lida!', 'Notificação marcada como lida.');
+    if (notif.read) {
+      return;
     }
+
+    this.notificationService.markAsRead(notif.id).subscribe({
+      next: () => {
+        notif.read = true;
+        this.toastService.success('Lida!', 'Notificacao marcada como lida.');
+        this.cdr.detectChanges();
+      },
+      error: () => this.toastService.error('Erro', 'Nao foi possivel marcar a notificacao.'),
+    });
   }
 
   markAllAsRead(): void {
     const unreadCount = this.unreadCount;
     if (unreadCount === 0) {
-      this.toastService.info('Info', 'Não há notificações não lidas.');
+      this.toastService.info('Info', 'Nao ha notificacoes nao lidas.');
       return;
     }
-    
-    this.allNotifications.forEach(n => n.read = true);
-    this.cdr.detectChanges(); // ✅ Forçar atualização da UI
-    this.toastService.success('Todas lidas!', `${unreadCount} notificações marcadas como lidas.`);
+
+    this.notificationService.markAllAsRead().subscribe({
+      next: () => {
+        this.allNotifications.forEach((n) => n.read = true);
+        this.toastService.success('Todas lidas!', `${unreadCount} notificacoes marcadas como lidas.`);
+        this.cdr.detectChanges();
+      },
+      error: () => this.toastService.error('Erro', 'Nao foi possivel marcar todas como lidas.'),
+    });
   }
 
   onNotifClick(notif: Notification): void {
     if (!notif.read) {
-      notif.read = true;
-      this.cdr.detectChanges(); // ✅ Forçar atualização
+      this.notificationService.markAsRead(notif.id).subscribe({
+        next: () => {
+          notif.read = true;
+          this.cdr.detectChanges();
+        },
+      });
     }
-    
+
     if (notif.routeTo) {
       this.router.navigate([notif.routeTo]);
-    } else {
-      // Navegação padrão baseada no tipo
-      switch (notif.type) {
-        case 'like':
-        case 'comment':
-          this.router.navigate(['/post', 1]); // ID do post
-          break;
-        case 'follow':
-          this.router.navigate(['/profile', 1]); // ID do utilizador
-          break;
-        default:
-          break;
-      }
     }
   }
 
   get unreadCount(): number {
-    return this.allNotifications.filter(n => !n.read).length;
+    return this.allNotifications.filter((n) => !n.read).length;
+  }
+
+  private listenForRealtimeNotifications(): void {
+    const userId = this.authService.currentUser()?.id;
+
+    if (!userId) {
+      return;
+    }
+
+    this.realtimeService.connectToNotifications(userId, (notification) => {
+      if (this.allNotifications.some((item) => item.id === notification.id)) {
+        return;
+      }
+
+      this.allNotifications = [
+        this.mapNotification(notification, 0),
+        ...this.allNotifications,
+      ];
+      this.buildGroups();
+      this.toastService.info('Nova notificacao', this.messageFor(notification.type));
+      this.cdr.detectChanges();
+    });
+  }
+
+  private mapNotification(item: NzolaNotification, index: number): Notification {
+    const name = item.from_user?.name ?? 'Utilizador';
+    const type = this.mapType(item.type);
+    const createdAt = item.created_at ? new Date(item.created_at) : new Date();
+
+    return {
+      id: item.id,
+      type,
+      read: item.is_read,
+      isToday: this.isToday(createdAt),
+      user: {
+        name,
+        initials: this.initials(name),
+        colorClass: this.colorClass(index),
+      },
+      message: this.messageFor(item.type),
+      quote: item.comment?.content,
+      time: this.relativeTime(createdAt),
+      postThumb: item.type === 'baze' && !!item.post_id,
+      routeTo: item.post_id ? `/post/${item.post_id}` : `/profile/${item.from_user_id}`,
+    };
+  }
+
+  private mapType(type: NzolaNotification['type']): NotifType {
+    return type === 'baze' ? 'like' : type;
+  }
+
+  private messageFor(type: NzolaNotification['type']): string {
+    if (type === 'baze') return 'deu baze na tua publicacao.';
+    if (type === 'comment') return 'comentou a tua publicacao:';
+    return 'comecou a seguir-te.';
+  }
+
+  private initials(name: string): string {
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('');
+  }
+
+  private colorClass(index: number): string {
+    return ['color-orange', 'color-blue', 'color-green', 'color-purple', 'color-yellow'][index % 5];
+  }
+
+  private isToday(date: Date): boolean {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  }
+
+  private relativeTime(date: Date): string {
+    const diffMs = Date.now() - date.getTime();
+    const minutes = Math.max(1, Math.floor(diffMs / 60000));
+
+    if (minutes < 60) return `Ha ${minutes} min`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `Ha ${hours} h`;
+
+    return date.toLocaleDateString('pt-AO', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 }

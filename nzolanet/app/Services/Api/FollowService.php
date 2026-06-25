@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services\Api;
 
+use App\Events\NotificationCreated;
+use App\Models\Notification;
 use App\Repositories\Api\FollowRepository;
 use Illuminate\Validation\ValidationException;
 
@@ -28,6 +30,14 @@ class FollowService
                 'following_id' => ['Já segue este utilizador.']
             ]);
         }
+
+        $notification = Notification::create([
+            'user_id' => $followingId,
+            'type' => 'follow',
+            'from_user_id' => $followerId,
+        ]);
+
+        broadcast(new NotificationCreated($notification));
     }
 
     public function unfollow(int $followerId, int $followingId): void

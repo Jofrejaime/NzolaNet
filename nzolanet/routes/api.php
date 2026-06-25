@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\BazeController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\NotificationController;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 // Rotas públicas (sem autenticação)
@@ -12,6 +14,10 @@ Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 Route::post('/recover-password', [UserController::class, 'recoverPassword']);
 Route::post('/reset-password', [UserController::class, 'resetPassword']);
+
+Broadcast::routes([
+    'middleware' => ['auth:sanctum'],
+]);
 
 // Rotas protegidas (requerem token)
 Route::middleware('auth:sanctum')->group(function () {
@@ -44,6 +50,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/posts/{postId}/comments', [CommentController::class, 'store']);
     Route::put('/comments/{id}', [CommentController::class, 'update']);
     Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
+
+    // Notificações
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::put('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 
     // Painel administrativo (admin + superadmin)
     Route::middleware('admin')->prefix('admin')->group(function () {

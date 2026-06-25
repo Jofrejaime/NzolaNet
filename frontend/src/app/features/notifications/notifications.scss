@@ -17,11 +17,71 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 
   h1 {
     font-size: 20px;
     font-weight: 700;
     color: var(--text-primary);
+    margin: 0;
+  }
+}
+
+.notif-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.unread-badge {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--bg-brand);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mark-all-btn,
+.mark-read-btn {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.mark-all-btn {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 650;
+
+  svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  &:hover {
+    background: var(--bg-surface);
+    border-color: var(--border-default);
   }
 }
 
@@ -46,6 +106,14 @@
 
   &:hover { background: var(--bg-surface); }
   &:last-child { border-bottom: none; }
+
+  &.unread {
+    background: color-mix(in srgb, var(--bg-brand) 7%, transparent);
+
+    &:hover {
+      background: color-mix(in srgb, var(--bg-brand) 11%, var(--bg-surface));
+    }
+  }
 }
 
 .unread-dot {
@@ -142,6 +210,30 @@
   &.brand { color: var(--bg-brand); }
 }
 
+.notif-footer {
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.mark-read-btn {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 650;
+
+  &:hover {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+  }
+}
+
 .post-thumb {
   width: 44px;
   height: 44px;
@@ -167,4 +259,37 @@
 
   svg { opacity: 0.4; }
   p { font-size: 15px; }
+}
+
+@media (max-width: 520px) {
+  .notif-header {
+    padding: 14px 16px;
+  }
+
+  .notif-item {
+    padding: 14px 16px 14px 26px;
+    gap: 12px;
+  }
+
+  .mark-all-btn span {
+    display: none;
+  }
+
+  .mark-all-btn {
+    width: 34px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .notif-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .mark-read-btn {
+    padding: 0;
+    height: auto;
+    background: transparent;
+  }
 }

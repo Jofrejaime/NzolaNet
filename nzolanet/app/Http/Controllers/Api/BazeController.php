@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\NotificationCreated;
 use App\Http\Controllers\Controller;
 use App\Services\Api\PostBazeService;
 use App\Models\Notification;
@@ -27,12 +28,14 @@ class BazeController extends Controller
             // Criar notificação para o dono do post
             $post = \App\Models\Post::find($postId);
             if ($post && $post->user_id !== $request->user()->id) {
-                Notification::create([
+                $notification = Notification::create([
                     'user_id' => $post->user_id,
                     'type' => 'baze',
                     'from_user_id' => $request->user()->id,
                     'post_id' => $postId,
                 ]);
+
+                broadcast(new NotificationCreated($notification));
             }
 
             return response()->json([
