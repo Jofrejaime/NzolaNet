@@ -37,6 +37,10 @@ class AppServiceProvider extends ServiceProvider
             \App\Repositories\Api\PostBazeRepositoryEloquent::class
         );
         $this->app->bind(
+            \App\Repositories\Api\NotificationRepository::class,
+            \App\Repositories\Api\NotificationRepositoryEloquent::class
+        );
+        $this->app->bind(
             AdminRepository::class,
             AdminRepositoryEloquent::class
         );

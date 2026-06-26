@@ -1,11 +1,13 @@
-import { Component, OnInit, ChangeDetectorRef, ApplicationRef, NgZone, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ApplicationRef, NgZone, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Post } from '../../core/models/api.models';
 import { ApiUrlService } from '../../core/services/api-url.service';
 import { PostService } from '../../core/services/post.service';
 import { AuthService } from '../../core/services/auth.service';
+import { RealtimeService } from '../../core/services/realtime.service';
 import { ToastService } from '../../core/services/toast.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
@@ -17,7 +19,7 @@ import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
   styleUrls: ['./feed.scss'],
   host: { class: 'block w-full' }
 })
-export class FeedComponent implements OnInit {
+export class FeedComponent implements OnInit, OnDestroy {
   posts: Post[] = [];
   isLoading = false;
   errorMessage = '';
@@ -30,11 +32,13 @@ export class FeedComponent implements OnInit {
   postToDelete: Post | null = null;
 
   skeletonItems = [1, 2, 3];
+  private realtimeBazeSub?: Subscription;
 
   constructor(
     private postService: PostService,
     private apiUrl: ApiUrlService,
     private authService: AuthService,
+    private realtimeService: RealtimeService,
     private router: Router,
     private cdr: ChangeDetectorRef,
     private appRef: ApplicationRef,
@@ -44,6 +48,22 @@ export class FeedComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadFeed();
+    // Ensure the public posts channel is connected before subscribing to updates
+    this.realtimeService.connectToPublicChannels();
+    this.listenForRealtimeBazes();
+  }
+
+  ngOnDestroy(): void {
+    this.realtimeBazeSub?.unsubscribe();
+  }
+
+  private listenForRealtimeBazes(): void {
+    this.realtimeBazeSub = this.realtimeService.postBazeUpdates$.subscribe((update) => {
+      this.posts = this.posts.map((post) =>
+        post.id === update.post_id ? { ...post, bazes_count: update.bazes_count } : post
+      );
+      this.cdr.detectChanges();
+    });
   }
 
   @HostListener('document:click', ['$event'])

@@ -12,6 +12,7 @@
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^2.10.1",
         "philiprehberger/laravel-make-service": "^1.0",
+        "predis/predis": "*",
         "prettus/l5-repository": "^4.0",
         "pusher/pusher-php-server": "*",
         "spatie/laravel-data": "^4.23"

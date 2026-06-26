@@ -1,8 +1,8 @@
-import { Component, OnInit, inject, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { AvatarComponent } from '../../shared/components/avatar/avatar';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 import { Comment, Post, NzolaUser } from '../../core/models/api.models';
@@ -10,6 +10,7 @@ import { ApiUrlService } from '../../core/services/api-url.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PostService } from '../../core/services/post.service';
 import { UserService } from '../../core/services/user.service';
+import { RealtimeService } from '../../core/services/realtime.service';
 import { ToastService } from '../../core/services/toast.service';
 
 @Component({
@@ -19,15 +20,18 @@ import { ToastService } from '../../core/services/toast.service';
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private postService = inject(PostService);
   private userService = inject(UserService);
+  private realtimeService = inject(RealtimeService);
   apiUrl = inject(ApiUrlService);
   private cdr = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
+
+  private realtimeBazeSub?: Subscription;
 
   activeTab: 'posts' | 'replies' | 'media' = 'posts';
   user: NzolaUser | null = null;
@@ -62,6 +66,23 @@ export class ProfileComponent implements OnInit {
         this.loadOwnProfile();
         this.isOwnProfile = true;
       }
+    });
+
+    this.listenForRealtimeBazes();
+    // Ensure the public posts channel is connected before subscribing to updates
+    this.realtimeService.connectToPublicChannels();
+  }
+
+  ngOnDestroy(): void {
+    this.realtimeBazeSub?.unsubscribe();
+  }
+
+  private listenForRealtimeBazes(): void {
+    this.realtimeBazeSub = this.realtimeService.postBazeUpdates$.subscribe((update) => {
+      this.posts = this.posts.map((post) => 
+        post.id === update.post_id ? { ...post, bazes_count: update.bazes_count } : post
+      );
+      this.cdr.detectChanges();
     });
   }
 

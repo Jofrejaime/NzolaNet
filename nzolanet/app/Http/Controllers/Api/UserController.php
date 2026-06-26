@@ -187,7 +187,7 @@ class UserController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => $request->user()
+            'data' => $this->userService->getAuthenticatedUser($request->user())
         ], 200);
     }
 

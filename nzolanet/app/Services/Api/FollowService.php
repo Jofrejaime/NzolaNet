@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace App\Services\Api;
 
-use App\Events\NotificationCreated;
-use App\Models\Notification;
+use App\Data\Api\Notification\NotificationData;
 use App\Repositories\Api\FollowRepository;
 use Illuminate\Validation\ValidationException;
 
 class FollowService
 {
     public function __construct(
-        protected FollowRepository $followRepository
+        protected FollowRepository $followRepository,
+        protected NotificationService $notificationService,
     ) {}
 
     public function follow(int $followerId, int $followingId): void
     {
         if ($followerId === $followingId) {
             throw ValidationException::withMessages([
-                'following_id' => ['Não pode seguir-se a si próprio.']
+                'following_id' => ['Nao pode seguir-se a si proprio.']
             ]);
         }
 
@@ -27,17 +27,15 @@ class FollowService
 
         if (!$success) {
             throw ValidationException::withMessages([
-                'following_id' => ['Já segue este utilizador.']
+                'following_id' => ['Ja segue este utilizador.']
             ]);
         }
 
-        $notification = Notification::create([
-            'user_id' => $followingId,
-            'type' => 'follow',
-            'from_user_id' => $followerId,
-        ]);
-
-        broadcast(new NotificationCreated($notification));
+        $this->notificationService->create(new NotificationData(
+            userId: $followingId,
+            type: 'follow',
+            fromUserId: $followerId,
+        ));
     }
 
     public function unfollow(int $followerId, int $followingId): void
@@ -46,7 +44,7 @@ class FollowService
 
         if (!$success) {
             throw ValidationException::withMessages([
-                'following_id' => ['Não segue este utilizador.']
+                'following_id' => ['Nao segue este utilizador.']
             ]);
         }
     }

@@ -134,6 +134,23 @@ class UserService
         return $data;
     }
 
+    public function getAuthenticatedUser(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'bio' => $user->bio,
+            'profile_photo' => $user->profile_photo,
+            'is_private' => $user->is_private,
+            'is_active' => $user->is_active,
+            'role' => $user->role,
+            'email_verified_at' => $user->email_verified_at,
+            'created_at' => $user->created_at,
+            'updated_at' => $user->updated_at,
+        ];
+    }
+
     public function changePassword(int $userId, string $currentPassword, string $newPassword): void
     {
         $user = User::findOrFail($userId);

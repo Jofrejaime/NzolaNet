@@ -14,6 +14,8 @@ return [
                 'tls' => [],
             ],
             'max_request_size' => env('REVERB_MAX_REQUEST_SIZE', 10000),
+            'pulse_ingest_interval' => 15,
+            'telescope_ingest_interval' => 15,
             'scaling' => [
                 'enabled' => env('REVERB_SCALING_ENABLED', false),
                 'channel' => env('REVERB_SCALING_CHANNEL', 'reverb'),

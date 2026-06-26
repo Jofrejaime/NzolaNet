@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { finalize } from 'rxjs';
+import { Subscription, finalize } from 'rxjs';
 import { NzolaNotification } from '../../core/models/api.models';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
@@ -55,6 +55,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   groupedNotifications: NotifGroup[] = [];
   isLoading = true;
   skeletonItems = [1, 2, 3, 4, 5];
+  private realtimeSub?: Subscription;
 
   ngOnInit(): void {
     this.loadNotifications();
@@ -62,7 +63,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.realtimeService.disconnectFromNotifications();
+    this.realtimeSub?.unsubscribe();
   }
 
   loadNotifications(): void {
@@ -120,6 +121,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     this.notificationService.markAllAsRead().subscribe({
       next: () => {
         this.allNotifications.forEach((n) => n.read = true);
+        this.realtimeService.resetUnreadCount();
         this.toastService.success('Todas lidas!', `${unreadCount} notificacoes marcadas como lidas.`);
         this.cdr.detectChanges();
       },
@@ -148,12 +150,15 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
   private listenForRealtimeNotifications(): void {
     const userId = this.authService.currentUser()?.id;
-
     if (!userId) {
       return;
     }
 
-    this.realtimeService.connectToNotifications(userId, (notification) => {
+    // Ensure private notification channel is connected
+    this.realtimeService.connectToNotifications(userId);
+
+    this.realtimeSub = this.realtimeService.notifications$.subscribe((notification) => {
+      // Avoid duplicates
       if (this.allNotifications.some((item) => item.id === notification.id)) {
         return;
       }

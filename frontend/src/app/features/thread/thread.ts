@@ -1,13 +1,14 @@
-import { Component, OnInit, ChangeDetectorRef, ApplicationRef, NgZone, HostListener, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ApplicationRef, NgZone, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { Comment, Post } from '../../core/models/api.models';
 import { ApiUrlService } from '../../core/services/api-url.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CommentService } from '../../core/services/comment.service';
 import { PostService } from '../../core/services/post.service';
+import { RealtimeService } from '../../core/services/realtime.service';
 import { ToastService } from '../../core/services/toast.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
@@ -19,7 +20,10 @@ import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
   styleUrls: ['./thread.scss'],
   host: { class: 'block w-full' }
 })
-export class ThreadComponent implements OnInit {
+export class ThreadComponent implements OnInit, OnDestroy {
+  private realtimeService = inject(RealtimeService);
+  private realtimeBazeSub?: Subscription;
+
   post: Post | null = null;
   comments: Comment[] = [];
   commentContent = '';
@@ -74,6 +78,22 @@ export class ThreadComponent implements OnInit {
     }
 
     this.loadThread(id);
+    // Ensure the public posts channel is connected before subscribing to updates
+    this.realtimeService.connectToPublicChannels();
+    this.listenForRealtimeBazes();
+  }
+
+  ngOnDestroy(): void {
+    this.realtimeBazeSub?.unsubscribe();
+  }
+
+  private listenForRealtimeBazes(): void {
+    this.realtimeBazeSub = this.realtimeService.postBazeUpdates$.subscribe((update) => {
+      if (this.post && this.post.id === update.post_id) {
+        this.post = { ...this.post, bazes_count: update.bazes_count };
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   // Fechar menus ao clicar fora
