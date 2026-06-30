@@ -32,8 +32,11 @@ class PostBazeService
 
         // Transmitir contagem atualizada em tempo real para outros utilizadores
         try {
+            \Log::debug('[Realtime] Dispatching PostBazeUpdated', ['post_id' => $postId, 'count' => $bazesCount]);
             broadcast(new PostBazeUpdated($postId, $bazesCount));
+            \Log::debug('[Realtime] PostBazeUpdated dispatched successfully');
         } catch (\Throwable $e) {
+            \Log::error('[Realtime] PostBazeUpdated broadcast failed', ['error' => $e->getMessage()]);
             report($e);
         }
 

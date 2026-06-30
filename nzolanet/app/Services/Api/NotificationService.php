@@ -51,8 +51,20 @@ class NotificationService
     private function broadcast(Notification $notification): void
     {
         try {
+            \Log::debug('[Realtime] Dispatching NotificationCreated', [
+                'notification_id' => $notification->id,
+                'channel'         => 'private-notifications.' . $notification->user_id,
+                'type'            => $notification->type,
+            ]);
+
             broadcast(new NotificationCreated($notification));
+
+            \Log::debug('[Realtime] NotificationCreated dispatched successfully');
         } catch (Throwable $e) {
+            \Log::error('[Realtime] Broadcast failed', [
+                'error' => $e->getMessage(),
+                'class' => get_class($e),
+            ]);
             report($e);
         }
     }

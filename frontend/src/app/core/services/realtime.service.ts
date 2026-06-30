@@ -16,13 +16,8 @@ export class RealtimeService implements OnDestroy {
   private postBazeSubject = new Subject<{ post_id: number; bazes_count: number }>();
   private unreadCountSubject = new BehaviorSubject<number>(0);
 
-  /** Expose notifications as an observable so multiple components can subscribe */
   readonly notifications$ = this.notificationSubject.asObservable();
-
-  /** Expose post baze count updates as an observable */
   readonly postBazeUpdates$ = this.postBazeSubject.asObservable();
-
-  /** Expose unread count as an observable */
   readonly unreadCount$ = this.unreadCountSubject.asObservable();
 
   constructor(
@@ -30,10 +25,6 @@ export class RealtimeService implements OnDestroy {
     private authService: AuthService
   ) {}
 
-  /**
-   * Connect to the public posts channel for baze count updates.
-   * Can be called by any component independently.
-   */
   connectToPublicChannels(): void {
     if (this.publicChannelConnected) {
       return;
@@ -52,22 +43,16 @@ export class RealtimeService implements OnDestroy {
     this.publicChannelConnected = true;
   }
 
-  /**
-   * Connect to the private notifications channel for the given user.
-   * Also ensures the public channel is connected.
-   */
   connectToNotifications(userId: number): void {
-    // Always ensure public channels are connected
     this.connectToPublicChannels();
 
     if (this.connectedUserId === userId) {
-      return; // Already connected for this user
+      return;
     }
 
-    // Disconnect previous user's private channel if needed
     if (this.connectedUserId) {
       try {
-        this.echo?.leave(`private-notifications.${this.connectedUserId}`);
+        this.echo?.leave(`notifications.${this.connectedUserId}`);
       } catch {
         // Ignore
       }
@@ -93,16 +78,10 @@ export class RealtimeService implements OnDestroy {
       });
   }
 
-  /**
-   * Set the initial unread count (called after loading from API).
-   */
   setUnreadCount(count: number): void {
     this.unreadCountSubject.next(count);
   }
 
-  /**
-   * Reset unread count to zero (e.g., after marking all as read).
-   */
   resetUnreadCount(): void {
     this.unreadCountSubject.next(0);
   }
@@ -113,7 +92,7 @@ export class RealtimeService implements OnDestroy {
       return;
     }
     try {
-      this.echo.leave(`private-notifications.${id}`);
+      this.echo.leave(`notifications.${id}`);
     } catch {
       // Ignore errors on leave
     }
@@ -155,17 +134,12 @@ export class RealtimeService implements OnDestroy {
 
     console.log('[Realtime] Creating Echo connection', { key, host, port, scheme });
 
-    const pusher = new Pusher(key, {
-      wsHost: host,
-      wsPort: port,
-      wssPort: port,
-      forceTLS: scheme === 'https',
-      enabledTransports: ['ws', 'wss'],
-      disableStats: true,
-    });
-
+    // Pusher (a classe, não uma instância) é passado explicitamente para que o Echo
+    // consiga criar a sua própria instância com toda a configuração correta,
+    // incluindo o authorizer para autenticação de canais privados.
     this.echo = new Echo({
       broadcaster: 'reverb',
+      Pusher,
       key,
       wsHost: host,
       wsPort: port,
@@ -173,13 +147,13 @@ export class RealtimeService implements OnDestroy {
       forceTLS: scheme === 'https',
       enabledTransports: ['ws', 'wss'],
       disableStats: true,
-      authEndpoint: `${this.apiUrl.apiUrl}/broadcasting/auth`,
       authorizer: (channel: { name: string }) => ({
         authorize: (
           socketId: string,
           callback: (error: unknown, data: unknown) => void
         ) => {
           const token = this.authService.token;
+
           if (!token) {
             console.error('[Realtime] No auth token available');
             callback(new Error('Not authenticated'), null);
@@ -214,7 +188,6 @@ export class RealtimeService implements OnDestroy {
             });
         },
       }),
-      client: pusher,
     });
 
     return this.echo;

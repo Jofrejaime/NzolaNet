@@ -22,6 +22,7 @@ class NotificationData extends Data
             'from_user_id' => $this->fromUserId,
             'post_id' => $this->postId,
             'comment_id' => $this->commentId,
+            'is_read' => false,
         ], fn ($value) => $value !== null);
     }
 }
