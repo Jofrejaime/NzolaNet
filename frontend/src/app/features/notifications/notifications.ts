@@ -81,7 +81,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
           this.buildGroups();
         },
         error: () => {
-          this.toastService.error('Erro', 'Nao foi possivel carregar as notificacoes.');
+          this.toastService.error('Erro', 'Não foi possivel carregar as notificacoes.');
         },
       });
   }
@@ -104,17 +104,17 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     this.notificationService.markAsRead(notif.id).subscribe({
       next: () => {
         notif.read = true;
-        this.toastService.success('Lida!', 'Notificacao marcada como lida.');
+        this.toastService.success('Lida!', 'Notificação marcada como lida.');
         this.cdr.detectChanges();
       },
-      error: () => this.toastService.error('Erro', 'Nao foi possivel marcar a notificacao.'),
+      error: () => this.toastService.error('Erro', 'Não foi possivel marcar a notificação.'),
     });
   }
 
   markAllAsRead(): void {
     const unreadCount = this.unreadCount;
     if (unreadCount === 0) {
-      this.toastService.info('Info', 'Nao ha notificacoes nao lidas.');
+      this.toastService.info('Info', 'Não ha notificacoes não lidas.');
       return;
     }
 
@@ -125,7 +125,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
         this.toastService.success('Todas lidas!', `${unreadCount} notificacoes marcadas como lidas.`);
         this.cdr.detectChanges();
       },
-      error: () => this.toastService.error('Erro', 'Nao foi possivel marcar todas como lidas.'),
+      error: () => this.toastService.error('Erro', 'Não foi possivel marcar todas como lidas.'),
     });
   }
 
@@ -168,7 +168,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
         ...this.allNotifications,
       ];
       this.buildGroups();
-      this.toastService.info('Nova notificacao', this.messageFor(notification.type));
+      this.toastService.info('Nova notificação', this.messageFor(notification.type));
       this.cdr.detectChanges();
     });
   }
@@ -201,8 +201,8 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   }
 
   private messageFor(type: NzolaNotification['type']): string {
-    if (type === 'baze') return 'deu baze na tua publicacao.';
-    if (type === 'comment') return 'comentou a tua publicacao:';
+    if (type === 'baze') return 'deu baze na tua publicação.';
+    if (type === 'comment') return 'comentou a tua publicação:';
     return 'comecou a seguir-te.';
   }
 
