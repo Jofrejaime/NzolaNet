@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Api;
 
 use App\Data\Api\Post\CreatePostData;
+use App\Events\PostCreated;
 use App\Repositories\Api\PostRepository;
 use App\Models\Post;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -90,7 +91,16 @@ class PostService
         $data = $dto->toArray();
         $data['user_id'] = $userId;
 
-        return $this->postRepository->create($data);
+        $post = $this->postRepository->create($data);
+
+        try {
+            broadcast(new PostCreated($post));
+        } catch (\Throwable $e) {
+            \Log::error('[Realtime] PostCreated broadcast failed', ['error' => $e->getMessage()]);
+            report($e);
+        }
+
+        return $post;
     }
 
     /**

@@ -66,6 +66,20 @@ export class AuthService {
     this.persistUser(user);
   }
 
+  recoverPassword(email: string) {
+    return this.http.post<{ success: boolean; message: string }>(
+      `${this.apiUrl.apiUrl}/recover-password`,
+      { email }
+    );
+  }
+
+  resetPassword(email: string, token: string, password: string, password_confirmation: string) {
+    return this.http.post<{ success: boolean; message: string }>(
+      `${this.apiUrl.apiUrl}/reset-password`,
+      { email, token, password, password_confirmation }
+    );
+  }
+
   logout(): void {
     const token = this.token;
 

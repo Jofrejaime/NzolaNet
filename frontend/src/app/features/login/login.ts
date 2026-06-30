@@ -14,9 +14,20 @@ import { ToastService } from '../../core/services/toast.service';
   host: { class: 'block w-full' }
 })
 export class LoginComponent {
-  activeTab: 'entrar' | 'criar' = 'entrar';
+  activeTab: 'entrar' | 'criar' | 'forgot' = 'entrar';
   isLoading = false;
   errorMessage = '';
+
+  // Show/hide password toggles
+  showLoginPassword = false;
+  showRegisterPassword = false;
+  showRegisterConfirm = false;
+
+  // Forgot password state
+  forgotEmail = '';
+  forgotLoading = false;
+  forgotSuccess = false;
+  forgotError = '';
 
   loginForm = {
     email: '',
@@ -107,9 +118,38 @@ export class LoginComponent {
     });
   }
 
+  sendRecovery(): void {
+    this.forgotError = '';
+
+    if (!this.forgotEmail || !this.forgotEmail.includes('@')) {
+      this.forgotError = 'Insere um email válido.';
+      return;
+    }
+
+    this.forgotLoading = true;
+
+    this.authService.recoverPassword(this.forgotEmail).subscribe({
+      next: () => {
+        this.forgotLoading = false;
+        this.forgotSuccess = true;
+      },
+      error: (err) => {
+        this.forgotLoading = false;
+        const errors = err?.error?.errors;
+        this.forgotError =
+          errors?.email?.[0] ||
+          err?.error?.message ||
+          'Não foi possível processar o pedido.';
+      }
+    });
+  }
+
   switchToLogin(): void {
     this.activeTab = 'entrar';
     this.errorMessage = '';
+    this.forgotError = '';
+    this.forgotSuccess = false;
+    this.forgotEmail = '';
   }
 
   switchToRegister(): void {
@@ -117,13 +157,17 @@ export class LoginComponent {
     this.errorMessage = '';
   }
 
+  switchToForgot(): void {
+    this.activeTab = 'forgot';
+    this.errorMessage = '';
+    this.forgotError = '';
+    this.forgotSuccess = false;
+    this.forgotEmail = '';
+  }
+
   private firstValidationError(error: any): string | null {
     const errors = error?.error?.errors;
-
-    if (!errors) {
-      return null;
-    }
-
+    if (!errors) return null;
     const firstKey = Object.keys(errors)[0];
     return firstKey ? errors[firstKey][0] : null;
   }

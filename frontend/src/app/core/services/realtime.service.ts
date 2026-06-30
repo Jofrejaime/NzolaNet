@@ -4,7 +4,7 @@ import Pusher from 'pusher-js';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { ApiUrlService } from './api-url.service';
 import { AuthService } from './auth.service';
-import { NzolaNotification } from '../models/api.models';
+import { NzolaNotification, Post } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class RealtimeService implements OnDestroy {
@@ -14,10 +14,12 @@ export class RealtimeService implements OnDestroy {
 
   private notificationSubject = new Subject<NzolaNotification>();
   private postBazeSubject = new Subject<{ post_id: number; bazes_count: number }>();
+  private newPostSubject = new Subject<Post>();
   private unreadCountSubject = new BehaviorSubject<number>(0);
 
   readonly notifications$ = this.notificationSubject.asObservable();
   readonly postBazeUpdates$ = this.postBazeSubject.asObservable();
+  readonly newPost$ = this.newPostSubject.asObservable();
   readonly unreadCount$ = this.unreadCountSubject.asObservable();
 
   constructor(
@@ -38,6 +40,10 @@ export class RealtimeService implements OnDestroy {
       .listen('.post.baze.updated', (event: { post_id: number; bazes_count: number }) => {
         console.log('[Realtime] Post baze count updated:', event);
         this.postBazeSubject.next(event);
+      })
+      .listen('.post.created', (event: { post: Post }) => {
+        console.log('[Realtime] New post received:', event.post);
+        this.newPostSubject.next(event.post);
       });
 
     this.publicChannelConnected = true;
@@ -119,6 +125,7 @@ export class RealtimeService implements OnDestroy {
     this.disconnect();
     this.notificationSubject.complete();
     this.postBazeSubject.complete();
+    this.newPostSubject.complete();
     this.unreadCountSubject.complete();
   }
 

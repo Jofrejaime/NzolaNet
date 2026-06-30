@@ -7,11 +7,15 @@ namespace App\Services\Api;
 use App\Data\Api\User\RegisterData;
 use App\Data\Api\User\LoginData;
 use App\Data\Api\User\UpdateProfileData;
+use App\Mail\PasswordRecoveryMail;
 use App\Repositories\Api\UserRepository;
 use App\Models\User;
 use App\Repositories\Api\FollowRepository;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class UserService
@@ -193,26 +197,64 @@ class UserService
     }
 
     /**
-     * Recuperar senha (solicitar reset)
+     * Solicitar recuperação de senha — gera token e envia email
      */
     public function recoverPassword(string $email): string
     {
-        $user = $this->userRepository->findByEmail($email);
+        $userArray = $this->userRepository->findByEmail($email);
 
-        if (!$user) {
-            throw ValidationException::withMessages([
-                'email' => ['Este email não está associado a nenhuma conta.']
-            ]);
+        if (!$userArray) {
+            // Resposta genérica para não revelar se o email existe
+            return 'Se o email estiver associado a uma conta, receberás as instruções em breve.';
         }
 
-        return "Instruções de recuperação enviadas para o email.";
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $email],
+            ['token' => Hash::make($token), 'created_at' => now()]
+        );
+
+        $frontendUrl = env('FRONTEND_URL', 'http://localhost:4200');
+        $resetUrl    = $frontendUrl . '/reset-password?token=' . $token . '&email=' . urlencode($email);
+
+        Mail::to($email)->send(new PasswordRecoveryMail(
+            userName: $userArray['name'],
+            resetUrl: $resetUrl,
+        ));
+
+        return 'Se o email estiver associado a uma conta, receberás as instruções em breve.';
     }
 
     /**
-     * Resetar senha com nova senha
+     * Redefinir senha com token de recuperação
      */
-    public function resetPassword(string $email, string $newPassword): void
+    public function resetPassword(string $email, string $token, string $newPassword): void
     {
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $email)
+            ->first();
+
+        if (!$record) {
+            throw ValidationException::withMessages([
+                'token' => ['Token inválido ou expirado.']
+            ]);
+        }
+
+        // Verificar expiração (60 minutos)
+        if (now()->diffInMinutes($record->created_at) > 60) {
+            DB::table('password_reset_tokens')->where('email', $email)->delete();
+            throw ValidationException::withMessages([
+                'token' => ['O link de recuperação expirou. Solicita um novo.']
+            ]);
+        }
+
+        if (!Hash::check($token, $record->token)) {
+            throw ValidationException::withMessages([
+                'token' => ['Token inválido ou expirado.']
+            ]);
+        }
+
         $userArray = $this->userRepository->findByEmail($email);
 
         if (!$userArray) {
@@ -221,9 +263,12 @@ class UserService
             ]);
         }
 
-        $this->userRepository->update([
-            'password' => bcrypt($newPassword)
-        ], $userArray['id']);
+        $this->userRepository->update(
+            ['password' => Hash::make($newPassword)],
+            $userArray['id']
+        );
+
+        DB::table('password_reset_tokens')->where('email', $email)->delete();
     }
 
     public function deleteAccount(int $userId): void

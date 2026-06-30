@@ -33,6 +33,7 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   skeletonItems = [1, 2, 3];
   private realtimeBazeSub?: Subscription;
+  private realtimeNewPostSub?: Subscription;
 
   constructor(
     private postService: PostService,
@@ -51,10 +52,12 @@ export class FeedComponent implements OnInit, OnDestroy {
     // Ensure the public posts channel is connected before subscribing to updates
     this.realtimeService.connectToPublicChannels();
     this.listenForRealtimeBazes();
+    this.listenForNewPosts();
   }
 
   ngOnDestroy(): void {
     this.realtimeBazeSub?.unsubscribe();
+    this.realtimeNewPostSub?.unsubscribe();
   }
 
   private listenForRealtimeBazes(): void {
@@ -63,6 +66,16 @@ export class FeedComponent implements OnInit, OnDestroy {
         post.id === update.post_id ? { ...post, bazes_count: update.bazes_count } : post
       );
       this.cdr.detectChanges();
+    });
+  }
+
+  private listenForNewPosts(): void {
+    this.realtimeNewPostSub = this.realtimeService.newPost$.subscribe((post) => {
+      if (this.posts.some((p) => p.id === post.id)) return;
+      this.ngZone.run(() => {
+        this.posts = [post, ...this.posts];
+        this.cdr.detectChanges();
+      });
     });
   }
 

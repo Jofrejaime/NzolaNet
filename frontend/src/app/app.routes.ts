@@ -17,9 +17,11 @@ import { authGuard, adminGuard, guestGuard } from './core/guards/auth.guard';
 import { AdminComponent } from './features/admin/admin';
 import { FollowersComponent } from './features/profile/followers/followers';
 import { FollowingComponent } from './features/profile/following/following';
+import { ResetPasswordComponent } from './features/reset-password/reset-password';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
+  { path: 'reset-password', component: ResetPasswordComponent },
   
   {
     path: '',

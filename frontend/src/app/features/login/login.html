@@ -1,164 +1,349 @@
 <div class="login-wrap min-h-screen flex">
 
-  <!-- Painel esquerdo -->
-  <div class="left-panel hidden lg:flex flex-col justify-between p-10 w-[45%] flex-shrink-0">
-    <div class="flex items-center gap-2">
-      <div class="w-9 h-9 rounded-lg bg-[var(--bg-brand)] flex items-center justify-center">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  <!-- Painel esquerdo (desktop) -->
+  <div class="left-panel hidden lg:flex flex-col justify-between p-10 w-[42%] flex-shrink-0">
+
+    <!-- Logo -->
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-[var(--bg-brand)] flex items-center justify-center shadow-lg">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
         </svg>
       </div>
-      <span class="text-xl font-extrabold text-[var(--text-brand)]">NzolaNet</span>
+      <span class="text-2xl font-extrabold text-[var(--text-brand)]">NzolaNet</span>
     </div>
-    <div class="flex items-center justify-center flex-1 py-10">
-      <div class="illustration-box w-[240px] h-[240px] rounded-2xl flex items-center justify-center">
-        <svg width="140" height="120" viewBox="0 0 140 120" fill="none">
-          <circle cx="70" cy="52" r="18" fill="#E8A870"/>
-          <path d="M40 110c0-16.569 13.431-30 30-30s30 13.431 30 30" fill="#E8A870"/>
-          <circle cx="28" cy="44" r="14" fill="#D4915A"/>
-          <path d="M4 96c0-13.255 10.745-24 24-24s24 10.745 24 24" fill="#D4915A"/>
-          <circle cx="112" cy="44" r="14" fill="#D4915A"/>
-          <path d="M88 96c0-13.255 10.745-24 24-24s24 10.745 24 24" fill="#D4915A"/>
+
+    <!-- Ilustração central -->
+    <div class="flex flex-col items-center justify-center flex-1 gap-8 py-12">
+      <div class="illustration-box w-64 h-64 rounded-3xl flex items-center justify-center relative">
+        <!-- Círculos decorativos -->
+        <div class="absolute w-40 h-40 rounded-full bg-[var(--bg-brand)]/5 top-4 left-4"></div>
+        <div class="absolute w-24 h-24 rounded-full bg-[var(--bg-brand)]/8 bottom-6 right-6"></div>
+        <!-- SVG principal -->
+        <svg width="160" height="140" viewBox="0 0 160 140" fill="none" class="relative z-10">
+          <!-- Avatar central grande -->
+          <circle cx="80" cy="56" r="24" fill="#E8550F" opacity="0.9"/>
+          <path d="M44 130c0-19.882 16.118-36 36-36s36 16.118 36 36" fill="#E8550F" opacity="0.9"/>
+          <!-- Avatar esquerdo -->
+          <circle cx="28" cy="48" r="18" fill="#E8550F" opacity="0.6"/>
+          <path d="M2 110c0-14.912 12.088-27 27-27s27 12.088 27 27" fill="#E8550F" opacity="0.6"/>
+          <!-- Avatar direito -->
+          <circle cx="132" cy="48" r="18" fill="#E8550F" opacity="0.6"/>
+          <path d="M106 110c0-14.912 12.088-27 27-27s27 12.088 27 27" fill="#E8550F" opacity="0.6"/>
+          <!-- Ícones de interação -->
+          <circle cx="58" cy="22" r="10" fill="#1a1a1f" stroke="#E8550F" stroke-width="1.5" opacity="0.8"/>
+          <text x="58" y="26.5" text-anchor="middle" fill="#E8550F" font-size="11">♡</text>
+          <circle cx="110" cy="18" r="8" fill="#1a1a1f" stroke="#E8550F" stroke-width="1.5" opacity="0.7"/>
+          <text x="110" y="22" text-anchor="middle" fill="#E8550F" font-size="9">✦</text>
         </svg>
       </div>
+
+      <!-- Texto motivacional -->
+      <div class="text-center max-w-xs">
+        <h2 class="text-2xl font-bold text-[var(--text-primary)] mb-3 leading-tight">
+          Conecta-te com<br/>a tua rede
+        </h2>
+        <p class="text-sm text-[var(--text-secondary)] leading-relaxed">
+          Partilha momentos, segue pessoas inspiradoras e descobre o que está a acontecer.
+        </p>
+      </div>
+
+      <!-- Indicadores -->
+      <div class="flex gap-2">
+        <div class="w-2 h-2 rounded-full bg-[var(--bg-brand)]"></div>
+        <div class="w-2 h-2 rounded-full bg-[var(--bg-brand)]/30"></div>
+        <div class="w-2 h-2 rounded-full bg-[var(--bg-brand)]/30"></div>
+      </div>
     </div>
-    <div></div>
+
+    <!-- Rodapé esquerdo -->
+    <div class="text-xs text-[var(--text-tertiary)]">
+      © 2026 NzolaNet
+    </div>
   </div>
 
   <!-- Painel direito -->
-  <div class="flex flex-1 items-center justify-center px-6 py-12">
-    <div class="w-full max-w-[500px]">
+  <div class="flex flex-1 items-center justify-center px-6 py-10">
+    <div class="w-full max-w-[480px]">
 
       <!-- Logo mobile -->
-      <div class="flex items-center justify-center gap-2 mb-8 lg:hidden">
-        <div class="w-9 h-9 rounded-lg bg-[var(--bg-brand)] flex items-center justify-center">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+      <div class="flex items-center justify-center gap-2 mb-7 lg:hidden">
+        <div class="w-10 h-10 rounded-xl bg-[var(--bg-brand)] flex items-center justify-center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
           </svg>
         </div>
-        <span class="text-xl font-extrabold text-[var(--text-brand)]">NzolaNet</span>
+        <span class="text-2xl font-extrabold text-[var(--text-brand)]">NzolaNet</span>
       </div>
 
-      <!-- Card -->
-      <div class="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl p-8">
+      <!-- Card principal -->
+      <div class="bg-[var(--bg-surface)] border border-[var(--border-default)] rounded-2xl shadow-xl overflow-hidden">
 
-        <!-- Título -->
-        <div class="text-center mb-6">
-          <h1 class="text-xl font-bold text-[var(--text-primary)] mb-1">Bem-vindo de volta</h1>
-          <p class="text-sm text-[var(--text-secondary)]">Entra na tua conta para continuar</p>
-        </div>
+        <!-- ==================== ESQUECI A SENHA ==================== -->
+        @if (activeTab === 'forgot') {
+          <div class="p-8">
 
-        <!-- Tabs -->
-        <div class="flex bg-[var(--bg-elevated)] rounded-lg p-1 mb-6">
-          <button
-            class="tab-btn flex-1 py-2 text-sm font-semibold rounded-md transition"
-            [class.active]="activeTab === 'entrar'"
-            (click)="switchToLogin()">
-            Entrar
-          </button>
-          <button
-            class="tab-btn flex-1 py-2 text-sm font-semibold rounded-md transition"
-            [class.active]="activeTab === 'criar'"
-            (click)="switchToRegister()">
-            Criar conta
-          </button>
-        </div>
+            <!-- Cabeçalho -->
+            <div class="flex items-center gap-3 mb-6">
+              <button (click)="switchToLogin()" class="w-8 h-8 rounded-lg bg-[var(--bg-elevated)] hover:bg-[var(--state-hover)] flex items-center justify-center transition flex-shrink-0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <div>
+                <h1 class="text-lg font-bold text-[var(--text-primary)]">Recuperar Palavra-Passe</h1>
+                <p class="text-xs text-[var(--text-secondary)]">Receberás um link no teu email</p>
+              </div>
+            </div>
 
-        @if (errorMessage) {
-          <div class="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-            {{ errorMessage }}
+            @if (forgotSuccess) {
+              <!-- Sucesso -->
+              <div class="text-center py-6">
+                <div class="w-16 h-16 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center mx-auto mb-4">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                </div>
+                <h2 class="text-base font-bold text-[var(--text-primary)] mb-2">Email enviado!</h2>
+                <p class="text-sm text-[var(--text-secondary)] leading-relaxed mb-6">
+                  Se o email <strong class="text-[var(--text-primary)]">{{ forgotEmail }}</strong> estiver associado a uma conta, receberás as instruções em breve.
+                </p>
+                <button (click)="switchToLogin()" class="w-full bg-[var(--bg-brand)] text-white py-3 rounded-xl font-bold text-sm hover:bg-[#C9460A] transition-all">
+                  Voltar ao Login
+                </button>
+              </div>
+
+            } @else {
+
+              @if (forgotError) {
+                <div class="mb-4 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300 flex items-start gap-2">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  {{ forgotError }}
+                </div>
+              }
+
+              <p class="text-sm text-[var(--text-secondary)] mb-5 leading-relaxed">
+                Insere o email associado à tua conta e enviaremos um link para redefinires a tua palavra-passe.
+              </p>
+
+              <div class="flex flex-col gap-3">
+                <div class="input-wrap flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus-within:border-[var(--border-brand)] transition">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                  <input
+                    type="email"
+                    [(ngModel)]="forgotEmail"
+                    placeholder="O teu email"
+                    class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"
+                    (keyup.enter)="sendRecovery()"
+                  />
+                </div>
+
+                <button
+                  (click)="sendRecovery()"
+                  [disabled]="forgotLoading"
+                  class="w-full flex items-center justify-center gap-2 bg-[var(--bg-brand)] text-white py-3 rounded-xl font-bold text-sm hover:bg-[#C9460A] transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
+                >
+                  @if (forgotLoading) {
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                    A enviar...
+                  } @else {
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    Enviar Link
+                  }
+                </button>
+              </div>
+            }
+
           </div>
         }
 
-        <!-- FORM: ENTRAR -->
-        @if (activeTab === 'entrar') {
-          <div class="flex flex-col gap-3">
-            <div class="input-wrap flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg px-4 py-3 focus-within:border-[var(--border-brand)] transition">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              <input type="email" [(ngModel)]="loginForm.email" placeholder="Email" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]" (keyup.enter)="login()"/>
-            </div>
-            <div class="input-wrap flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg px-4 py-3 focus-within:border-[var(--border-brand)] transition">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <input type="password" [(ngModel)]="loginForm.password" placeholder="Palavra-passe" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]" (keyup.enter)="login()"/>
-            </div>
-            <div class="flex justify-between items-center px-1">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" [(ngModel)]="loginForm.remember_me" class="accent-[var(--bg-brand)] flex-shrink-0"/>
-                <span class="text-xs text-[var(--text-secondary)]">Lembrar-me</span>
-              </label>
-              <button class="text-xs text-[var(--text-brand)] hover:underline">Esqueceste a palavra-passe?</button>
-            </div>
-            <button (click)="login()" [disabled]="isLoading" class="w-full flex items-center justify-center gap-2 bg-[var(--bg-brand)] text-white py-3 rounded-lg font-bold text-sm hover:bg-[#C9460A] transition-all hover:scale-[1.01] active:scale-[0.99] mt-1 disabled:opacity-60">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-              {{ isLoading ? 'A entrar...' : 'Entrar' }}
-            </button>
-          </div>
-        }
+        <!-- ==================== LOGIN / CRIAR CONTA ==================== -->
+        @if (activeTab !== 'forgot') {
 
-        <!-- FORM: CRIAR CONTA -->
-        @if (activeTab === 'criar') {
-          <div class="flex flex-col gap-3">
-
-            <!-- Nome -->
-            <div class="input-wrap flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg px-4 py-3 focus-within:border-[var(--border-brand)] transition">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              <input type="text" [(ngModel)]="registerForm.name" placeholder="Nome completo" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"/>
-            </div>
-
-            <!-- Email -->
-            <div class="input-wrap flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg px-4 py-3 focus-within:border-[var(--border-brand)] transition">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              <input type="email" [(ngModel)]="registerForm.email" placeholder="Email" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"/>
-            </div>
-
-            <!-- Biografia -->
-            <div class="input-wrap flex items-start gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg px-4 py-3 focus-within:border-[var(--border-brand)] transition">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0 mt-0.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-              <textarea [(ngModel)]="registerForm.bio" placeholder="Biografia (opcional)" rows="2" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] resize-none"></textarea>
-            </div>
-
-            <!-- Palavra-passe -->
-            <div class="input-wrap flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg px-4 py-3 focus-within:border-[var(--border-brand)] transition">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <input type="password" [(ngModel)]="registerForm.password" placeholder="Palavra-passe" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"/>
-            </div>
-            <div class="input-wrap flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg px-4 py-3 focus-within:border-[var(--border-brand)] transition">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <input type="password" [(ngModel)]="registerForm.password_confirmation" placeholder="Confirmar Palavra-passe" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"/>
-            </div>
-
-            <!-- Perfil Privado -->
-            <label class="flex items-center gap-2 cursor-pointer mt-1">
-              <input type="checkbox" [(ngModel)]="registerForm.is_private" class="accent-[var(--bg-brand)] flex-shrink-0"/>
-              <span class="text-xs text-[var(--text-secondary)]">Tornar perfil privado</span>
-            </label>
-
-            <!-- Termos -->
-            <label class="flex items-start gap-2 cursor-pointer mt-1">
-              <input type="checkbox" [(ngModel)]="registerForm.terms" class="mt-0.5 accent-[var(--bg-brand)] flex-shrink-0"/>
-              <span class="text-xs text-[var(--text-secondary)] leading-relaxed">
-                Aceito os <a href="#" class="text-[var(--text-brand)] hover:underline">Termos de Serviço</a> e a <a href="#" class="text-[var(--text-brand)] hover:underline">Política de Privacidade</a> do NzolaNet.
-              </span>
-            </label>
-
-            <!-- Botão Criar conta -->
-            <button (click)="register()" [disabled]="isLoading" class="w-full flex items-center justify-center gap-2 bg-[var(--bg-brand)] text-white py-3 rounded-lg font-bold text-sm hover:bg-[#C9460A] transition-all hover:scale-[1.01] active:scale-[0.99] mt-1 disabled:opacity-60">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-              {{ isLoading ? 'A criar...' : 'Criar conta' }}
-            </button>
-
-            <!-- Divisor -->
-            <div class="flex items-center gap-3 my-1">
-              <div class="flex-1 h-px bg-[var(--border-default)]"></div>
-              <span class="text-xs text-[var(--text-tertiary)]">ou</span>
-              <div class="flex-1 h-px bg-[var(--border-default)]"></div>
-            </div>
-
-            <!-- Já tens conta -->
-            <button (click)="switchToLogin()" class="w-full border border-[var(--border-default)] text-[var(--text-primary)] py-3 rounded-lg font-semibold text-sm hover:bg-[var(--state-hover)] hover:border-[var(--border-strong)] transition">
+          <!-- Tabs -->
+          <div class="flex bg-[var(--bg-elevated)] p-1.5 gap-1">
+            <button
+              class="tab-btn flex-1 py-2.5 text-sm font-semibold rounded-lg transition"
+              [class.active]="activeTab === 'entrar'"
+              (click)="switchToLogin()">
               Entrar
             </button>
+            <button
+              class="tab-btn flex-1 py-2.5 text-sm font-semibold rounded-lg transition"
+              [class.active]="activeTab === 'criar'"
+              (click)="switchToRegister()">
+              Criar conta
+            </button>
+          </div>
+
+          <div class="p-8">
+
+            <!-- Título contextual -->
+            <div class="text-center mb-6">
+              @if (activeTab === 'entrar') {
+                <h1 class="text-xl font-bold text-[var(--text-primary)] mb-1">Bem-vindo de volta</h1>
+                <p class="text-sm text-[var(--text-secondary)]">Entra na tua conta para continuar</p>
+              } @else {
+                <h1 class="text-xl font-bold text-[var(--text-primary)] mb-1">Cria a tua conta</h1>
+                <p class="text-sm text-[var(--text-secondary)]">Junta-te à comunidade NzolaNet</p>
+              }
+            </div>
+
+            @if (errorMessage) {
+              <div class="mb-4 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300 flex items-start gap-2">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="flex-shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                {{ errorMessage }}
+              </div>
+            }
+
+            <!-- ===== FORM ENTRAR ===== -->
+            @if (activeTab === 'entrar') {
+              <div class="flex flex-col gap-3">
+
+                <div class="input-wrap flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus-within:border-[var(--border-brand)] transition">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                  <input type="email" [(ngModel)]="loginForm.email" placeholder="Email" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]" (keyup.enter)="login()"/>
+                </div>
+
+                <div class="input-wrap flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus-within:border-[var(--border-brand)] transition">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input [type]="showLoginPassword ? 'text' : 'password'" [(ngModel)]="loginForm.password" placeholder="Palavra-passe" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]" (keyup.enter)="login()"/>
+                  <button type="button" (click)="showLoginPassword = !showLoginPassword" class="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition flex-shrink-0">
+                    @if (showLoginPassword) {
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    } @else {
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    }
+                  </button>
+                </div>
+
+                <div class="flex justify-between items-center px-1">
+                  <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <input type="checkbox" [(ngModel)]="loginForm.remember_me" class="accent-[var(--bg-brand)] w-3.5 h-3.5 flex-shrink-0"/>
+                    <span class="text-xs text-[var(--text-secondary)]">Lembrar-me</span>
+                  </label>
+                  <button type="button" (click)="switchToForgot()" class="text-xs text-[var(--text-brand)] hover:underline font-medium">
+                    Esqueceste a palavra-passe?
+                  </button>
+                </div>
+
+                <button (click)="login()" [disabled]="isLoading" class="w-full flex items-center justify-center gap-2 bg-[var(--bg-brand)] text-white py-3 rounded-xl font-bold text-sm hover:bg-[#C9460A] transition-all hover:scale-[1.01] active:scale-[0.99] mt-1 disabled:opacity-60">
+                  @if (isLoading) {
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                    A entrar...
+                  } @else {
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                    Entrar
+                  }
+                </button>
+
+              </div>
+            }
+
+            <!-- ===== FORM CRIAR CONTA ===== -->
+            @if (activeTab === 'criar') {
+              <div class="flex flex-col gap-3">
+
+                <!-- Nome -->
+                <div class="input-wrap flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus-within:border-[var(--border-brand)] transition">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  <input type="text" [(ngModel)]="registerForm.name" placeholder="Nome completo" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"/>
+                </div>
+
+                <!-- Email -->
+                <div class="input-wrap flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus-within:border-[var(--border-brand)] transition">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                  <input type="email" [(ngModel)]="registerForm.email" placeholder="Email" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"/>
+                </div>
+
+                <!-- Biografia -->
+                <div class="input-wrap flex items-start gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus-within:border-[var(--border-brand)] transition">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0 mt-0.5">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                  <textarea [(ngModel)]="registerForm.bio" placeholder="Biografia (opcional)" rows="2" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] resize-none"></textarea>
+                </div>
+
+                <!-- Palavra-passe -->
+                <div class="input-wrap flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus-within:border-[var(--border-brand)] transition">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input [type]="showRegisterPassword ? 'text' : 'password'" [(ngModel)]="registerForm.password" placeholder="Palavra-passe (mín. 8 caracteres)" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"/>
+                  <button type="button" (click)="showRegisterPassword = !showRegisterPassword" class="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition flex-shrink-0">
+                    @if (showRegisterPassword) {
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    } @else {
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    }
+                  </button>
+                </div>
+
+                <!-- Confirmar palavra-passe -->
+                <div class="input-wrap flex items-center gap-3 bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-xl px-4 py-3 focus-within:border-[var(--border-brand)] transition">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[var(--text-tertiary)] flex-shrink-0">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  <input [type]="showRegisterConfirm ? 'text' : 'password'" [(ngModel)]="registerForm.password_confirmation" placeholder="Confirmar Palavra-passe" class="flex-1 bg-transparent border-none outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)]"/>
+                  <button type="button" (click)="showRegisterConfirm = !showRegisterConfirm" class="text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition flex-shrink-0">
+                    @if (showRegisterConfirm) {
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    } @else {
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    }
+                  </button>
+                </div>
+
+                <!-- Perfil Privado -->
+                <label class="flex items-center gap-2.5 cursor-pointer select-none mt-1 px-1">
+                  <input type="checkbox" [(ngModel)]="registerForm.is_private" class="accent-[var(--bg-brand)] w-3.5 h-3.5 flex-shrink-0"/>
+                  <span class="text-xs text-[var(--text-secondary)]">Tornar perfil privado</span>
+                </label>
+
+                <!-- Termos -->
+                <label class="flex items-start gap-2.5 cursor-pointer select-none px-1">
+                  <input type="checkbox" [(ngModel)]="registerForm.terms" class="mt-0.5 accent-[var(--bg-brand)] w-3.5 h-3.5 flex-shrink-0"/>
+                  <span class="text-xs text-[var(--text-secondary)] leading-relaxed">
+                    Aceito os <a href="#" class="text-[var(--text-brand)] hover:underline font-medium">Termos de Serviço</a> e a <a href="#" class="text-[var(--text-brand)] hover:underline font-medium">Política de Privacidade</a> do NzolaNet.
+                  </span>
+                </label>
+
+                <!-- Botão Criar conta -->
+                <button (click)="register()" [disabled]="isLoading" class="w-full flex items-center justify-center gap-2 bg-[var(--bg-brand)] text-white py-3 rounded-xl font-bold text-sm hover:bg-[#C9460A] transition-all hover:scale-[1.01] active:scale-[0.99] mt-1 disabled:opacity-60">
+                  @if (isLoading) {
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                    A criar...
+                  } @else {
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                    Criar conta
+                  }
+                </button>
+
+                <!-- Divisor -->
+                <div class="flex items-center gap-3 my-0.5">
+                  <div class="flex-1 h-px bg-[var(--border-default)]"></div>
+                  <span class="text-xs text-[var(--text-tertiary)]">ou</span>
+                  <div class="flex-1 h-px bg-[var(--border-default)]"></div>
+                </div>
+
+                <button (click)="switchToLogin()" class="w-full border border-[var(--border-default)] text-[var(--text-primary)] py-2.5 rounded-xl font-semibold text-sm hover:bg-[var(--state-hover)] hover:border-[var(--border-strong)] transition">
+                  Já tens conta? Entra aqui
+                </button>
+
+              </div>
+            }
 
           </div>
         }
