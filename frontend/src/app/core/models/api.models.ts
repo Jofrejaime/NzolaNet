@@ -72,10 +72,25 @@ export interface Comment {
   replies?: Comment[];
 }
 
+export interface Report {
+  id: number;
+  reporter_id: number;
+  reportable_type: 'post' | 'comment';
+  reportable_id: number;
+  reason: string;
+  description?: string | null;
+  status: 'pending' | 'dismissed' | 'removed';
+  reviewed_by?: number | null;
+  reviewed_at?: string | null;
+  created_at?: string;
+  reporter?: NzolaUser;
+  content?: Post | Comment | null;
+}
+
 export interface NzolaNotification {
   id: number;
   user_id: number;
-  type: 'baze' | 'comment' | 'follow';
+  type: 'baze' | 'comment' | 'follow' | 'content_removed';
   from_user_id: number;
   post_id?: number | null;
   comment_id?: number | null;

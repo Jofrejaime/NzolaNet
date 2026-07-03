@@ -45,30 +45,85 @@
           <div class="text-xs text-[var(--text-secondary)]">&#64;{{ username(post.user?.name) }} · {{ relativeTime(post.created_at) }}</div>
         </div>
         
-        @if (isOwnPost()) {
-          <div class="relative" (click)="$event.stopPropagation()">
-            <button class="menu-trigger p-1 rounded-full hover:bg-[var(--state-hover)] transition" (click)="togglePostMenu($event)">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="1"/>
-                <circle cx="12" cy="5" r="1"/>
-                <circle cx="12" cy="19" r="1"/>
-              </svg>
-            </button>
-            @if (showPostMenu) {
-              <div class="post-menu-dropdown absolute right-0 top-8 z-20 min-w-[120px] bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg shadow-lg overflow-hidden">
+        <div class="relative" (click)="$event.stopPropagation()">
+          <button class="menu-trigger p-1 rounded-full hover:bg-[var(--state-hover)] transition" (click)="togglePostMenu($event)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="1"/>
+              <circle cx="12" cy="5" r="1"/>
+              <circle cx="12" cy="19" r="1"/>
+            </svg>
+          </button>
+          @if (showPostMenu) {
+            <div class="post-menu-dropdown absolute right-0 top-8 z-20 min-w-[140px] bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg shadow-lg overflow-hidden">
+              @if (isOwnPost()) {
                 <button class="w-full px-4 py-2 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--state-hover)] transition" (click)="beginPostEdit()">Editar</button>
                 <button class="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-[var(--state-hover)] transition" (click)="confirmDeletePost()">Excluir</button>
-              </div>
-            }
-          </div>
-        }
+              } @else {
+                <button class="w-full px-4 py-2 text-left text-sm text-orange-400 hover:bg-[var(--state-hover)] transition flex items-center gap-2"
+                        (click)="openReport('post', post!.id, $event)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                  Denunciar
+                </button>
+              }
+            </div>
+          }
+        </div>
       </div>
 
       @if (editingPost) {
-        <textarea [(ngModel)]="editPostContent" rows="4" maxlength="1000" class="mb-3 w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-brand)]"></textarea>
-        <div class="mb-4 flex justify-end gap-2">
-          <button class="px-3 py-1.5 rounded-full text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--state-hover)]" (click)="cancelPostEdit()">Cancelar</button>
-          <button class="px-3 py-1.5 rounded-full bg-[var(--bg-brand)] text-white text-xs font-bold disabled:opacity-60" [disabled]="!editPostContent.trim()" (click)="savePost()">Guardar</button>
+        <div class="edit-media-form mb-3">
+          <textarea [(ngModel)]="editPostContent" rows="4" maxlength="1000" class="edit-textarea w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-brand)]"></textarea>
+
+          @if (mediaUrl(post!.image) && !editPostRemoveImage && !editPostNewImageFile) {
+            <div class="mt-2 relative inline-block">
+              <img [src]="mediaUrl(post!.image)" class="h-20 rounded-lg object-cover">
+              <button (click)="editPostRemoveImage = true" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          }
+          @if (mediaUrl(post!.video) && !editPostRemoveVideo && !editPostNewVideoFile) {
+            <div class="mt-2 flex items-center gap-2 bg-[var(--bg-elevated)] rounded-lg px-3 py-2 text-xs text-[var(--text-secondary)] w-fit">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+              Vídeo atual
+              <button (click)="editPostRemoveVideo = true" class="ml-1 text-red-400 hover:text-red-300">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          }
+          @if (editPostNewImageFile) {
+            <div class="mt-2 flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              {{ editPostNewImageFile.name }}
+              <button (click)="editPostNewImageFile = null" class="text-red-400 hover:text-red-300">×</button>
+            </div>
+          }
+          @if (editPostNewVideoFile) {
+            <div class="mt-2 flex items-center gap-2 text-xs text-[var(--text-secondary)]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+              {{ editPostNewVideoFile.name }}
+              <button (click)="editPostNewVideoFile = null" class="text-red-400 hover:text-red-300">×</button>
+            </div>
+          }
+          @if ((!post!.image || editPostRemoveImage) && !editPostNewImageFile && (!post!.video || editPostRemoveVideo) && !editPostNewVideoFile) {
+            <div class="mt-2 flex gap-2">
+              <label class="cursor-pointer flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition px-2 py-1 rounded-lg hover:bg-[var(--state-hover)]">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Imagem
+                <input type="file" accept="image/*" class="hidden" (change)="onPostEditImageSelected($event)">
+              </label>
+              <label class="cursor-pointer flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition px-2 py-1 rounded-lg hover:bg-[var(--state-hover)]">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                Vídeo
+                <input type="file" accept="video/*" class="hidden" (change)="onPostEditVideoSelected($event)">
+              </label>
+            </div>
+          }
+
+          <div class="mb-4 mt-2 flex justify-end gap-2">
+            <button class="px-3 py-1.5 rounded-full text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--state-hover)]" (click)="cancelPostEdit()">Cancelar</button>
+            <button class="px-3 py-1.5 rounded-full bg-[var(--bg-brand)] text-white text-xs font-bold" (click)="savePost()">Guardar</button>
+          </div>
         </div>
       } @else {
         <p class="text-[var(--text-primary)] text-base leading-relaxed mb-4 whitespace-pre-line">{{ post.content }}</p>
@@ -125,23 +180,29 @@
                 <span class="text-sm text-[var(--text-tertiary)]">·</span>
                 <span class="text-sm text-[var(--text-secondary)]">{{ relativeTime(comment.created_at) }}</span>
               </div>
-              @if (isOwnComment(comment)) {
-                <div class="relative" (click)="$event.stopPropagation()">
-                  <button class="comment-menu-trigger p-1 rounded-full hover:bg-[var(--state-hover)] transition" (click)="toggleCommentMenu(comment.id, $event)">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="1"/>
-                      <circle cx="12" cy="5" r="1"/>
-                      <circle cx="12" cy="19" r="1"/>
-                    </svg>
-                  </button>
-                  @if (activeCommentMenuId === comment.id) {
-                    <div class="post-menu-dropdown absolute right-0 top-6 z-20 min-w-[100px] bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg shadow-lg overflow-hidden">
+              <div class="relative" (click)="$event.stopPropagation()">
+                <button class="comment-menu-trigger p-1 rounded-full hover:bg-[var(--state-hover)] transition" (click)="toggleCommentMenu(comment.id, $event)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="1"/>
+                    <circle cx="12" cy="5" r="1"/>
+                    <circle cx="12" cy="19" r="1"/>
+                  </svg>
+                </button>
+                @if (activeCommentMenuId === comment.id) {
+                  <div class="post-menu-dropdown absolute right-0 top-6 z-20 min-w-[120px] bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-lg shadow-lg overflow-hidden">
+                    @if (isOwnComment(comment)) {
                       <button class="w-full px-3 py-1.5 text-left text-xs text-[var(--text-primary)] hover:bg-[var(--state-hover)] transition" (click)="beginCommentEdit(comment)">Editar</button>
                       <button class="w-full px-3 py-1.5 text-left text-xs text-red-400 hover:bg-[var(--state-hover)] transition" (click)="confirmDeleteComment(comment)">Excluir</button>
-                    </div>
-                  }
-                </div>
-              }
+                    } @else {
+                      <button class="w-full px-3 py-1.5 text-left text-xs text-orange-400 hover:bg-[var(--state-hover)] transition flex items-center gap-1.5"
+                              (click)="openReport('comment', comment.id, $event)">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                        Denunciar
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
             </div>
             @if (editingCommentId === comment.id) {
               <textarea [(ngModel)]="editCommentContent" rows="2" maxlength="500" class="mb-2 w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-brand)]"></textarea>
@@ -231,6 +292,44 @@
       <div class="dialog-actions">
         <button class="btn-cancel" (click)="cancelDeleteComment()">Cancelar</button>
         <button class="btn-confirm" (click)="deleteCommentConfirmed()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal de denúncia -->
+@if (showReportModal) {
+  <div class="confirm-overlay" (click)="closeReport()">
+    <div class="confirm-dialog" style="max-width:420px" (click)="$event.stopPropagation()">
+      <h3 class="flex items-center gap-2">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+        Denunciar {{ reportType === 'post' ? 'publicação' : 'comentário' }}
+      </h3>
+      <div class="mt-3 space-y-3 text-left">
+        <div>
+          <label class="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Motivo</label>
+          <select [(ngModel)]="reportReason"
+                  class="w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-brand)]">
+            <option value="inappropriate">Conteúdo inapropriado</option>
+            <option value="spam">Spam</option>
+            <option value="harassment">Assédio</option>
+            <option value="hate_speech">Discurso de ódio</option>
+            <option value="violence">Violência</option>
+            <option value="other">Outro</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Descrição (opcional)</label>
+          <textarea [(ngModel)]="reportDescription" rows="3" maxlength="500"
+                    placeholder="Descreve o problema em detalhe..."
+                    class="w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-brand)] resize-none"></textarea>
+        </div>
+      </div>
+      <div class="dialog-actions mt-4">
+        <button class="btn-cancel" (click)="closeReport()">Cancelar</button>
+        <button class="btn-confirm" style="background:#f97316" [disabled]="reportLoading" (click)="submitReport()">
+          {{ reportLoading ? 'A enviar...' : 'Enviar denúncia' }}
+        </button>
       </div>
     </div>
   </div>

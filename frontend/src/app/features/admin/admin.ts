@@ -1,9 +1,12 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AdminService } from '../../core/services/admin.service';
-import { AdminDashboardData, Comment, NzolaUser, Post } from '../../core/models/api.models';
+import { AdminDashboardData, Comment, NzolaUser, Post, Report } from '../../core/models/api.models';
+import { ReportService } from '../../core/services/report.service';
+import { RealtimeService } from '../../core/services/realtime.service';
 import { ToastService } from '../../core/services/toast.service';
 import { AuthService } from '../../core/services/auth.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
@@ -16,17 +19,22 @@ import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
   styleUrls: ['./admin.scss'],
   host: { class: 'block w-full' },
 })
-export class AdminComponent implements OnInit {
-  activeTab = signal<'dashboard' | 'users' | 'posts' | 'comments'>('dashboard');
+export class AdminComponent implements OnInit, OnDestroy {
+  activeTab = signal<'dashboard' | 'users' | 'posts' | 'comments' | 'reports'>('dashboard');
   loading = signal(false);
   userSearch = '';
 
   users = signal<NzolaUser[]>([]);
   posts = signal<Post[]>([]);
   comments = signal<Comment[]>([]);
+  reports = signal<Report[]>([]);
   dashboard = signal<AdminDashboardData | null>(null);
   currentUserId: number;
   currentUserRole: string;
+  reviewingReportId: number | null = null;
+
+  private reportCreatedSub?: Subscription;
+  pendingReportsCount = signal(0);
 
   // Modal states
   showUserModal = false;
@@ -50,6 +58,8 @@ export class AdminComponent implements OnInit {
 
   constructor(
     private adminService: AdminService,
+    private reportService: ReportService,
+    private realtimeService: RealtimeService,
     private router: Router,
     private toast: ToastService,
     private authService: AuthService
@@ -68,6 +78,21 @@ export class AdminComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadTab();
+    this.realtimeService.connectToAdminChannel();
+    this.reportCreatedSub = this.realtimeService.reportCreated$.subscribe((report) => {
+      this.pendingReportsCount.update(c => c + 1);
+      const type = report.reportable_type === 'post' ? 'publicação' : 'comentário';
+      this.toast.warning('Nova denúncia', `Denúncia de ${type} recebida (motivo: ${report.reason}).`);
+      // If already viewing reports tab, prepend in real-time
+      if (this.activeTab() === 'reports') {
+        this.reports.update(list => [report, ...list]);
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.reportCreatedSub?.unsubscribe();
+    this.realtimeService.disconnectFromAdminChannel();
   }
 
   // Navegação
@@ -193,8 +218,11 @@ export class AdminComponent implements OnInit {
     this.pendingComment = null;
   }
 
-  setTab(tab: 'dashboard' | 'users' | 'posts' | 'comments'): void {
+  setTab(tab: 'dashboard' | 'users' | 'posts' | 'comments' | 'reports'): void {
     this.activeTab.set(tab);
+    if (tab === 'reports') {
+      this.pendingReportsCount.set(0);
+    }
     this.loadTab();
   }
 
@@ -235,13 +263,51 @@ export class AdminComponent implements OnInit {
       return;
     }
 
-    this.adminService.listComments().subscribe({
+    if (tab === 'comments') {
+      this.adminService.listComments().subscribe({
+        next: (page) => {
+          this.comments.set(page.data);
+          this.loading.set(false);
+        },
+        error: () => this.onError(),
+      });
+      return;
+    }
+
+    this.reportService.listReports('pending', 50).subscribe({
       next: (page) => {
-        this.comments.set(page.data);
+        this.reports.set(page.data);
         this.loading.set(false);
       },
       error: () => this.onError(),
     });
+  }
+
+  reviewReport(reportId: number, action: 'remove' | 'dismiss'): void {
+    this.reviewingReportId = reportId;
+    this.reportService.review(reportId, action).subscribe({
+      next: () => {
+        this.reviewingReportId = null;
+        this.reports.update(list => list.filter(r => r.id !== reportId));
+        const msg = action === 'remove' ? 'Conteúdo removido.' : 'Denúncia dispensada.';
+        this.toast.success('Feito', msg);
+      },
+      error: (err) => {
+        this.reviewingReportId = null;
+        this.toast.error('Erro', err?.error?.message || 'Não foi possível processar a denúncia.');
+      }
+    });
+  }
+
+  reportContentSnippet(report: Report): string {
+    const content = report.content as any;
+    if (!content) return '(conteúdo removido)';
+    return content.content?.slice(0, 120) || '(sem texto)';
+  }
+
+  reportContentAuthor(report: Report): string {
+    const content = report.content as any;
+    return content?.user?.name || 'Utilizador';
   }
 
   searchUsers(): void {

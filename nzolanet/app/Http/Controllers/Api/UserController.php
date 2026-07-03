@@ -293,10 +293,10 @@ class UserController extends Controller
         }
     }
 
-    public function userComments(int $id): JsonResponse
+    public function userComments(int $id, Request $request): JsonResponse
     {
         try {
-            $comments = $this->commentService->getCommentsByUser($id);
+            $comments = $this->commentService->getCommentsByUser($id, $request->user()->id);
 
             return response()->json([
                 'success' => true,

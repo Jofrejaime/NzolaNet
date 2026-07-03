@@ -4,22 +4,29 @@ import Pusher from 'pusher-js';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { ApiUrlService } from './api-url.service';
 import { AuthService } from './auth.service';
-import { NzolaNotification, Post } from '../models/api.models';
+import { NzolaNotification, Post, Report } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class RealtimeService implements OnDestroy {
   private echo?: Echo;
   private connectedUserId?: number;
   private publicChannelConnected = false;
+  private adminChannelConnected = false;
 
   private notificationSubject = new Subject<NzolaNotification>();
   private postBazeSubject = new Subject<{ post_id: number; bazes_count: number }>();
   private newPostSubject = new Subject<Post>();
+  private postDeletedSubject = new Subject<{ post_id: number }>();
+  private commentDeletedSubject = new Subject<{ comment_id: number; post_id: number }>();
+  private reportCreatedSubject = new Subject<Report>();
   private unreadCountSubject = new BehaviorSubject<number>(0);
 
   readonly notifications$ = this.notificationSubject.asObservable();
   readonly postBazeUpdates$ = this.postBazeSubject.asObservable();
   readonly newPost$ = this.newPostSubject.asObservable();
+  readonly postDeleted$ = this.postDeletedSubject.asObservable();
+  readonly commentDeleted$ = this.commentDeletedSubject.asObservable();
+  readonly reportCreated$ = this.reportCreatedSubject.asObservable();
   readonly unreadCount$ = this.unreadCountSubject.asObservable();
 
   constructor(
@@ -38,12 +45,18 @@ export class RealtimeService implements OnDestroy {
     echo
       .channel('posts')
       .listen('.post.baze.updated', (event: { post_id: number; bazes_count: number }) => {
-        console.log('[Realtime] Post baze count updated:', event);
         this.postBazeSubject.next(event);
       })
       .listen('.post.created', (event: { post: Post }) => {
-        console.log('[Realtime] New post received:', event.post);
         this.newPostSubject.next(event.post);
+      })
+      .listen('.post.deleted', (event: { post_id: number }) => {
+        console.log('[Realtime] Post deleted:', event.post_id);
+        this.postDeletedSubject.next(event);
+      })
+      .listen('.comment.deleted', (event: { comment_id: number; post_id: number }) => {
+        console.log('[Realtime] Comment deleted:', event.comment_id);
+        this.commentDeletedSubject.next(event);
       });
 
     this.publicChannelConnected = true;
@@ -78,10 +91,38 @@ export class RealtimeService implements OnDestroy {
       })
       .error((error: any) => {
         console.error('[Realtime] Channel subscription error:', error);
-      })
-      .subscribed(() => {
-        console.log('[Realtime] Successfully subscribed to notifications channel');
       });
+  }
+
+  connectToAdminChannel(): void {
+    if (this.adminChannelConnected) {
+      return;
+    }
+
+    const echo = this.getEcho();
+    console.log('[Realtime] Subscribing to admin channel');
+
+    echo
+      .private('admin')
+      .listen('.report.created', (event: { report: Report }) => {
+        console.log('[Realtime] New report received:', event.report);
+        this.reportCreatedSubject.next(event.report);
+      })
+      .error((error: any) => {
+        console.error('[Realtime] Admin channel error:', error);
+      });
+
+    this.adminChannelConnected = true;
+  }
+
+  disconnectFromAdminChannel(): void {
+    if (!this.adminChannelConnected) return;
+    try {
+      this.echo?.leave('admin');
+    } catch {
+      // Ignore
+    }
+    this.adminChannelConnected = false;
   }
 
   setUnreadCount(count: number): void {
@@ -109,6 +150,7 @@ export class RealtimeService implements OnDestroy {
 
   disconnect(): void {
     this.disconnectFromNotifications();
+    this.disconnectFromAdminChannel();
     try {
       if (this.publicChannelConnected) {
         this.echo?.leave('posts');
@@ -126,6 +168,9 @@ export class RealtimeService implements OnDestroy {
     this.notificationSubject.complete();
     this.postBazeSubject.complete();
     this.newPostSubject.complete();
+    this.postDeletedSubject.complete();
+    this.commentDeletedSubject.complete();
+    this.reportCreatedSubject.complete();
     this.unreadCountSubject.complete();
   }
 
@@ -141,9 +186,6 @@ export class RealtimeService implements OnDestroy {
 
     console.log('[Realtime] Creating Echo connection', { key, host, port, scheme });
 
-    // Pusher (a classe, não uma instância) é passado explicitamente para que o Echo
-    // consiga criar a sua própria instância com toda a configuração correta,
-    // incluindo o authorizer para autenticação de canais privados.
     this.echo = new Echo({
       broadcaster: 'reverb',
       Pusher,

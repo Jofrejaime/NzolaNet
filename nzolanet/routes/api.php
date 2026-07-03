@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\BazeController;
 use App\Http\Controllers\Api\AdminController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\ReportController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +58,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 
+    // Denúncias
+    Route::post('/reports', [ReportController::class, 'store']);
+
     // Painel administrativo (admin + superadmin)
     Route::middleware('admin')->prefix('admin')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard']);
@@ -66,6 +70,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/posts/{id}', [AdminController::class, 'deletePost']);
         Route::get('/comments', [AdminController::class, 'comments']);
         Route::delete('/comments/{id}', [AdminController::class, 'deleteComment']);
+
+        // Gestão de denúncias
+        Route::get('/reports', [ReportController::class, 'index']);
+        Route::patch('/reports/{id}', [ReportController::class, 'review']);
 
         // SuperAdmin apenas: gerir admins e eliminar users
         Route::middleware('superadmin')->group(function () {

@@ -29,12 +29,30 @@ class CommentRepositoryEloquent extends BaseRepository implements CommentReposit
             ->paginate($perPage);
     }
 
-    public function getCommentsByUser(int $userId, int $perPage = 20)
+    public function getCommentsByUser(int $userId, ?int $viewerId = null, int $perPage = 20)
     {
-        return $this->model
+        $query = $this->model
             ->where('user_id', $userId)
+            ->whereHas('user', function ($q) use ($viewerId, $userId) {
+                $q->where('is_active', true);
+                if (!$viewerId || $viewerId !== $userId) {
+                    $q->where(function ($privacy) use ($viewerId) {
+                        $privacy->where('is_private', false);
+                        if ($viewerId) {
+                            $privacy->orWhere('users.id', $viewerId)
+                                    ->orWhereExists(function ($f) use ($viewerId) {
+                                        $f->select(\DB::raw(1))
+                                          ->from('follows')
+                                          ->where('follower_id', $viewerId)
+                                          ->whereColumn('following_id', 'users.id');
+                                    });
+                        }
+                    });
+                }
+            })
             ->with(['user', 'post.user'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+            ->orderBy('created_at', 'desc');
+
+        return $query->paginate($perPage);
     }
 }

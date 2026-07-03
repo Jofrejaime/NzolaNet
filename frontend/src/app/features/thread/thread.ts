@@ -9,6 +9,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { CommentService } from '../../core/services/comment.service';
 import { PostService } from '../../core/services/post.service';
 import { RealtimeService } from '../../core/services/realtime.service';
+import { ReportService } from '../../core/services/report.service';
 import { ToastService } from '../../core/services/toast.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
@@ -23,6 +24,8 @@ import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 export class ThreadComponent implements OnInit, OnDestroy {
   private realtimeService = inject(RealtimeService);
   private realtimeBazeSub?: Subscription;
+  private realtimePostDeletedSub?: Subscription;
+  private realtimeCommentDeletedSub?: Subscription;
 
   post: Post | null = null;
   comments: Comment[] = [];
@@ -32,12 +35,24 @@ export class ThreadComponent implements OnInit, OnDestroy {
   errorMessage = '';
   editingPost = false;
   editPostContent = '';
+  editPostNewImageFile: File | null = null;
+  editPostNewVideoFile: File | null = null;
+  editPostRemoveImage = false;
+  editPostRemoveVideo = false;
   editingCommentId: number | null = null;
   editCommentContent = '';
 
   // Menu properties
   showPostMenu = false;
   activeCommentMenuId: number | null = null;
+
+  // Report state
+  showReportModal = false;
+  reportType: 'post' | 'comment' = 'post';
+  reportTargetId = 0;
+  reportReason = 'inappropriate';
+  reportDescription = '';
+  reportLoading = false;
 
   // Reply properties
   replyingToCommentId: number | null = null;
@@ -56,6 +71,7 @@ export class ThreadComponent implements OnInit, OnDestroy {
   skeletonItems = [1, 2, 3];
 
   private toastService = inject(ToastService);
+  private reportService = inject(ReportService);
 
   constructor(
     private router: Router,
@@ -78,13 +94,15 @@ export class ThreadComponent implements OnInit, OnDestroy {
     }
 
     this.loadThread(id);
-    // Ensure the public posts channel is connected before subscribing to updates
     this.realtimeService.connectToPublicChannels();
     this.listenForRealtimeBazes();
+    this.listenForDeletedContent();
   }
 
   ngOnDestroy(): void {
     this.realtimeBazeSub?.unsubscribe();
+    this.realtimePostDeletedSub?.unsubscribe();
+    this.realtimeCommentDeletedSub?.unsubscribe();
   }
 
   private listenForRealtimeBazes(): void {
@@ -93,6 +111,35 @@ export class ThreadComponent implements OnInit, OnDestroy {
         this.post = { ...this.post, bazes_count: update.bazes_count };
         this.cdr.detectChanges();
       }
+    });
+  }
+
+  private listenForDeletedContent(): void {
+    this.realtimePostDeletedSub = this.realtimeService.postDeleted$.subscribe(({ post_id }) => {
+      if (this.post?.id === post_id) {
+        this.ngZone.run(() => {
+          this.toastService.warning('Publicação removida', 'Este conteúdo foi removido.');
+          this.router.navigate(['/home']);
+        });
+      }
+    });
+
+    this.realtimeCommentDeletedSub = this.realtimeService.commentDeleted$.subscribe(({ comment_id }) => {
+      this.ngZone.run(() => {
+        this.comments = this.comments
+          .filter(c => c.id !== comment_id)
+          .map(c => ({
+            ...c,
+            replies: (c.replies ?? []).filter(r => r.id !== comment_id),
+          }));
+        if (this.post) {
+          this.post = {
+            ...this.post,
+            comments_count: Math.max((this.post.comments_count ?? 1) - 1, 0),
+          };
+        }
+        this.cdr.detectChanges();
+      });
     });
   }
 
@@ -261,24 +308,49 @@ export class ThreadComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.editingPost = true;
     this.editPostContent = this.post.content || '';
+    this.editPostNewImageFile = null;
+    this.editPostNewVideoFile = null;
+    this.editPostRemoveImage = false;
+    this.editPostRemoveVideo = false;
     this.showPostMenu = false;
   }
 
   cancelPostEdit(): void {
     this.editingPost = false;
     this.editPostContent = '';
+    this.editPostNewImageFile = null;
+    this.editPostNewVideoFile = null;
+    this.editPostRemoveImage = false;
+    this.editPostRemoveVideo = false;
+  }
+
+  onPostEditImageSelected(event: Event): void {
+    this.editPostNewImageFile = (event.target as HTMLInputElement).files?.[0] ?? null;
+  }
+
+  onPostEditVideoSelected(event: Event): void {
+    this.editPostNewVideoFile = (event.target as HTMLInputElement).files?.[0] ?? null;
   }
 
   savePost(): void {
-    if (!this.post || !this.editPostContent.trim()) {
-      this.toastService.warning('Atenção', 'A publicação precisa de texto para esta edição.');
+    if (!this.post) return;
+    const hasMedia = (this.post.image && !this.editPostRemoveImage) || this.editPostNewImageFile ||
+                     (this.post.video && !this.editPostRemoveVideo) || this.editPostNewVideoFile;
+    if (!this.editPostContent.trim() && !hasMedia) {
+      this.toastService.warning('Atenção', 'A publicação precisa de texto ou média.');
       return;
     }
 
-    this.postService.update(this.post.id, { content: this.editPostContent }).subscribe({
+    this.postService.update(this.post.id, {
+      content: this.editPostContent,
+      image: this.editPostNewImageFile,
+      video: this.editPostNewVideoFile,
+      removeImage: this.editPostRemoveImage,
+      removeVideo: this.editPostRemoveVideo,
+    }).subscribe({
       next: (post) => {
         this.ngZone.run(() => {
-          this.post = post;
+          this.post = { ...post, has_bazed: this.post?.has_bazed, bazes_count: this.post?.bazes_count };
           this.cancelPostEdit();
           this.cdr.detectChanges();
         });
@@ -290,6 +362,37 @@ export class ThreadComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
         });
         this.toastService.error('Erro!', 'Não foi possível editar a publicação.');
+      }
+    });
+  }
+
+  openReport(type: 'post' | 'comment', targetId: number, event: Event): void {
+    event.stopPropagation();
+    this.reportType = type;
+    this.reportTargetId = targetId;
+    this.reportReason = 'inappropriate';
+    this.reportDescription = '';
+    this.showReportModal = true;
+    this.showPostMenu = false;
+    this.activeCommentMenuId = null;
+  }
+
+  closeReport(): void {
+    this.showReportModal = false;
+  }
+
+  submitReport(): void {
+    this.reportLoading = true;
+    this.reportService.report(this.reportType, this.reportTargetId, this.reportReason, this.reportDescription || undefined).subscribe({
+      next: () => {
+        this.reportLoading = false;
+        this.closeReport();
+        this.toastService.success('Denúncia enviada', 'Obrigado. Vamos analisar o conteúdo.');
+      },
+      error: (err) => {
+        this.reportLoading = false;
+        const msg = err?.error?.errors?.general?.[0] || err?.error?.message || 'Não foi possível enviar a denúncia.';
+        this.toastService.error('Erro', msg);
       }
     });
   }

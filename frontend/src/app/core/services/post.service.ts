@@ -41,18 +41,28 @@ export class PostService {
       .pipe(map((response) => response.data));
   }
 
-  update(id: number, payload: { content: string; image?: File | null; video?: File | null }) {
+  update(id: number, payload: {
+    content: string;
+    image?: File | null;
+    video?: File | null;
+    removeImage?: boolean;
+    removeVideo?: boolean;
+  }) {
     const formData = new FormData();
 
     if (payload.content.trim()) {
       formData.append('content', payload.content.trim());
     }
 
-    if (payload.image) {
+    if (payload.removeImage) {
+      formData.append('remove_image', '1');
+    } else if (payload.image) {
       formData.append('image', payload.image);
     }
 
-    if (payload.video) {
+    if (payload.removeVideo) {
+      formData.append('remove_video', '1');
+    } else if (payload.video) {
       formData.append('video', payload.video);
     }
 

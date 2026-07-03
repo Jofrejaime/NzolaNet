@@ -9,7 +9,7 @@ import { RealtimeService } from '../../core/services/realtime.service';
 import { ToastService } from '../../core/services/toast.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
-export type NotifType = 'like' | 'comment' | 'follow' | 'repost';
+export type NotifType = 'like' | 'comment' | 'follow' | 'repost' | 'content_removed';
 
 export interface NotifUser {
   name: string;
@@ -197,13 +197,16 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   }
 
   private mapType(type: NzolaNotification['type']): NotifType {
-    return type === 'baze' ? 'like' : type;
+    if (type === 'baze') return 'like';
+    if (type === 'content_removed') return 'content_removed';
+    return type as NotifType;
   }
 
   private messageFor(type: NzolaNotification['type']): string {
     if (type === 'baze') return 'deu baze na tua publicação.';
     if (type === 'comment') return 'comentou a tua publicação:';
-    return 'comecou a seguir-te.';
+    if (type === 'content_removed') return 'O teu conteúdo foi removido por violar as regras da plataforma.';
+    return 'começou a seguir-te.';
   }
 
   private initials(name: string): string {

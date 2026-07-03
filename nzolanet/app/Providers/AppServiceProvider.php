@@ -44,6 +44,10 @@ class AppServiceProvider extends ServiceProvider
             AdminRepository::class,
             AdminRepositoryEloquent::class
         );
+        $this->app->bind(
+            \App\Repositories\Api\ReportRepository::class,
+            \App\Repositories\Api\ReportRepositoryEloquent::class
+        );
     }
 
     /**

@@ -11,6 +11,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { PostService } from '../../core/services/post.service';
 import { UserService } from '../../core/services/user.service';
 import { RealtimeService } from '../../core/services/realtime.service';
+import { ReportService } from '../../core/services/report.service';
 import { ToastService } from '../../core/services/toast.service';
 
 @Component({
@@ -27,11 +28,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
   private postService = inject(PostService);
   private userService = inject(UserService);
   private realtimeService = inject(RealtimeService);
+  private reportService = inject(ReportService);
   apiUrl = inject(ApiUrlService);
   private cdr = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
 
   private realtimeBazeSub?: Subscription;
+  private realtimePostDeletedSub?: Subscription;
 
   activeTab: 'posts' | 'replies' | 'media' = 'posts';
   user: NzolaUser | null = null;
@@ -48,9 +51,19 @@ export class ProfileComponent implements OnInit, OnDestroy {
   activeMenuId: number | null = null;
   editingPostId: number | null = null;
   editContent = '';
+  editNewImageFile: File | null = null;
+  editNewVideoFile: File | null = null;
+  editRemoveImage = false;
+  editRemoveVideo = false;
   showConfirmDialog = false;
   postToDelete: Post | null = null;
-  
+
+  showReportModal = false;
+  reportTarget: Post | null = null;
+  reportReason = 'inappropriate';
+  reportDescription = '';
+  reportLoading = false;
+
   isOwnProfile = false;
   skeletonItems = [1, 2, 3];
 
@@ -69,19 +82,27 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
 
     this.listenForRealtimeBazes();
-    // Ensure the public posts channel is connected before subscribing to updates
+    this.listenForDeletedPosts();
     this.realtimeService.connectToPublicChannels();
   }
 
   ngOnDestroy(): void {
     this.realtimeBazeSub?.unsubscribe();
+    this.realtimePostDeletedSub?.unsubscribe();
   }
 
   private listenForRealtimeBazes(): void {
     this.realtimeBazeSub = this.realtimeService.postBazeUpdates$.subscribe((update) => {
-      this.posts = this.posts.map((post) => 
+      this.posts = this.posts.map((post) =>
         post.id === update.post_id ? { ...post, bazes_count: update.bazes_count } : post
       );
+      this.cdr.detectChanges();
+    });
+  }
+
+  private listenForDeletedPosts(): void {
+    this.realtimePostDeletedSub = this.realtimeService.postDeleted$.subscribe(({ post_id }) => {
+      this.posts = this.posts.filter(p => p.id !== post_id);
       this.cdr.detectChanges();
     });
   }
@@ -166,6 +187,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.toastService.error('Erro!', 'Não foi possível carregar as publicações.');
       },
     });
+  }
+
+  get canSeeContent(): boolean {
+    if (!this.user) return false;
+    return !this.user.is_private || !!this.user.is_following || this.isOwnProfile;
   }
 
   get mediaPosts(): Post[] {
@@ -272,34 +298,57 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   toggleMenu(postId: number, event: Event): void {
-    if (!this.isOwnProfile) return;
     event.stopPropagation();
     this.activeMenuId = this.activeMenuId === postId ? null : postId;
   }
 
   beginEdit(post: Post): void {
-    if (!this.isOwnProfile) return;
     this.editingPostId = post.id;
     this.editContent = post.content || '';
+    this.editNewImageFile = null;
+    this.editNewVideoFile = null;
+    this.editRemoveImage = false;
+    this.editRemoveVideo = false;
     this.activeMenuId = null;
   }
 
   cancelEdit(): void {
     this.editingPostId = null;
     this.editContent = '';
+    this.editNewImageFile = null;
+    this.editNewVideoFile = null;
+    this.editRemoveImage = false;
+    this.editRemoveVideo = false;
+  }
+
+  onEditImageSelected(event: Event): void {
+    this.editNewImageFile = (event.target as HTMLInputElement).files?.[0] ?? null;
+  }
+
+  onEditVideoSelected(event: Event): void {
+    this.editNewVideoFile = (event.target as HTMLInputElement).files?.[0] ?? null;
   }
 
   savePost(post: Post): void {
     if (this.editingPostId !== post.id) return;
-    
-    if (!this.editContent.trim()) {
-      this.toastService.warning('Atenção', 'A publicação precisa de texto para esta edição.');
+
+    const hasMedia = (post.image && !this.editRemoveImage) || this.editNewImageFile ||
+                     (post.video && !this.editRemoveVideo) || this.editNewVideoFile;
+
+    if (!this.editContent.trim() && !hasMedia) {
+      this.toastService.warning('Atenção', 'A publicação precisa de texto ou média.');
       return;
     }
 
-    this.postService.update(post.id, { content: this.editContent }).subscribe({
+    this.postService.update(post.id, {
+      content: this.editContent,
+      image: this.editNewImageFile,
+      video: this.editNewVideoFile,
+      removeImage: this.editRemoveImage,
+      removeVideo: this.editRemoveVideo,
+    }).subscribe({
       next: (updatedPost) => {
-        this.posts = this.posts.map(p => p.id === post.id ? updatedPost : p);
+        this.posts = this.posts.map(p => p.id === post.id ? { ...updatedPost, has_bazed: p.has_bazed, bazes_count: p.bazes_count } : p);
         this.cancelEdit();
         this.cdr.detectChanges();
         this.toastService.success('Editado!', 'Publicação atualizada com sucesso.');
@@ -308,6 +357,37 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.errorMessage = error?.error?.message || 'Não foi possível editar o post.';
         this.cdr.detectChanges();
         this.toastService.error('Erro!', 'Não foi possível editar a publicação.');
+      }
+    });
+  }
+
+  openReport(post: Post, event: Event): void {
+    event.stopPropagation();
+    this.reportTarget = post;
+    this.reportReason = 'inappropriate';
+    this.reportDescription = '';
+    this.showReportModal = true;
+    this.activeMenuId = null;
+  }
+
+  closeReport(): void {
+    this.showReportModal = false;
+    this.reportTarget = null;
+  }
+
+  submitReport(): void {
+    if (!this.reportTarget) return;
+    this.reportLoading = true;
+    this.reportService.report('post', this.reportTarget.id, this.reportReason, this.reportDescription || undefined).subscribe({
+      next: () => {
+        this.reportLoading = false;
+        this.closeReport();
+        this.toastService.success('Denúncia enviada', 'Obrigado. Vamos analisar o conteúdo.');
+      },
+      error: (err) => {
+        this.reportLoading = false;
+        const msg = err?.error?.errors?.general?.[0] || err?.error?.message || 'Não foi possível enviar a denúncia.';
+        this.toastService.error('Erro', msg);
       }
     });
   }

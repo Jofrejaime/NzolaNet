@@ -8,6 +8,7 @@ import { ApiUrlService } from '../../core/services/api-url.service';
 import { PostService } from '../../core/services/post.service';
 import { AuthService } from '../../core/services/auth.service';
 import { RealtimeService } from '../../core/services/realtime.service';
+import { ReportService } from '../../core/services/report.service';
 import { ToastService } from '../../core/services/toast.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
@@ -26,14 +27,26 @@ export class FeedComponent implements OnInit, OnDestroy {
   actionMessage = '';
   editingPostId: number | null = null;
   editContent = '';
-  
+  editNewImageFile: File | null = null;
+  editNewVideoFile: File | null = null;
+  editRemoveImage = false;
+  editRemoveVideo = false;
+
   activeMenuId: number | null = null;
   showConfirmDialog = false;
   postToDelete: Post | null = null;
 
+  // Report state
+  showReportModal = false;
+  reportTarget: Post | null = null;
+  reportReason = 'inappropriate';
+  reportDescription = '';
+  reportLoading = false;
+
   skeletonItems = [1, 2, 3];
   private realtimeBazeSub?: Subscription;
   private realtimeNewPostSub?: Subscription;
+  private realtimePostDeletedSub?: Subscription;
 
   constructor(
     private postService: PostService,
@@ -44,20 +57,22 @@ export class FeedComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private appRef: ApplicationRef,
     private ngZone: NgZone,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private reportService: ReportService
   ) {}
 
   ngOnInit(): void {
     this.loadFeed();
-    // Ensure the public posts channel is connected before subscribing to updates
     this.realtimeService.connectToPublicChannels();
     this.listenForRealtimeBazes();
     this.listenForNewPosts();
+    this.listenForDeletedPosts();
   }
 
   ngOnDestroy(): void {
     this.realtimeBazeSub?.unsubscribe();
     this.realtimeNewPostSub?.unsubscribe();
+    this.realtimePostDeletedSub?.unsubscribe();
   }
 
   private listenForRealtimeBazes(): void {
@@ -74,6 +89,15 @@ export class FeedComponent implements OnInit, OnDestroy {
       if (this.posts.some((p) => p.id === post.id)) return;
       this.ngZone.run(() => {
         this.posts = [post, ...this.posts];
+        this.cdr.detectChanges();
+      });
+    });
+  }
+
+  private listenForDeletedPosts(): void {
+    this.realtimePostDeletedSub = this.realtimeService.postDeleted$.subscribe(({ post_id }) => {
+      this.ngZone.run(() => {
+        this.posts = this.posts.filter(p => p.id !== post_id);
         this.cdr.detectChanges();
       });
     });
@@ -154,12 +178,30 @@ export class FeedComponent implements OnInit, OnDestroy {
     this.actionMessage = '';
     this.editingPostId = post.id;
     this.editContent = post.content || '';
+    this.editNewImageFile = null;
+    this.editNewVideoFile = null;
+    this.editRemoveImage = false;
+    this.editRemoveVideo = false;
     this.activeMenuId = null;
   }
 
   cancelEdit(): void {
     this.editingPostId = null;
     this.editContent = '';
+    this.editNewImageFile = null;
+    this.editNewVideoFile = null;
+    this.editRemoveImage = false;
+    this.editRemoveVideo = false;
+  }
+
+  onEditImageSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0] ?? null;
+    this.editNewImageFile = file;
+  }
+
+  onEditVideoSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0] ?? null;
+    this.editNewVideoFile = file;
   }
 
   savePost(post: Post): void {
@@ -167,12 +209,21 @@ export class FeedComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.editContent.trim()) {
-      this.toastService.warning('Atenção', 'A publicação precisa de texto para esta edição.');
+    const hasMedia = (post.image && !this.editRemoveImage) || this.editNewImageFile ||
+                     (post.video && !this.editRemoveVideo) || this.editNewVideoFile;
+
+    if (!this.editContent.trim() && !hasMedia) {
+      this.toastService.warning('Atenção', 'A publicação precisa de texto ou média.');
       return;
     }
 
-    this.postService.update(post.id, { content: this.editContent }).subscribe({
+    this.postService.update(post.id, {
+      content: this.editContent,
+      image: this.editNewImageFile,
+      video: this.editNewVideoFile,
+      removeImage: this.editRemoveImage,
+      removeVideo: this.editRemoveVideo,
+    }).subscribe({
       next: (updatedPost) => {
         this.posts = this.posts.map((item) => 
           item.id === post.id ? { ...updatedPost, has_bazed: item.has_bazed, bazes_count: item.bazes_count } : item
@@ -241,6 +292,37 @@ export class FeedComponent implements OnInit, OnDestroy {
           item.id === post.id ? originalPost : item
         );
         this.toastService.warning('Erro!', 'Não foi possível atualizar o baze.');
+      }
+    });
+  }
+
+  openReport(post: Post, event: Event): void {
+    event.stopPropagation();
+    this.reportTarget = post;
+    this.reportReason = 'inappropriate';
+    this.reportDescription = '';
+    this.showReportModal = true;
+    this.activeMenuId = null;
+  }
+
+  closeReport(): void {
+    this.showReportModal = false;
+    this.reportTarget = null;
+  }
+
+  submitReport(): void {
+    if (!this.reportTarget) return;
+    this.reportLoading = true;
+    this.reportService.report('post', this.reportTarget.id, this.reportReason, this.reportDescription || undefined).subscribe({
+      next: () => {
+        this.reportLoading = false;
+        this.closeReport();
+        this.toastService.success('Denúncia enviada', 'Obrigado. Vamos analisar o conteúdo.');
+      },
+      error: (err) => {
+        this.reportLoading = false;
+        const msg = err?.error?.errors?.general?.[0] || err?.error?.message || 'Não foi possível enviar a denúncia.';
+        this.toastService.error('Erro', msg);
       }
     });
   }

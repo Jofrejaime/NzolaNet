@@ -114,7 +114,20 @@ class PostService
             throw new AuthorizationException("Não tem permissão para editar esta publicação.");
         }
 
-        return $this->postRepository->update($data, $id);
+        $oldImage = $post->image;
+        $oldVideo = $post->video;
+
+        $updated = $this->postRepository->update($data, $id);
+
+        // Remove ficheiros antigos do storage quando substituídos ou eliminados
+        if (array_key_exists('image', $data) && $oldImage && $oldImage !== $updated->image) {
+            Storage::disk('public')->delete($oldImage);
+        }
+        if (array_key_exists('video', $data) && $oldVideo && $oldVideo !== $updated->video) {
+            Storage::disk('public')->delete($oldVideo);
+        }
+
+        return $updated;
     }
 
     /**

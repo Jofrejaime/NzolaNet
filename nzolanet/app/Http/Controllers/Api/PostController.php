@@ -111,14 +111,18 @@ class PostController extends Controller
         try {
             $data = [];
             if ($request->has('content')) {
-                $data['content'] = $request->content;
+                $data['content'] = $request->input('content');
             }
 
-            if ($request->hasFile('image')) {
+            if ($request->boolean('remove_image')) {
+                $data['image'] = null;
+            } elseif ($request->hasFile('image')) {
                 $data['image'] = $request->file('image')->store('posts/images', 'public');
             }
 
-            if ($request->hasFile('video')) {
+            if ($request->boolean('remove_video')) {
+                $data['video'] = null;
+            } elseif ($request->hasFile('video')) {
                 $data['video'] = $request->file('video')->store('posts/videos', 'public');
             }
 

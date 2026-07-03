@@ -55,9 +55,9 @@ class CommentService
         return $comment;
     }
 
-    public function getCommentsByUser(int $userId, int $perPage = 20)
+    public function getCommentsByUser(int $userId, ?int $viewerId = null, int $perPage = 20)
     {
-        return $this->commentRepository->getCommentsByUser($userId, $perPage);
+        return $this->commentRepository->getCommentsByUser($userId, $viewerId, $perPage);
     }
 
     public function update(int $id, string $content, int $userId): Comment
