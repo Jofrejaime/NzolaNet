@@ -51,4 +51,14 @@ class NotificationRepositoryEloquent extends BaseRepository implements Notificat
             ->where('is_read', false)
             ->count();
     }
+
+    public function resolveFollowRequestNotification(int $userId, int $fromUserId, string $status): void
+    {
+        $this->model
+            ->where('user_id', $userId)
+            ->where('from_user_id', $fromUserId)
+            ->where('type', 'follow_request')
+            ->where('follow_request_status', 'pending')
+            ->update(['follow_request_status' => $status, 'is_read' => true]);
+    }
 }

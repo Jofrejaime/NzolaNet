@@ -25,14 +25,15 @@ class ReportController extends Controller
         $validated = $request->validate([
             'type'        => 'required|in:post,comment',
             'id'          => 'required|integer',
-            'reason'      => 'required|in:spam,inappropriate,offensive,misinformation,other',
-            'description' => 'nullable|string|max:500',
+            'reason'      => 'required|in:spam,inappropriate,harassment,hate_speech,violence,other',
+            'description' => 'nullable|string|max:500|required_if:reason,other',
         ], [
-            'type.required'   => 'O tipo de denúncia é obrigatório.',
-            'type.in'         => 'Tipo de denúncia inválido.',
-            'id.required'     => 'O ID do conteúdo é obrigatório.',
-            'reason.required' => 'O motivo da denúncia é obrigatório.',
-            'reason.in'       => 'Motivo inválido.',
+            'type.required'          => 'O tipo de denúncia é obrigatório.',
+            'type.in'                => 'Tipo de denúncia inválido.',
+            'id.required'            => 'O ID do conteúdo é obrigatório.',
+            'reason.required'        => 'O motivo da denúncia é obrigatório.',
+            'reason.in'              => 'Motivo inválido.',
+            'description.required_if' => 'A descrição é obrigatória quando o motivo é "Outro".',
         ]);
 
         try {

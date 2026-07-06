@@ -80,6 +80,7 @@ class FollowRepositoryEloquent extends BaseRepository implements FollowRepositor
 
         foreach ($users as $user) {
             $isFollowing = $this->isFollowing($currentUserId, $user->id);
+            $isFollowPending = $this->isFollowPending($currentUserId, $user->id);
             $result[] = [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -89,6 +90,7 @@ class FollowRepositoryEloquent extends BaseRepository implements FollowRepositor
                 'is_private' => $user->is_private,
                 'is_active' => $user->is_active,
                 'is_following' => $isFollowing,
+                'is_follow_pending' => $isFollowPending,
                 'created_at' => $user->created_at,
             ];
         }
@@ -115,6 +117,7 @@ class FollowRepositoryEloquent extends BaseRepository implements FollowRepositor
 
         foreach ($users as $user) {
             $isFollowing = $this->isFollowing($currentUserId, $user->id);
+            $isFollowPending = $this->isFollowPending($currentUserId, $user->id);
             $result[] = [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -124,6 +127,7 @@ class FollowRepositoryEloquent extends BaseRepository implements FollowRepositor
                 'is_private' => $user->is_private,
                 'is_active' => $user->is_active,
                 'is_following' => $isFollowing,
+                'is_follow_pending' => $isFollowPending,
                 'created_at' => $user->created_at,
             ];
         }

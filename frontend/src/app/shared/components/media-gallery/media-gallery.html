@@ -5,7 +5,7 @@
         @if (item.type === 'image') {
           <img [src]="url(item.path)" [alt]="'Imagem ' + ($index + 1)" class="gallery-media" loading="lazy">
         } @else {
-          <video [src]="url(item.path)" controls class="gallery-media" preload="metadata"></video>
+          <video [src]="url(item.path)" controls class="gallery-media" preload="metadata" (click)="$event.stopPropagation()"></video>
         }
       </div>
     }

@@ -12,6 +12,7 @@ class NotificationData extends Data
         public readonly ?int $fromUserId = null,
         public readonly ?int $postId = null,
         public readonly ?int $commentId = null,
+        public readonly ?string $followRequestStatus = null,
     ) {}
 
     public function toArray(): array
@@ -19,6 +20,7 @@ class NotificationData extends Data
         return array_filter([
             'user_id' => $this->userId,
             'type' => $this->type,
+            'follow_request_status' => $this->followRequestStatus,
             'from_user_id' => $this->fromUserId,
             'post_id' => $this->postId,
             'comment_id' => $this->commentId,

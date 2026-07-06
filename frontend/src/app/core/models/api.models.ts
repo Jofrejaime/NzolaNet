@@ -98,6 +98,7 @@ export interface NzolaNotification {
   id: number;
   user_id: number;
   type: 'baze' | 'comment' | 'reply' | 'follow' | 'follow_request' | 'content_removed' | 'new_report' | 'report_dismissed';
+  follow_request_status?: 'pending' | 'accepted' | 'rejected' | null;
   from_user_id: number;
   post_id?: number | null;
   comment_id?: number | null;

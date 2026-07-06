@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('reporter_id')->constrained('users')->cascadeOnDelete();
             $table->string('reportable_type', 20); // post | comment
             $table->unsignedBigInteger('reportable_id');
-            $table->string('reason'); // spam | inappropriate | offensive | misinformation | other
+            $table->string('reason'); // spam | inappropriate | harassment | hate_speech | violence | other
             $table->text('description')->nullable();
             $table->string('status')->default('pending'); // pending | dismissed | removed
             $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();

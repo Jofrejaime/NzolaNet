@@ -163,6 +163,36 @@
       color: var(--text-secondary);
     }
   }
+
+  .follow-btn {
+    background: var(--bg-brand);
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover { background: #C9460A; }
+  }
+
+  .following-btn {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--state-hover);
+      border-color: var(--border-danger);
+      color: var(--text-danger);
+    }
+  }
 }
 
 .loading, .error-message, .empty-state {

@@ -67,6 +67,15 @@
           <div class="follower-name">{{ user.name }}</div>
           <div class="follower-username">&#64;{{ user.username || user.name.toLowerCase().replace(/\s+/g, '_') }}</div>
         </div>
+        @if (!isSelf(user.id)) {
+          @if (user.is_following) {
+            <button class="following-btn" (click)="toggleFollow(user, $event)">Seguindo</button>
+          } @else if (user.is_follow_pending) {
+            <button class="following-btn" (click)="toggleFollow(user, $event)">Pendente</button>
+          } @else {
+            <button class="follow-btn" (click)="toggleFollow(user, $event)">Seguir</button>
+          }
+        }
       </div>
     }
   </div>

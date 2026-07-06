@@ -119,6 +119,19 @@ export class AdminComponent implements OnInit, OnDestroy {
     return `${Math.floor(hours / 24)}d`;
   }
 
+  private static readonly REPORT_REASON_LABELS: Record<string, string> = {
+    spam: 'Spam',
+    inappropriate: 'Conteúdo inapropriado',
+    harassment: 'Assédio',
+    hate_speech: 'Discurso de ódio',
+    violence: 'Violência',
+    other: 'Outro',
+  };
+
+  reasonLabel(reason: string): string {
+    return AdminComponent.REPORT_REASON_LABELS[reason] ?? reason;
+  }
+
   // Modal methods for Users
   openToggleUserModal(user: NzolaUser): void {
     this.pendingUser = user;

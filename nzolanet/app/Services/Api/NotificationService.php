@@ -48,6 +48,11 @@ class NotificationService
         return $this->notificationRepository->unreadCount($userId);
     }
 
+    public function resolveFollowRequestNotification(int $userId, int $fromUserId, string $status): void
+    {
+        $this->notificationRepository->resolveFollowRequestNotification($userId, $fromUserId, $status);
+    }
+
     private function broadcast(Notification $notification): void
     {
         try {

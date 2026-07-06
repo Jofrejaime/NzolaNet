@@ -153,16 +153,17 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   acceptFollowRequest(notif: Notification, event: Event): void {
     event.stopPropagation();
     if (!notif.fromUserId || notif.followRequestState !== 'pending') return;
-    
+
     notif.followRequestState = 'accepted';
     this.userService.acceptFollowRequest(notif.fromUserId).subscribe({
       next: () => {
+        notif.read = true;
         this.toastService.success('Pedido aceite!', 'Agora este utilizador é teu seguidor.');
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         notif.followRequestState = 'pending';
-        this.toastService.error('Erro', 'Não foi possivel aceitar o pedido.');
+        this.toastService.error('Erro', err?.error?.message || 'Não foi possivel aceitar o pedido.');
         this.cdr.detectChanges();
       }
     });
@@ -171,16 +172,17 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   rejectFollowRequest(notif: Notification, event: Event): void {
     event.stopPropagation();
     if (!notif.fromUserId || notif.followRequestState !== 'pending') return;
-    
+
     notif.followRequestState = 'rejected';
     this.userService.rejectFollowRequest(notif.fromUserId).subscribe({
       next: () => {
+        notif.read = true;
         this.toastService.info('Pedido rejeitado', 'O utilizador não foi notificado da rejeição.');
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         notif.followRequestState = 'pending';
-        this.toastService.error('Erro', 'Não foi possivel rejeitar o pedido.');
+        this.toastService.error('Erro', err?.error?.message || 'Não foi possivel rejeitar o pedido.');
         this.cdr.detectChanges();
       }
     });
@@ -251,7 +253,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
       postThumb: item.type === 'baze' && !!item.post_id,
       routeTo,
       fromUserId: item.from_user_id,
-      followRequestState: type === 'follow_request' ? 'pending' : undefined,
+      followRequestState: type === 'follow_request' ? (item.follow_request_status ?? 'pending') : undefined,
     };
   }
 

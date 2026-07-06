@@ -95,6 +95,39 @@ export class FollowingComponent implements OnInit {
     this.cdr.detectChanges(); // ✅ Forçar atualização
   }
 
+  isSelf(userId: number): boolean {
+    return this.authService.currentUser()?.id === userId;
+  }
+
+  toggleFollow(user: any, event: Event): void {
+    event.stopPropagation();
+    const isCurrentlyFollowingOrPending = user.is_following || user.is_follow_pending;
+
+    const request = isCurrentlyFollowingOrPending
+      ? this.userService.unfollow(user.id)
+      : this.userService.follow(user.id);
+
+    request.subscribe({
+      next: () => {
+        if (isCurrentlyFollowingOrPending) {
+          user.is_following = false;
+          user.is_follow_pending = false;
+          this.toastService.success('Deixaste de seguir', user.name);
+        } else if (user.is_private) {
+          user.is_follow_pending = true;
+          this.toastService.success('Pedido enviado!', 'Aguarde a aprovação.');
+        } else {
+          user.is_following = true;
+          this.toastService.success('Seguindo!', `Agora segues ${user.name}.`);
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.toastService.error('Erro!', 'Não foi possível atualizar o seguimento.');
+      }
+    });
+  }
+
   goBack(): void {
     if (this.userId) {
       this.router.navigate(['/profile', this.userId]);

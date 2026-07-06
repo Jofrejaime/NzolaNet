@@ -330,6 +330,11 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   submitReport(): void {
     if (!this.reportTarget) return;
+    if (this.reportReason === 'other' && !this.reportDescription.trim()) {
+      this.toastService.error('Erro', 'A descrição é obrigatória quando o motivo é "Outro".');
+      return;
+    }
+
     this.reportLoading = true;
     this.reportService.report('post', this.reportTarget.id, this.reportReason, this.reportDescription || undefined).subscribe({
       next: () => {
@@ -339,7 +344,10 @@ export class FeedComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.reportLoading = false;
-        const msg = err?.error?.errors?.general?.[0] || err?.error?.message || 'Não foi possível enviar a denúncia.';
+        const errors = err?.error?.errors;
+        const msg = (errors && (Object.values(errors)[0] as string[] | undefined)?.[0])
+          || err?.error?.message
+          || 'Não foi possível enviar a denúncia.';
         this.toastService.error('Erro', msg);
       }
     });

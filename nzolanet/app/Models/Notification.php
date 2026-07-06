@@ -10,6 +10,7 @@ class Notification extends Model
     protected $fillable = [
         'user_id',
         'type',
+        'follow_request_status',
         'from_user_id',
         'post_id',
         'comment_id',

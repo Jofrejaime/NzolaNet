@@ -320,7 +320,9 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Descrição (opcional)</label>
+          <label class="block text-xs font-semibold text-[var(--text-secondary)] mb-1">
+            Descrição {{ reportReason === 'other' ? '(obrigatória)' : '(opcional)' }}
+          </label>
           <textarea [(ngModel)]="reportDescription" rows="3" maxlength="500"
                     placeholder="Descreve o problema em detalhe..."
                     class="w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-brand)] resize-none"></textarea>

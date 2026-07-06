@@ -52,6 +52,7 @@ class FollowService
                 userId: $followingId,
                 type: 'follow_request',
                 fromUserId: $followerId,
+                followRequestStatus: 'pending',
             ));
         }
     }
@@ -59,12 +60,14 @@ class FollowService
     public function acceptRequest(int $followerId, int $followingId): void
     {
         $success = $this->followRepository->acceptRequest($followerId, $followingId);
-        
+
         if (!$success) {
             throw ValidationException::withMessages([
                 'follower_id' => ['Pedido não encontrado.']
             ]);
         }
+
+        $this->notificationService->resolveFollowRequestNotification($followingId, $followerId, 'accepted');
 
         // Optionally notify the follower that their request was accepted
         // $this->notificationService->create(new NotificationData(
@@ -77,12 +80,14 @@ class FollowService
     public function rejectRequest(int $followerId, int $followingId): void
     {
         $success = $this->followRepository->rejectRequest($followerId, $followingId);
-        
+
         if (!$success) {
             throw ValidationException::withMessages([
                 'follower_id' => ['Pedido não encontrado.']
             ]);
         }
+
+        $this->notificationService->resolveFollowRequestNotification($followingId, $followerId, 'rejected');
     }
 
     public function unfollow(int $followerId, int $followingId): void
