@@ -36,9 +36,9 @@
             <button
               (click)="toggleFollow(user, $event)"
               class="follow-btn flex-shrink-0 rounded-full text-xs font-bold px-4 py-1.5 transition"
-              [ngClass]="user.is_following ? 'border border-[var(--border-strong)] text-[var(--text-primary)] hover:border-red-400 hover:text-red-400' : 'bg-[var(--bg-brand)] text-white hover:opacity-90'"
+              [ngClass]="(user.is_following || user.is_follow_pending) ? 'border border-[var(--border-strong)] text-[var(--text-primary)] hover:border-red-400 hover:text-red-400' : 'bg-[var(--bg-brand)] text-white hover:opacity-90'"
             >
-              {{ user.is_following ? 'A seguir' : 'Seguir' }}
+              {{ user.is_following ? 'A seguir' : (user.is_follow_pending ? 'Pendente' : 'Seguir') }}
             </button>
           </div>
         }

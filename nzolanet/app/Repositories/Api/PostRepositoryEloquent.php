@@ -102,4 +102,40 @@ class PostRepositoryEloquent extends BaseRepository implements PostRepository
                 });
         });
     }
+
+    public function getPopularPosts(?int $viewerId = null, int $perPage = 15)
+    {
+        $query = $this->model
+            ->whereHas('user', function ($q) use ($viewerId) {
+                $q->where('is_active', true);
+                $this->applyUserPrivacy($q, $viewerId);
+            })
+            ->with(['user'])
+            ->withCount(['comments', 'bazes'])
+            // Order by the sum of comments and bazes to show popularity
+            ->orderByDesc(DB::raw('(SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id) + (SELECT COUNT(*) FROM post_bazes WHERE post_bazes.post_id = posts.id)'))
+            ->orderByDesc('created_at');
+
+        if ($viewerId) {
+            $query->withExists([
+                'bazes as has_bazed' => fn ($query) => $query->where('user_id', $viewerId),
+            ]);
+        }
+
+        return $query->paginate($perPage);
+    }
+
+    public function getRecentPublicPosts(int $limit = 100)
+    {
+        return $this->model
+            ->whereHas('user', function ($q) {
+                $q->where('is_active', true)
+                  ->where('is_private', false);
+            })
+            ->select('id', 'content', 'created_at')
+            ->whereNotNull('content')
+            ->orderByDesc('created_at')
+            ->limit($limit)
+            ->get();
+    }
 }

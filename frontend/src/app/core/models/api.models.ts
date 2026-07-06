@@ -21,6 +21,7 @@ export interface NzolaUser {
   is_private?: boolean;
   is_active?: boolean;
   is_following?: boolean;
+  is_follow_pending?: boolean;
   role?: string;
   created_at?: string;
 }
@@ -90,7 +91,7 @@ export interface Report {
 export interface NzolaNotification {
   id: number;
   user_id: number;
-  type: 'baze' | 'comment' | 'follow' | 'content_removed';
+  type: 'baze' | 'comment' | 'follow' | 'follow_request' | 'content_removed' | 'new_report' | 'report_dismissed';
   from_user_id: number;
   post_id?: number | null;
   comment_id?: number | null;

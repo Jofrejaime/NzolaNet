@@ -55,21 +55,40 @@ export class RightSidebarComponent implements OnInit {
   toggleFollow(user: UserWithFollow, event: Event): void {
     event.stopPropagation(); // Evitar navegar para o perfil
     
-    const request = user.is_following
+    const isCurrentlyFollowingOrPending = user.is_following || user.is_follow_pending;
+
+    const request = isCurrentlyFollowingOrPending
       ? this.userService.unfollow(user.id)
       : this.userService.follow(user.id);
 
     request.subscribe({
       next: () => {
         this.users.update((list) =>
-          list.map((item) =>
-            item.id === user.id
-              ? { ...item, is_following: !user.is_following }
-              : item
-          )
+          list.map((item) => {
+            if (item.id === user.id) {
+              if (isCurrentlyFollowingOrPending) {
+                return { ...item, is_following: false, is_follow_pending: false };
+              } else {
+                if (item.is_private) {
+                  return { ...item, is_follow_pending: true };
+                } else {
+                  return { ...item, is_following: true };
+                }
+              }
+            }
+            return item;
+          })
         );
-        const action = user.is_following ? 'Deixaste de seguir' : 'Agora segues';
-        this.toastService.success(action, user.name);
+        
+        if (isCurrentlyFollowingOrPending) {
+          this.toastService.success('Deixaste de seguir', user.name);
+        } else {
+          if (user.is_private) {
+            this.toastService.success('Pedido enviado!', 'Aguarde a aprovação.');
+          } else {
+            this.toastService.success('Agora segues', user.name);
+          }
+        }
       },
       error: (err) => {
         console.error('Erro ao atualizar seguir:', err);

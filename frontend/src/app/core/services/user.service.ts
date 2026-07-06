@@ -57,6 +57,20 @@ export class UserService {
       .pipe(map((response) => response));
   }
 
+  /** Aceitar pedido para seguir */
+  acceptFollowRequest(id: number) {
+    return this.http
+      .post<ApiResponse<null>>(`${this.apiUrl.apiUrl}/users/${id}/follow-requests/accept`, {})
+      .pipe(map((response) => response));
+  }
+
+  /** Rejeitar pedido para seguir */
+  rejectFollowRequest(id: number) {
+    return this.http
+      .post<ApiResponse<null>>(`${this.apiUrl.apiUrl}/users/${id}/follow-requests/reject`, {})
+      .pipe(map((response) => response));
+  }
+
   /** Obter seguidores de um utilizador */
   getFollowers(id: number) {
     return this.http

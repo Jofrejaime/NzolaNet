@@ -18,18 +18,29 @@ class FollowRepositoryEloquent extends BaseRepository implements FollowRepositor
         return $this->model
             ->where('follower_id', $followerId)
             ->where('following_id', $followingId)
+            ->where('is_accepted', true)
             ->exists();
     }
 
-    public function follow(int $followerId, int $followingId): bool
+    public function isFollowPending(int $followerId, int $followingId): bool
     {
-        if ($this->isFollowing($followerId, $followingId)) {
+        return $this->model
+            ->where('follower_id', $followerId)
+            ->where('following_id', $followingId)
+            ->where('is_accepted', false)
+            ->exists();
+    }
+
+    public function follow(int $followerId, int $followingId, bool $isAccepted = true): bool
+    {
+        if ($this->model->where('follower_id', $followerId)->where('following_id', $followingId)->exists()) {
             return false;
         }
 
         $this->create([
             'follower_id' => $followerId,
             'following_id' => $followingId,
+            'is_accepted' => $isAccepted,
         ]);
 
         return true;
@@ -54,6 +65,7 @@ class FollowRepositoryEloquent extends BaseRepository implements FollowRepositor
     {
         $followingIds = $this->model
             ->where('follower_id', $userId)
+            ->where('is_accepted', true)
             ->pluck('following_id')
             ->toArray();
 
@@ -88,6 +100,7 @@ class FollowRepositoryEloquent extends BaseRepository implements FollowRepositor
     {
         $followerIds = $this->model
             ->where('following_id', $userId)
+            ->where('is_accepted', true)
             ->pluck('follower_id')
             ->toArray();
 
@@ -116,5 +129,36 @@ class FollowRepositoryEloquent extends BaseRepository implements FollowRepositor
         }
 
         return $result;
+    }
+
+    public function acceptRequest(int $followerId, int $followingId): bool
+    {
+        $follow = $this->model
+            ->where('follower_id', $followerId)
+            ->where('following_id', $followingId)
+            ->where('is_accepted', false)
+            ->first();
+
+        if ($follow) {
+            $follow->is_accepted = true;
+            $follow->save();
+            return true;
+        }
+        return false;
+    }
+
+    public function rejectRequest(int $followerId, int $followingId): bool
+    {
+        $follow = $this->model
+            ->where('follower_id', $followerId)
+            ->where('following_id', $followingId)
+            ->where('is_accepted', false)
+            ->first();
+
+        if ($follow) {
+            $follow->delete();
+            return true;
+        }
+        return false;
     }
 }

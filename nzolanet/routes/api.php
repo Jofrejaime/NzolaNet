@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\BazeController;
 use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\ExploreController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ReportController;
 use Illuminate\Support\Facades\Broadcast;
@@ -37,6 +38,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{id}/posts', [UserController::class, 'userPosts']);
     Route::get('/users/{id}/comments', [UserController::class, 'userComments']);
     Route::post('/users/{id}/follow', [UserController::class, 'follow']);
+    Route::post('/users/{id}/follow-requests/accept', [UserController::class, 'acceptFollowRequest']);
+    Route::post('/users/{id}/follow-requests/reject', [UserController::class, 'rejectFollowRequest']);
     Route::delete('/users/{id}/follow', [UserController::class, 'unfollow']);
     Route::get('/users/{id}/following', [UserController::class, 'following']);
     Route::get('/users/{id}/followers', [UserController::class, 'followers']);
@@ -60,6 +63,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Denúncias
     Route::post('/reports', [ReportController::class, 'store']);
+
+    // Explorar
+    Route::get('/explore/popular', [ExploreController::class, 'popular']);
+    Route::get('/explore/trends', [ExploreController::class, 'trends']);
 
     // Painel administrativo (admin + superadmin)
     Route::middleware('admin')->prefix('admin')->group(function () {

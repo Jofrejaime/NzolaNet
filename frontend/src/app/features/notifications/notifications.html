@@ -76,6 +76,11 @@
                     <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                   </svg>
                 }
+                @case ('follow_request') {
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                  </svg>
+                }
                 @case ('repost') {
                   <svg viewBox="0 0 24 24" fill="currentColor">
                     <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>
@@ -86,16 +91,41 @@
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                   </svg>
                 }
+                @case ('new_report') {
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/>
+                  </svg>
+                }
+                @case ('report_dismissed') {
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                  </svg>
+                }
               }
             </div>
           </div>
 
           <div class="notif-body">
             <p class="notif-text">
-              <strong>{{ notif.user.name }}</strong> {{ notif.message }}
+              @if (notif.type !== 'report_dismissed' && notif.type !== 'content_removed') {
+                <strong>{{ notif.user.name }}</strong> 
+              }
+              {{ notif.message }}
             </p>
             @if (notif.quote) {
               <p class="notif-quote">"{{ notif.quote }}"</p>
+            }
+            @if (notif.type === 'follow_request') {
+              @if (notif.followRequestState === 'pending') {
+                <div class="mt-2 flex gap-2">
+                  <button class="px-4 py-1.5 bg-[var(--bg-brand)] text-white text-xs font-bold rounded-lg hover:opacity-90" (click)="acceptFollowRequest(notif, $event)">Aceitar</button>
+                  <button class="px-4 py-1.5 border border-[var(--border-strong)] text-[var(--text-primary)] text-xs font-bold rounded-lg hover:bg-[var(--state-hover)]" (click)="rejectFollowRequest(notif, $event)">Rejeitar</button>
+                </div>
+              } @else if (notif.followRequestState === 'accepted') {
+                <div class="mt-2 text-xs text-[var(--text-secondary)]">Pedido aceite</div>
+              } @else if (notif.followRequestState === 'rejected') {
+                <div class="mt-2 text-xs text-[var(--text-secondary)]">Pedido rejeitado</div>
+              }
             }
             <div class="notif-footer">
               <span class="notif-time" [class.brand]="notif.isToday">{{ notif.time }}</span>

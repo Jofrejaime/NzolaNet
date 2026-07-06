@@ -4,6 +4,8 @@ import { Router, RouterModule } from '@angular/router'; // ✅ Adicionar RouterM
 import { UserService, UserWithFollow } from '../../core/services/user.service';
 import { ApiUrlService } from '../../core/services/api-url.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ExploreService, Trend } from '../../core/services/explore.service';
+import { Post } from '../../core/models/api.models';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
 @Component({
@@ -22,36 +24,45 @@ export class SearchComponent implements OnInit {
   isSearching = false;
   skeletonItems = [1, 2, 3, 4, 5];
 
-  trends = [
-    { category: 'Tecnologia', tag: '#WebDev', posts: '12.5k' },
-    { category: 'Design', tag: 'Figma Updates', posts: '8.2k' },
-    { category: 'Angola', tag: '#Luanda', posts: '6.1k' },
-    { category: 'Música', tag: '#Kuduro', posts: '4.8k' },
-    { category: 'Desporto', tag: '#PrimeiraLiga', posts: '3.9k' },
-  ];
-
-  popularPosts = [
-    { id: 1, emoji: '🌅', likes: '2.1k', comments: '34' },
-    { id: 2, emoji: '💻', likes: '1.8k', comments: '22' },
-    { id: 3, emoji: '🎨', likes: '3.4k', comments: '61' },
-    { id: 4, emoji: '🏙️', likes: '980', comments: '15' },
-    { id: 5, emoji: '🎵', likes: '2.6k', comments: '47' },
-    { id: 6, emoji: '📸', likes: '1.2k', comments: '28' },
-    { id: 7, emoji: '🌿', likes: '890', comments: '12' },
-    { id: 8, emoji: '🚀', likes: '4.1k', comments: '83' },
-    { id: 9, emoji: '🎭', likes: '1.5k', comments: '19' },
-  ];
+  trends: Trend[] = [];
+  popularPosts: Post[] = [];
+  loadingExplore = false;
 
   constructor(
     private userService: UserService,
     private apiUrl: ApiUrlService,
     private router: Router,
     private toastService: ToastService,
+    private exploreService: ExploreService,
     private cdr: ChangeDetectorRef // ✅ Adicionar
   ) {}
 
   ngOnInit(): void {
     this.loadInitialUsers();
+    this.loadExploreData();
+  }
+
+  loadExploreData(): void {
+    this.loadingExplore = true;
+    
+    this.exploreService.getTrends().subscribe({
+      next: (trends) => {
+        this.trends = trends;
+        this.cdr.detectChanges();
+      }
+    });
+
+    this.exploreService.getPopularPosts().subscribe({
+      next: (postsPage) => {
+        this.popularPosts = postsPage.data;
+        this.loadingExplore = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loadingExplore = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   loadInitialUsers(): void {
@@ -100,10 +111,13 @@ export class SearchComponent implements OnInit {
   }
 
   toggleFollow(user: UserWithFollow): void {
-    if (user.is_following) {
+    const isCurrentlyFollowingOrPending = user.is_following || user.is_follow_pending;
+
+    if (isCurrentlyFollowingOrPending) {
       this.userService.unfollow(user.id).subscribe({
         next: () => {
           user.is_following = false;
+          user.is_follow_pending = false;
           this.cdr.detectChanges(); // ✅ Atualizar botão imediatamente
           this.toastService.info('Deixaste de seguir', user.name);
         },
@@ -114,9 +128,14 @@ export class SearchComponent implements OnInit {
     } else {
       this.userService.follow(user.id).subscribe({
         next: () => {
-          user.is_following = true;
+          if (user.is_private) {
+            user.is_follow_pending = true;
+            this.toastService.success('Pedido enviado!', 'Aguarde a aprovação.');
+          } else {
+            user.is_following = true;
+            this.toastService.success('Seguindo!', `Agora segues ${user.name}.`);
+          }
           this.cdr.detectChanges(); // ✅ Atualizar botão imediatamente
-          this.toastService.success('Seguindo!', `Agora segues ${user.name}.`);
         },
         error: () => {
           this.toastService.error('Erro!', 'Não foi possível seguir.');
@@ -129,7 +148,15 @@ export class SearchComponent implements OnInit {
     this.router.navigate(['/profile', user.id]);
   }
 
+  goToPost(post: Post): void {
+    this.router.navigate(['/post', post.id]);
+  }
+
   photoUrl(path?: string | null): string | null {
+    return this.apiUrl.storageUrl(path);
+  }
+
+  mediaUrl(path?: string | null): string | null {
     return this.apiUrl.storageUrl(path);
   }
 

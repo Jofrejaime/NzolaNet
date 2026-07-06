@@ -23,19 +23,66 @@ class FollowService
             ]);
         }
 
-        $success = $this->followRepository->follow($followerId, $followingId);
-
-        if (!$success) {
+        // Fetch user to check privacy
+        $user = \App\Models\User::find($followingId);
+        if (!$user) {
             throw ValidationException::withMessages([
-                'following_id' => ['Ja segue este utilizador.']
+                'following_id' => ['Utilizador não encontrado.']
             ]);
         }
 
-        $this->notificationService->create(new NotificationData(
-            userId: $followingId,
-            type: 'follow',
-            fromUserId: $followerId,
-        ));
+        $isAccepted = !$user->is_private;
+
+        $success = $this->followRepository->follow($followerId, $followingId, $isAccepted);
+
+        if (!$success) {
+            throw ValidationException::withMessages([
+                'following_id' => ['Ja segue ou já pediu para seguir este utilizador.']
+            ]);
+        }
+
+        if ($isAccepted) {
+            $this->notificationService->create(new NotificationData(
+                userId: $followingId,
+                type: 'follow',
+                fromUserId: $followerId,
+            ));
+        } else {
+            $this->notificationService->create(new NotificationData(
+                userId: $followingId,
+                type: 'follow_request',
+                fromUserId: $followerId,
+            ));
+        }
+    }
+
+    public function acceptRequest(int $followerId, int $followingId): void
+    {
+        $success = $this->followRepository->acceptRequest($followerId, $followingId);
+        
+        if (!$success) {
+            throw ValidationException::withMessages([
+                'follower_id' => ['Pedido não encontrado.']
+            ]);
+        }
+
+        // Optionally notify the follower that their request was accepted
+        // $this->notificationService->create(new NotificationData(
+        //     userId: $followerId,
+        //     type: 'follow_accepted',
+        //     fromUserId: $followingId,
+        // ));
+    }
+
+    public function rejectRequest(int $followerId, int $followingId): void
+    {
+        $success = $this->followRepository->rejectRequest($followerId, $followingId);
+        
+        if (!$success) {
+            throw ValidationException::withMessages([
+                'follower_id' => ['Pedido não encontrado.']
+            ]);
+        }
     }
 
     public function unfollow(int $followerId, int $followingId): void

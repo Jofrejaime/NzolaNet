@@ -438,6 +438,60 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Aceitar pedido para seguir
+     * POST /api/users/{id}/follow-requests/accept
+     */
+    public function acceptFollowRequest(int $id, Request $request): JsonResponse
+    {
+        try {
+            $this->followService->acceptRequest($id, $request->user()->id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pedido para seguir aceite.'
+            ], 200);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao aceitar pedido: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Rejeitar pedido para seguir
+     * POST /api/users/{id}/follow-requests/reject
+     */
+    public function rejectFollowRequest(int $id, Request $request): JsonResponse
+    {
+        try {
+            $this->followService->rejectRequest($id, $request->user()->id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pedido para seguir rejeitado.'
+            ], 200);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao rejeitar pedido: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function deleteAccount(Request $request): JsonResponse
 {
     try {

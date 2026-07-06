@@ -255,17 +255,29 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   toggleFollow(): void {
     if (!this.user) return;
-    const request = this.user.is_following
+    
+    const isCurrentlyFollowingOrPending = this.user.is_following || this.user.is_follow_pending;
+    
+    const request = isCurrentlyFollowingOrPending
       ? this.userService.unfollow(this.user.id)
       : this.userService.follow(this.user.id);
 
     request.subscribe({
       next: () => {
-        this.user = { ...this.user!, is_following: !this.user!.is_following };
-        this.toastService.success(
-          this.user.is_following ? 'Seguindo!' : 'Deixaste de seguir',
-          this.user.name || ''
-        );
+        if (isCurrentlyFollowingOrPending) {
+          // Unfollowed or cancelled request
+          this.user = { ...this.user!, is_following: false, is_follow_pending: false };
+          this.toastService.success('Deixaste de seguir ou cancelaste o pedido.', this.user.name || '');
+        } else {
+          // Followed or requested
+          if (this.user?.is_private) {
+            this.user = { ...this.user!, is_follow_pending: true };
+            this.toastService.success('Pedido enviado!', 'Aguarde a aprovação.');
+          } else {
+            this.user = { ...this.user!, is_following: true };
+            this.toastService.success('Seguindo!', this.user.name || '');
+          }
+        }
         this.cdr.detectChanges();
       },
       error: () => this.toastService.error('Erro!', 'Não foi possível actualizar o seguimento.'),

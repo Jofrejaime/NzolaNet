@@ -10,6 +10,7 @@ class Follow extends Model
     protected $fillable = [
         'follower_id',
         'following_id',
+        'is_accepted',
     ];
 
     public function follower(): BelongsTo

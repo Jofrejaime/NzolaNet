@@ -133,6 +133,7 @@ class UserService
 
         if ($viewerId) {
             $data['is_following'] = $this->followRepository->isFollowing($viewerId, $id);
+            $data['is_follow_pending'] = $this->followRepository->isFollowPending($viewerId, $id);
         }
 
         return $data;

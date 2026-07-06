@@ -58,7 +58,24 @@ class ReportService
         try {
             broadcast(new ReportCreated($reportArray));
         } catch (\Throwable $e) {
-            \Log::error('[Realtime] ReportCreated broadcast failed', ['error' => $e->getMessage()]);
+            \Log::error('[Realtime] ReportCreated broadcast failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+        }
+
+        // Notify all admins via database notifications
+        try {
+            $admins = \App\Models\User::whereIn('role', ['administrador', 'superadministrador'])->get();
+            foreach ($admins as $admin) {
+                $this->notificationService->create(new NotificationData(
+                    userId: $admin->id,
+                    type: 'new_report',
+                    fromUserId: $reporterId,
+                    postId: $type === 'post' ? $targetId : null,
+                    commentId: $type === 'comment' ? $targetId : null,
+                ));
+            }
+            \Log::info('[Notification] new_report notifications sent to admins', ['report_id' => $report->id, 'admin_count' => $admins->count()]);
+        } catch (\Throwable $e) {
+            \Log::error('[Notification] new_report notifications to admins failed', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
         }
 
         return $reportArray;
@@ -118,8 +135,9 @@ class ReportService
                         $this->notificationService->create(new NotificationData(
                             userId: $report->reporter_id,
                             type: 'content_removed',
-                            postId: $postId,
+                            fromUserId: $adminId,
                         ));
+                        \Log::info('[Notification] content_removed notification sent', ['user_id' => $report->reporter_id, 'post_id' => $postId]);
                     } catch (\Throwable $e) {
                         \Log::error('[Notification] content_removed notification failed', ['error' => $e->getMessage()]);
                     }
@@ -143,9 +161,9 @@ class ReportService
                         $this->notificationService->create(new NotificationData(
                             userId: $report->reporter_id,
                             type: 'content_removed',
-                            postId: $postId,
-                            commentId: $commentId,
+                            fromUserId: $adminId,
                         ));
+                        \Log::info('[Notification] content_removed notification sent', ['user_id' => $report->reporter_id, 'comment_id' => $commentId]);
                     } catch (\Throwable $e) {
                         \Log::error('[Notification] content_removed notification failed', ['error' => $e->getMessage()]);
                     }
@@ -155,6 +173,20 @@ class ReportService
             $newStatus = 'removed';
         } else {
             $newStatus = 'dismissed';
+
+            // Notify the reporter that the report was dismissed
+            try {
+                $this->notificationService->create(new NotificationData(
+                    userId: $report->reporter_id,
+                    type: 'report_dismissed',
+                    fromUserId: $adminId,
+                    postId: $report->reportable_type === 'post' ? $report->reportable_id : null,
+                    commentId: $report->reportable_type === 'comment' ? $report->reportable_id : null,
+                ));
+                \Log::info('[Notification] report_dismissed notification sent', ['user_id' => $report->reporter_id, 'report_id' => $report->id]);
+            } catch (\Throwable $e) {
+                \Log::error('[Notification] report_dismissed notification failed', ['error' => $e->getMessage()]);
+            }
         }
 
         $this->reportRepository->update([

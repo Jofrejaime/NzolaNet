@@ -59,10 +59,13 @@ class UserRepositoryEloquent extends BaseRepository implements UserRepository
 
         $result = [];
         foreach ($users as $user) {
-            $isFollowing = \DB::table('follows')
+            $followRecord = \DB::table('follows')
                 ->where('follower_id', $currentUserId)
                 ->where('following_id', $user->id)
-                ->exists();
+                ->first();
+
+            $isFollowing = $followRecord && $followRecord->is_accepted == 1;
+            $isFollowPending = $followRecord && $followRecord->is_accepted == 0;
 
             $result[] = [
                 'id' => $user->id,
@@ -73,6 +76,7 @@ class UserRepositoryEloquent extends BaseRepository implements UserRepository
                 'is_private' => $user->is_private,
                 'is_active' => $user->is_active,
                 'is_following' => $isFollowing,
+                'is_follow_pending' => $isFollowPending,
                 'created_at' => $user->created_at,
             ];
         }

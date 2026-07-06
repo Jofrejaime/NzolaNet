@@ -7,9 +7,10 @@ import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { RealtimeService } from '../../core/services/realtime.service';
 import { ToastService } from '../../core/services/toast.service';
+import { UserService } from '../../core/services/user.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
-export type NotifType = 'like' | 'comment' | 'follow' | 'repost' | 'content_removed';
+export type NotifType = 'like' | 'comment' | 'follow' | 'follow_request' | 'repost' | 'content_removed' | 'new_report' | 'report_dismissed';
 
 export interface NotifUser {
   name: string;
@@ -28,6 +29,8 @@ export interface Notification {
   time: string;
   postThumb?: boolean;
   routeTo?: string;
+  fromUserId?: number;
+  followRequestState?: 'pending' | 'accepted' | 'rejected';
 }
 
 export interface NotifGroup {
@@ -49,6 +52,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   private notificationService = inject(NotificationService);
   private realtimeService = inject(RealtimeService);
   private toastService = inject(ToastService);
+  private userService = inject(UserService);
   private cdr = inject(ChangeDetectorRef);
 
   allNotifications: Notification[] = [];
@@ -104,6 +108,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     this.notificationService.markAsRead(notif.id).subscribe({
       next: () => {
         notif.read = true;
+        this.realtimeService.setUnreadCount(this.unreadCount);
         this.toastService.success('Lida!', 'Notificação marcada como lida.');
         this.cdr.detectChanges();
       },
@@ -134,6 +139,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
       this.notificationService.markAsRead(notif.id).subscribe({
         next: () => {
           notif.read = true;
+          this.realtimeService.setUnreadCount(this.unreadCount);
           this.cdr.detectChanges();
         },
       });
@@ -142,6 +148,42 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     if (notif.routeTo) {
       this.router.navigate([notif.routeTo]);
     }
+  }
+
+  acceptFollowRequest(notif: Notification, event: Event): void {
+    event.stopPropagation();
+    if (!notif.fromUserId || notif.followRequestState !== 'pending') return;
+    
+    notif.followRequestState = 'accepted';
+    this.userService.acceptFollowRequest(notif.fromUserId).subscribe({
+      next: () => {
+        this.toastService.success('Pedido aceite!', 'Agora este utilizador é teu seguidor.');
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        notif.followRequestState = 'pending';
+        this.toastService.error('Erro', 'Não foi possivel aceitar o pedido.');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  rejectFollowRequest(notif: Notification, event: Event): void {
+    event.stopPropagation();
+    if (!notif.fromUserId || notif.followRequestState !== 'pending') return;
+    
+    notif.followRequestState = 'rejected';
+    this.userService.rejectFollowRequest(notif.fromUserId).subscribe({
+      next: () => {
+        this.toastService.info('Pedido rejeitado', 'O utilizador não foi notificado da rejeição.');
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        notif.followRequestState = 'pending';
+        this.toastService.error('Erro', 'Não foi possivel rejeitar o pedido.');
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   get unreadCount(): number {
@@ -178,27 +220,46 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     const type = this.mapType(item.type);
     const createdAt = item.created_at ? new Date(item.created_at) : new Date();
 
+    let routeTo: string | undefined = item.post_id ? `/post/${item.post_id}` : `/profile/${item.from_user_id}`;
+    
+    let notifUser = {
+      name,
+      initials: this.initials(name),
+      colorClass: this.colorClass(index),
+    };
+
+    if (type === 'new_report') {
+      routeTo = '/admin';
+    } else if (type === 'content_removed' || type === 'report_dismissed') {
+      routeTo = undefined;
+      notifUser = {
+        name: 'NzolaNet',
+        initials: 'Nz',
+        colorClass: 'color-gray', // Uses a generic or fallback color
+      };
+    }
+
     return {
       id: item.id,
       type,
       read: item.is_read,
       isToday: this.isToday(createdAt),
-      user: {
-        name,
-        initials: this.initials(name),
-        colorClass: this.colorClass(index),
-      },
+      user: notifUser,
       message: this.messageFor(item.type),
       quote: item.comment?.content,
       time: this.relativeTime(createdAt),
       postThumb: item.type === 'baze' && !!item.post_id,
-      routeTo: item.post_id ? `/post/${item.post_id}` : `/profile/${item.from_user_id}`,
+      routeTo,
+      fromUserId: item.from_user_id,
+      followRequestState: type === 'follow_request' ? 'pending' : undefined,
     };
   }
 
   private mapType(type: NzolaNotification['type']): NotifType {
     if (type === 'baze') return 'like';
     if (type === 'content_removed') return 'content_removed';
+    if (type === 'new_report') return 'new_report';
+    if (type === 'report_dismissed') return 'report_dismissed';
     return type as NotifType;
   }
 
@@ -206,6 +267,9 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     if (type === 'baze') return 'deu baze na tua publicação.';
     if (type === 'comment') return 'comentou a tua publicação:';
     if (type === 'content_removed') return 'O teu conteúdo foi removido por violar as regras da plataforma.';
+    if (type === 'new_report') return 'denunciou um conteúdo para ser analisado.';
+    if (type === 'report_dismissed') return 'A tua denúncia foi analisada e o conteúdo não fere os termos.';
+    if (type === 'follow_request') return 'pediu para seguir-te.';
     return 'começou a seguir-te.';
   }
 
