@@ -37,6 +37,7 @@ export class ThreadComponent implements OnInit, OnDestroy {
   private realtimeBazeSub?: Subscription;
   private realtimePostDeletedSub?: Subscription;
   private realtimeCommentDeletedSub?: Subscription;
+  private realtimeCommentCreatedSub?: Subscription;
 
   post: Post | null = null;
   comments: Comment[] = [];
@@ -113,12 +114,50 @@ export class ThreadComponent implements OnInit, OnDestroy {
     this.realtimeService.connectToPublicChannels();
     this.listenForRealtimeBazes();
     this.listenForDeletedContent();
+    this.listenForNewComments();
   }
 
   ngOnDestroy(): void {
     this.realtimeBazeSub?.unsubscribe();
     this.realtimePostDeletedSub?.unsubscribe();
     this.realtimeCommentDeletedSub?.unsubscribe();
+    this.realtimeCommentCreatedSub?.unsubscribe();
+  }
+
+  private listenForNewComments(): void {
+    const currentUserId = this.authService.currentUser()?.id;
+
+    this.realtimeCommentCreatedSub = this.realtimeService.commentCreated$.subscribe((comment) => {
+      // Ignorar se não é desta publicação
+      if (comment.post_id !== this.post?.id) return;
+      // Ignorar comentários que eu próprio acabei de publicar (já adicionados localmente)
+      if (comment.user_id === currentUserId) return;
+
+      this.ngZone.run(() => {
+        if (comment.parent_id) {
+          // É uma resposta — adicionar à lista de replies do comentário pai
+          const parentExists = this.comments.some(c => c.id === comment.parent_id);
+          if (!parentExists) return;
+          const alreadyExists = this.comments.some(c =>
+            (c.replies ?? []).some(r => r.id === comment.id)
+          );
+          if (alreadyExists) return;
+          this.comments = this.comments.map(c =>
+            c.id === comment.parent_id
+              ? { ...c, replies: [...(c.replies ?? []), comment] }
+              : c
+          );
+        } else {
+          // É um comentário de topo — adicionar ao fim
+          if (this.comments.some(c => c.id === comment.id)) return;
+          this.comments = [...this.comments, comment];
+          if (this.post) {
+            this.post = { ...this.post, comments_count: (this.post.comments_count ?? 0) + 1 };
+          }
+        }
+        this.cdr.detectChanges();
+      });
+    });
   }
 
   private listenForRealtimeBazes(): void {

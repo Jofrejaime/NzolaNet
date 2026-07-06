@@ -57,6 +57,9 @@ class PostRepositoryEloquent extends BaseRepository implements PostRepository
             ->whereIn('user_id', $followingIds)
             ->with(['user'])
             ->withCount(['comments', 'bazes'])
+            ->withExists([
+                'bazes as has_bazed' => fn ($q) => $q->where('user_id', $userId),
+            ])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
     }

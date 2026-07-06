@@ -10,7 +10,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { UserService } from '../../core/services/user.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
 
-export type NotifType = 'like' | 'comment' | 'follow' | 'follow_request' | 'repost' | 'content_removed' | 'new_report' | 'report_dismissed';
+export type NotifType = 'like' | 'comment' | 'reply' | 'follow' | 'follow_request' | 'repost' | 'content_removed' | 'new_report' | 'report_dismissed';
 
 export interface NotifUser {
   name: string;
@@ -246,7 +246,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
       isToday: this.isToday(createdAt),
       user: notifUser,
       message: this.messageFor(item.type),
-      quote: item.comment?.content,
+      quote: (item.type === 'comment' || item.type === 'reply') ? item.comment?.content : undefined,
       time: this.relativeTime(createdAt),
       postThumb: item.type === 'baze' && !!item.post_id,
       routeTo,
@@ -257,6 +257,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
   private mapType(type: NzolaNotification['type']): NotifType {
     if (type === 'baze') return 'like';
+    if (type === 'reply') return 'reply';
     if (type === 'content_removed') return 'content_removed';
     if (type === 'new_report') return 'new_report';
     if (type === 'report_dismissed') return 'report_dismissed';
@@ -266,6 +267,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   private messageFor(type: NzolaNotification['type']): string {
     if (type === 'baze') return 'deu baze na tua publicação.';
     if (type === 'comment') return 'comentou a tua publicação:';
+    if (type === 'reply') return 'respondeu ao teu comentário:';
     if (type === 'content_removed') return 'O teu conteúdo foi removido por violar as regras da plataforma.';
     if (type === 'new_report') return 'denunciou um conteúdo para ser analisado.';
     if (type === 'report_dismissed') return 'A tua denúncia foi analisada e o conteúdo não fere os termos.';

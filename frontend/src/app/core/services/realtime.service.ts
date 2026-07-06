@@ -4,7 +4,7 @@ import Pusher from 'pusher-js';
 import { Subject, BehaviorSubject } from 'rxjs';
 import { ApiUrlService } from './api-url.service';
 import { AuthService } from './auth.service';
-import { NzolaNotification, Post, Report } from '../models/api.models';
+import { Comment, NzolaNotification, Post, Report } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class RealtimeService implements OnDestroy {
@@ -18,6 +18,7 @@ export class RealtimeService implements OnDestroy {
   private newPostSubject = new Subject<Post>();
   private postDeletedSubject = new Subject<{ post_id: number }>();
   private commentDeletedSubject = new Subject<{ comment_id: number; post_id: number }>();
+  private commentCreatedSubject = new Subject<Comment>();
   private reportCreatedSubject = new Subject<Report>();
   private unreadCountSubject = new BehaviorSubject<number>(0);
 
@@ -26,6 +27,7 @@ export class RealtimeService implements OnDestroy {
   readonly newPost$ = this.newPostSubject.asObservable();
   readonly postDeleted$ = this.postDeletedSubject.asObservable();
   readonly commentDeleted$ = this.commentDeletedSubject.asObservable();
+  readonly commentCreated$ = this.commentCreatedSubject.asObservable();
   readonly reportCreated$ = this.reportCreatedSubject.asObservable();
   readonly unreadCount$ = this.unreadCountSubject.asObservable();
 
@@ -57,6 +59,9 @@ export class RealtimeService implements OnDestroy {
       .listen('.comment.deleted', (event: { comment_id: number; post_id: number }) => {
         console.log('[Realtime] Comment deleted:', event.comment_id);
         this.commentDeletedSubject.next(event);
+      })
+      .listen('.comment.created', (event: { comment: Comment }) => {
+        this.commentCreatedSubject.next(event.comment);
       });
 
     this.publicChannelConnected = true;
@@ -170,6 +175,7 @@ export class RealtimeService implements OnDestroy {
     this.newPostSubject.complete();
     this.postDeletedSubject.complete();
     this.commentDeletedSubject.complete();
+    this.commentCreatedSubject.complete();
     this.reportCreatedSubject.complete();
     this.unreadCountSubject.complete();
   }

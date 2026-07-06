@@ -6,6 +6,7 @@ namespace App\Services\Api;
 
 use App\Data\Api\Comment\CreateCommentData;
 use App\Data\Api\Notification\NotificationData;
+use App\Events\CommentCreated;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
@@ -40,16 +41,38 @@ class CommentService
             'post_id' => $postId,
             'parent_id' => $dto->parentId,
             'content' => $dto->content,
-        ])->load(['user', 'parent.user']);
+        ])->load(['user', 'replies.user']);
 
-        if ($post->user_id !== $userId) {
-            $this->notificationService->create(new NotificationData(
-                userId: $post->user_id,
-                type: 'comment',
-                fromUserId: $userId,
-                postId: $postId,
-                commentId: $comment->id,
-            ));
+        // Broadcast em tempo real para todos os utilizadores no thread
+        try {
+            broadcast(new CommentCreated($comment));
+        } catch (\Throwable $e) {
+            \Log::error('[Realtime] CommentCreated broadcast failed', ['error' => $e->getMessage()]);
+        }
+
+        if ($dto->parentId) {
+            // É uma resposta — notificar o autor do comentário pai
+            $parentComment = $this->commentRepository->find($dto->parentId);
+            if ($parentComment->user_id !== $userId) {
+                $this->notificationService->create(new NotificationData(
+                    userId: $parentComment->user_id,
+                    type: 'reply',
+                    fromUserId: $userId,
+                    postId: $postId,
+                    commentId: $comment->id,
+                ));
+            }
+        } else {
+            // É um comentário de topo — notificar o dono da publicação
+            if ($post->user_id !== $userId) {
+                $this->notificationService->create(new NotificationData(
+                    userId: $post->user_id,
+                    type: 'comment',
+                    fromUserId: $userId,
+                    postId: $postId,
+                    commentId: $comment->id,
+                ));
+            }
         }
 
         return $comment;
