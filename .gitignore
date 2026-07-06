@@ -1,0 +1,14 @@
+# Ferramentas de dev locais (não fazem parte do projeto)
+/.claude
+/.vscode
+/.idea
+
+# Nunca deve existir um projecto Composer/vendor na raiz
+# (o backend Laravel vive em /nzolanet e tem o seu próprio .gitignore)
+/vendor
+/composer.json
+/composer.lock
+
+# Ficheiros de sistema
+.DS_Store
+Thumbs.db
