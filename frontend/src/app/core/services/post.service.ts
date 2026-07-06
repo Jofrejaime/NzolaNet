@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs';
 import { ApiUrlService } from './api-url.service';
-import { ApiResponse, PaginatedResponse, Post } from '../models/api.models';
+import { ApiResponse, PaginatedResponse, Post, PostMedia } from '../models/api.models';
 
 @Injectable({ providedIn: 'root' })
 export class PostService {
@@ -20,21 +20,14 @@ export class PostService {
       .pipe(map((response) => response.data));
   }
 
-  create(payload: { content: string; image?: File | null; video?: File | null }) {
+  create(payload: { content: string; media?: File[] }) {
     const formData = new FormData();
 
-    // ✅ Verificar se content existe antes de chamar trim()
-    if (payload.content && payload.content.trim()) {
+    if (payload.content?.trim()) {
       formData.append('content', payload.content.trim());
     }
 
-    if (payload.image) {
-      formData.append('image', payload.image);
-    }
-
-    if (payload.video) {
-      formData.append('video', payload.video);
-    }
+    (payload.media ?? []).forEach(file => formData.append('media[]', file, file.name));
 
     return this.http
       .post<ApiResponse<Post>>(`${this.apiUrl.apiUrl}/posts`, formData)
@@ -43,28 +36,18 @@ export class PostService {
 
   update(id: number, payload: {
     content: string;
-    image?: File | null;
-    video?: File | null;
-    removeImage?: boolean;
-    removeVideo?: boolean;
+    keepMedia?: PostMedia[];
+    newFiles?: File[];
   }) {
     const formData = new FormData();
 
-    if (payload.content.trim()) {
+    if (payload.content?.trim()) {
       formData.append('content', payload.content.trim());
     }
 
-    if (payload.image) {
-      formData.append('image', payload.image);
-    } else if (payload.removeImage) {
-      formData.append('remove_image', '1');
-    }
+    formData.append('keep_media', JSON.stringify(payload.keepMedia ?? []));
 
-    if (payload.video) {
-      formData.append('video', payload.video);
-    } else if (payload.removeVideo) {
-      formData.append('remove_video', '1');
-    }
+    (payload.newFiles ?? []).forEach(file => formData.append('media[]', file, file.name));
 
     formData.append('_method', 'PUT');
 

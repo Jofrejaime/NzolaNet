@@ -87,62 +87,61 @@
     <!-- Conteúdo do post -->
     @if (editingPostId === post.id) {
       <div class="mt-3 edit-media-form" (click)="$event.stopPropagation()">
-        <textarea
-          [(ngModel)]="editContent"
-          maxlength="1000"
-          rows="3"
-          class="edit-textarea w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-brand)]"
-        ></textarea>
+        <textarea [(ngModel)]="editContent" maxlength="1000" rows="3"
+          class="edit-textarea w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-elevated)] px-3 py-2 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--border-brand)]"></textarea>
 
-        <!-- Imagem atual -->
-        @if (mediaUrl(post.image) && !editRemoveImage && !editNewImageFile) {
-          <div class="mt-2 relative inline-block">
-            <img [src]="mediaUrl(post.image)" class="h-20 rounded-lg object-cover">
-            <button (click)="editRemoveImage = true" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-          </div>
-        }
-        <!-- Vídeo atual -->
-        @if (mediaUrl(post.video) && !editRemoveVideo && !editNewVideoFile) {
-          <div class="mt-2 flex items-center gap-2 bg-[var(--bg-elevated)] rounded-lg px-3 py-2 text-xs text-[var(--text-secondary)] w-fit">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-            Vídeo atual
-            <button (click)="editRemoveVideo = true" class="ml-1 text-red-400 hover:text-red-300">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-          </div>
-        }
-        <!-- Nova imagem selecionada -->
-        @if (editNewImageFile) {
-          <div class="mt-2 flex items-center gap-2 text-xs text-[var(--text-secondary)]">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            {{ editNewImageFile.name }}
-            <button (click)="editNewImageFile = null" class="text-red-400 hover:text-red-300">×</button>
-          </div>
-        }
-        <!-- Novo vídeo selecionado -->
-        @if (editNewVideoFile) {
-          <div class="mt-2 flex items-center gap-2 text-xs text-[var(--text-secondary)]">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
-            {{ editNewVideoFile.name }}
-            <button (click)="editNewVideoFile = null" class="text-red-400 hover:text-red-300">×</button>
+        <!-- Média existente a manter -->
+        @if (editMediaItems.length > 0) {
+          <div class="mt-2 flex flex-wrap gap-2">
+            @for (item of editMediaItems; track $index) {
+              <div class="relative group">
+                @if (item.type === 'image') {
+                  <img [src]="mediaUrl(item.path)" class="h-20 w-20 rounded-lg object-cover">
+                } @else {
+                  <div class="h-20 w-20 rounded-lg bg-[var(--bg-overlay)] flex items-center justify-center">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                  </div>
+                }
+                <button (click)="removeEditMedia($index)" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition opacity-0 group-hover:opacity-100">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            }
           </div>
         }
 
-        <!-- Inputs para adicionar nova media (apenas quando não há media atual ou foi removida) -->
-        @if ((!post.image || editRemoveImage) && !editNewImageFile && (!post.video || editRemoveVideo) && !editNewVideoFile) {
+        <!-- Novos ficheiros selecionados -->
+        @if (editNewFiles.length > 0) {
+          <div class="mt-2 flex flex-wrap gap-2">
+            @for (item of editNewFiles; track $index) {
+              <div class="relative group">
+                @if (item.type === 'image') {
+                  <img [src]="item.preview" class="h-20 w-20 rounded-lg object-cover">
+                } @else {
+                  <video [src]="item.preview" class="h-20 w-20 rounded-lg object-cover"></video>
+                }
+                <button (click)="removeEditNewFile($index)" class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition opacity-0 group-hover:opacity-100">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Botões para adicionar mais média -->
+        @if (canAddEditMedia) {
           <div class="mt-2 flex gap-2">
             <label class="cursor-pointer flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition px-2 py-1 rounded-lg hover:bg-[var(--state-hover)]">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
               Imagem
-              <input type="file" accept="image/*" class="hidden" (change)="onEditImageSelected($event)">
+              <input type="file" accept="image/*" multiple class="hidden" (change)="onEditMediaSelected($event, 'image')">
             </label>
             <label class="cursor-pointer flex items-center gap-1.5 text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition px-2 py-1 rounded-lg hover:bg-[var(--state-hover)]">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
               Vídeo
-              <input type="file" accept="video/*" class="hidden" (change)="onEditVideoSelected($event)">
+              <input type="file" accept="video/*" multiple class="hidden" (change)="onEditMediaSelected($event, 'video')">
             </label>
+            <span class="text-xs text-[var(--text-tertiary)] self-center">{{ editTotalMedia }}/4</span>
           </div>
         }
 
@@ -157,15 +156,9 @@
       <p class="text-[var(--text-primary)] text-sm leading-relaxed mt-2 whitespace-pre-line">{{ post.content }}</p>
     }
 
-    <!-- Media -->
-    @if (mediaUrl(post.image)) {
-      <img [src]="mediaUrl(post.image)" alt="Imagem da publicação" class="mt-3 rounded-xl w-full max-h-[420px] object-cover"
-          (error)="onImageError($event)">
-    }
-    @if (mediaUrl(post.video)) {
-      <video controls class="mt-3 rounded-xl w-full max-h-[420px]" >
-        <source [src]="mediaUrl(post.video)" type="video/mp4">
-      </video>
+    <!-- Galeria de média -->
+    @if (editingPostId !== post.id) {
+      <nzola-media-gallery [items]="getPostMedia(post)" (click)="$event.stopPropagation()"></nzola-media-gallery>
     }
 
     <!-- Actions -->

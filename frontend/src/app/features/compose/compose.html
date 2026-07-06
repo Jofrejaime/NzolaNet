@@ -27,7 +27,6 @@
       }
     </div>
     <textarea
-      #textArea
       [(ngModel)]="content"
       placeholder="O que está a acontecer?"
       maxlength="500"
@@ -37,105 +36,95 @@
     ></textarea>
   </div>
 
-  <!-- Preview das Imagens (grid) -->
-  @if (imagePreviews.length > 0) {
+  <!-- Pré-visualização da galeria -->
+  @if (mediaFiles.length > 0) {
     <div class="px-4 mt-3">
-      <div class="grid grid-cols-2 gap-2">
-        @for (preview of imagePreviews; track $index) {
-          <div class="relative group">
-            <img [src]="preview" alt="Preview {{ $index + 1 }}" class="rounded-xl w-full h-32 object-cover">
-            <button (click)="removeImage($index)" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80 transition opacity-0 group-hover:opacity-100">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+      <div class="compose-gallery" [attr.data-count]="mediaFiles.length">
+        @for (item of mediaFiles; track $index) {
+          <div class="compose-cell group relative">
+            @if (item.type === 'image') {
+              <img [src]="item.preview" [alt]="'Preview ' + ($index + 1)" class="compose-media">
+            } @else {
+              <video [src]="item.preview" class="compose-media" preload="metadata"></video>
+            }
+            <button (click)="removeMedia($index)"
+              class="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80 transition opacity-0 group-hover:opacity-100 z-10">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
             </button>
+            @if (item.type === 'video') {
+              <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div class="w-10 h-10 rounded-full bg-black/50 flex items-center justify-center">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </div>
+              </div>
+            }
           </div>
         }
       </div>
-    </div>
-  }
-
-  <!-- Preview dos Vídeos (grid) -->
-  @if (videoPreviews.length > 0) {
-    <div class="px-4 mt-3">
-      <div class="grid grid-cols-1 gap-2">
-        @for (preview of videoPreviews; track $index) {
-          <div class="relative group">
-            <video [src]="preview" controls class="rounded-xl w-full max-h-[200px]"></video>
-            <button (click)="removeVideo($index)" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 flex items-center justify-center hover:bg-black/80 transition opacity-0 group-hover:opacity-100">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-              </svg>
-            </button>
-          </div>
-        }
-      </div>
-      
+      <p class="mt-1.5 text-xs text-[var(--text-tertiary)]">{{ mediaFiles.length }}/{{ MAX_MEDIA }} ficheiros</p>
     </div>
   }
 
   <!-- Footer -->
   <div class="compose-footer border-t border-[var(--border-subtle)] px-4 py-3 flex items-center justify-between mt-4">
-    <div class="flex gap-3">
-      <label class="text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition p-1.5 rounded-full hover:bg-[var(--state-hover)] cursor-pointer">
-        <input type="file" accept="image/*" multiple class="hidden" (change)="onImageSelected($event)">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
-          <polyline points="21 15 16 10 5 21"/>
-        </svg>
-        <span class="text-xs ml-1">Imagem</span>
-      </label>
-
-      <label class="text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition p-1.5 rounded-full hover:bg-[var(--state-hover)] cursor-pointer">
-        <input type="file" accept="video/*" multiple class="hidden" (change)="onVideoSelected($event)">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
-        </svg>
-        <span class="text-xs ml-1">Vídeo</span>
-      </label>
+    <div class="flex gap-1">
+      @if (canAddMore) {
+        <label class="text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition p-2 rounded-full hover:bg-[var(--state-hover)] cursor-pointer flex items-center gap-1.5">
+          <input type="file" accept="image/*" multiple class="hidden" (change)="onMediaSelected($event, 'image')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span class="text-xs">Imagem</span>
+        </label>
+        <label class="text-[var(--text-secondary)] hover:text-[var(--text-brand)] transition p-2 rounded-full hover:bg-[var(--state-hover)] cursor-pointer flex items-center gap-1.5">
+          <input type="file" accept="video/*" multiple class="hidden" (change)="onMediaSelected($event, 'video')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+          </svg>
+          <span class="text-xs">Vídeo</span>
+        </label>
+      } @else {
+        <span class="text-xs text-[var(--text-tertiary)] p-2">Máximo de {{ MAX_MEDIA }} ficheiros atingido</span>
+      }
     </div>
 
-    <div class="flex items-center gap-3">
-      @if (images.length > 0) {
-        <span class="text-xs text-[var(--text-secondary)]">{{ images.length }} img</span>
-      }
-      @if (videos.length > 0) {
-        <span class="text-xs text-[var(--text-secondary)]">{{ videos.length }} vid</span>
-      }
-      <span class="text-xs text-[var(--text-tertiary)]" 
-            [class.text-[var(--text-warning)]]="charCount >= 450"
-            [class.text-[var(--text-danger)]]="charCount >= 500">
-        {{ charCount }}/500
-      </span>
-    </div>
+    <span class="text-xs text-[var(--text-tertiary)]"
+          [class.text-orange-400]="charCount >= 450"
+          [class.text-red-400]="charCount >= 500">
+      {{ charCount }}/500
+    </span>
   </div>
-@if (showDiscardModal) {
-  <div class="modal-overlay" (click)="cancelDiscard()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>Descartar publicação</h3>
-        <button class="modal-close" (click)="cancelDiscard()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>Tens conteúdo não publicado. Tens a certeza que queres sair?</p>
-        <div class="warning-box mt-3">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <span>O teu rascunho será perdido.</span>
+
+  @if (showDiscardModal) {
+    <div class="modal-overlay" (click)="cancelDiscard()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Descartar publicação</h3>
+          <button class="modal-close" (click)="cancelDiscard()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Tens conteúdo não publicado. Tens a certeza que queres sair?</p>
+          <div class="warning-box mt-3">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>O teu rascunho será perdido.</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-cancel" (click)="cancelDiscard()">Continuar a editar</button>
+          <button class="btn-danger" (click)="confirmDiscard()">Descartar</button>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" (click)="cancelDiscard()">Continuar a editar</button>
-        <button class="btn-danger" (click)="confirmDiscard()">Descartar</button>
-      </div>
     </div>
-  </div>
-}
+  }
 </div>

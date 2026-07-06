@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CreatePostRequest extends FormRequest
 {
@@ -14,21 +15,28 @@ class CreatePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'content' => 'required_without_all:image,video|nullable|string|max:1000',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-            'video' => 'nullable|file|mimes:mp4,mov,avi,webm|max:20480',
+            'content' => [
+                Rule::requiredIf(function () {
+                    $hasNewMedia    = $this->hasFile('media');
+                    $keepMedia      = json_decode($this->input('keep_media', '[]'), true);
+                    $hasKeepMedia   = !empty($keepMedia);
+                    return !$hasNewMedia && !$hasKeepMedia;
+                }),
+                'nullable', 'string', 'max:1000',
+            ],
+            'media'      => 'nullable|array|max:4',
+            'media.*'    => 'file|mimes:jpeg,png,jpg,gif,webp,mp4,mov,avi,webm|max:20480',
+            'keep_media' => 'nullable|string',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'content.required_without_all' => 'A publicação deve conter texto, imagem ou vídeo',
-            'image.image' => 'O ficheiro de imagem deve ser uma imagem',
-            'image.max' => 'A imagem não pode ultrapassar 5MB',
-            'video.file' => 'O ficheiro de vídeo deve ser um ficheiro',
-            'video.mimes' => 'Formatos de vídeo suportados: mp4, mov, avi, webm',
-            'video.max' => 'O vídeo não pode ultrapassar 20MB',
+            'content.required_without' => 'A publicação deve conter texto ou média.',
+            'media.max'                => 'Podes adicionar no máximo 4 ficheiros.',
+            'media.*.mimes'            => 'Formato não suportado. Usa JPG, PNG, GIF, WEBP, MP4, MOV ou WEBM.',
+            'media.*.max'              => 'Cada ficheiro não pode ultrapassar 20MB.',
         ];
     }
 }

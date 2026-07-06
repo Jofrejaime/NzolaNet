@@ -5,7 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, Subscription } from 'rxjs';
 import { AvatarComponent } from '../../shared/components/avatar/avatar';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
-import { Comment, Post, NzolaUser } from '../../core/models/api.models';
+import { MediaGalleryComponent } from '../../shared/components/media-gallery/media-gallery';
+import { Comment, Post, PostMedia, NzolaUser } from '../../core/models/api.models';
 import { ApiUrlService } from '../../core/services/api-url.service';
 import { AuthService } from '../../core/services/auth.service';
 import { PostService } from '../../core/services/post.service';
@@ -14,10 +15,20 @@ import { RealtimeService } from '../../core/services/realtime.service';
 import { ReportService } from '../../core/services/report.service';
 import { ToastService } from '../../core/services/toast.service';
 
+interface EditMediaFile { type: 'image' | 'video'; file: File; preview: string; }
+
+function getPostMedia(post: Post): PostMedia[] {
+  if (post.media?.length) return post.media;
+  const items: PostMedia[] = [];
+  if (post.image) items.push({ type: 'image', path: post.image });
+  if (post.video) items.push({ type: 'video', path: post.video });
+  return items;
+}
+
 @Component({
   selector: 'nzola-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, AvatarComponent, SkeletonComponent],
+  imports: [CommonModule, FormsModule, AvatarComponent, SkeletonComponent, MediaGalleryComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss']
 })
@@ -51,10 +62,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
   activeMenuId: number | null = null;
   editingPostId: number | null = null;
   editContent = '';
-  editNewImageFile: File | null = null;
-  editNewVideoFile: File | null = null;
-  editRemoveImage = false;
-  editRemoveVideo = false;
+  editMediaItems: PostMedia[] = [];
+  editNewFiles: EditMediaFile[] = [];
+  readonly MAX_EDIT_MEDIA = 4;
+
+  get editTotalMedia(): number { return this.editMediaItems.length + this.editNewFiles.length; }
+  get canAddEditMedia(): boolean { return this.editTotalMedia < this.MAX_EDIT_MEDIA; }
+
+  getPostMedia = getPostMedia;
+
   showConfirmDialog = false;
   postToDelete: Post | null = null;
 
@@ -110,7 +126,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
-    if (!target.closest('.menu-trigger') && !target.closest('.post-menu-dropdown') && !target.closest('.edit-textarea')) {
+    if (!target.closest('.menu-trigger') && !target.closest('.post-menu-dropdown') && !target.closest('.edit-textarea') && !target.closest('.edit-media-form')) {
       if (this.editingPostId) {
         this.cancelEdit();
       }
@@ -317,47 +333,53 @@ export class ProfileComponent implements OnInit, OnDestroy {
   beginEdit(post: Post): void {
     this.editingPostId = post.id;
     this.editContent = post.content || '';
-    this.editNewImageFile = null;
-    this.editNewVideoFile = null;
-    this.editRemoveImage = false;
-    this.editRemoveVideo = false;
+    this.editMediaItems = getPostMedia(post);
+    this.editNewFiles = [];
     this.activeMenuId = null;
   }
 
   cancelEdit(): void {
     this.editingPostId = null;
     this.editContent = '';
-    this.editNewImageFile = null;
-    this.editNewVideoFile = null;
-    this.editRemoveImage = false;
-    this.editRemoveVideo = false;
+    this.editMediaItems = [];
+    this.editNewFiles = [];
   }
 
-  onEditImageSelected(event: Event): void {
-    this.editNewImageFile = (event.target as HTMLInputElement).files?.[0] ?? null;
+  removeEditMedia(index: number): void {
+    this.editMediaItems = this.editMediaItems.filter((_, i) => i !== index);
   }
 
-  onEditVideoSelected(event: Event): void {
-    this.editNewVideoFile = (event.target as HTMLInputElement).files?.[0] ?? null;
+  removeEditNewFile(index: number): void {
+    this.editNewFiles = this.editNewFiles.filter((_, i) => i !== index);
+  }
+
+  onEditMediaSelected(event: Event, type: 'image' | 'video'): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    const remaining = this.MAX_EDIT_MEDIA - this.editTotalMedia;
+    files.slice(0, remaining).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.editNewFiles = [...this.editNewFiles, { type, file, preview: e.target?.result as string }];
+        this.cdr.detectChanges();
+      };
+      reader.readAsDataURL(file);
+    });
+    input.value = '';
   }
 
   savePost(post: Post): void {
     if (this.editingPostId !== post.id) return;
 
-    const hasMedia = (post.image && !this.editRemoveImage) || this.editNewImageFile ||
-                     (post.video && !this.editRemoveVideo) || this.editNewVideoFile;
-
-    if (!this.editContent.trim() && !hasMedia) {
+    if (!this.editContent.trim() && this.editTotalMedia === 0) {
       this.toastService.warning('Atenção', 'A publicação precisa de texto ou média.');
       return;
     }
 
     this.postService.update(post.id, {
       content: this.editContent,
-      image: this.editNewImageFile,
-      video: this.editNewVideoFile,
-      removeImage: this.editRemoveImage,
-      removeVideo: this.editRemoveVideo,
+      keepMedia: this.editMediaItems,
+      newFiles: this.editNewFiles.map(f => f.file),
     }).subscribe({
       next: (updatedPost) => {
         this.posts = this.posts.map(p => p.id === post.id ? { ...updatedPost, has_bazed: p.has_bazed, bazes_count: p.bazes_count } : p);

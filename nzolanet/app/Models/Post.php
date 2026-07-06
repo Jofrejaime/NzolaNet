@@ -13,6 +13,11 @@ class Post extends Model
         'content',
         'image',
         'video',
+        'media',
+    ];
+
+    protected $casts = [
+        'media' => 'array',
     ];
 
     public function user(): BelongsTo

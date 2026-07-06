@@ -23,21 +23,48 @@
   margin-top: auto;
 }
 
-.grid-cols-2 {
+/* ── Galeria de pré-visualização no compose ── */
+.compose-gallery {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: 3px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+
+  &[data-count="1"] {
+    grid-template-columns: 1fr;
+    .compose-cell { max-height: 360px; }
+  }
+  &[data-count="2"] {
+    grid-template-columns: 1fr 1fr;
+    .compose-cell { height: 240px; }
+  }
+  &[data-count="3"] {
+    grid-template-columns: 1fr 1fr;
+    .compose-cell { height: 180px; }
+    .compose-cell:first-child { grid-row: span 2; height: 363px; }
+  }
+  &[data-count="4"] {
+    grid-template-columns: 1fr 1fr;
+    .compose-cell { height: 180px; }
+  }
+}
+
+.compose-cell {
+  overflow: hidden;
+  background: #000;
+  position: relative;
+}
+
+.compose-media {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 @media (max-width: 640px) {
-  .compose-textarea {
-    min-height: 50px;
-    font-size: 14px;
-  }
-  
-  .grid-cols-2 {
-    gap: 6px;
-  }
+  .compose-textarea { min-height: 50px; font-size: 14px; }
 }
 // Modal styles
 .modal-overlay {

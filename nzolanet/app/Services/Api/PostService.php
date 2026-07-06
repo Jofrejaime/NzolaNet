@@ -114,26 +114,23 @@ class PostService
             throw new AuthorizationException("Não tem permissão para editar esta publicação.");
         }
 
-        $oldImage = $post->image;
-        $oldVideo = $post->video;
+        $oldMedia = $post->media ?? [];
 
         $updated = $this->postRepository->update($data, $id);
 
-        // Remove ficheiros antigos do storage quando substituídos ou eliminados
-        if (array_key_exists('image', $data) && $oldImage && $oldImage !== $updated->image) {
-            Storage::disk('public')->delete($oldImage);
-        }
-        if (array_key_exists('video', $data) && $oldVideo && $oldVideo !== $updated->video) {
-            Storage::disk('public')->delete($oldVideo);
+        // Apagar ficheiros de média que foram removidos pelo utilizador
+        if (array_key_exists('media', $data)) {
+            $newPaths = array_column($data['media'], 'path');
+            foreach ($oldMedia as $item) {
+                if (!in_array($item['path'], $newPaths, true)) {
+                    Storage::disk('public')->delete($item['path']);
+                }
+            }
         }
 
-        // Recarregar com relações para a resposta ser completa
         return $updated->load('user')->loadCount(['comments', 'bazes']);
     }
 
-    /**
-     * Excluir post próprio
-     */
     public function delete(int $id, int $userId): void
     {
         $post = $this->postRepository->find($id);
@@ -142,13 +139,11 @@ class PostService
             throw new AuthorizationException("Não tem permissão para excluir esta publicação.");
         }
 
-        // Remover ficheiros associados do storage se existirem
-        if ($post->image) {
-            Storage::disk('public')->delete($post->image);
+        foreach ($post->media ?? [] as $item) {
+            Storage::disk('public')->delete($item['path']);
         }
-        if ($post->video) {
-            Storage::disk('public')->delete($post->video);
-        }
+        if ($post->image) Storage::disk('public')->delete($post->image);
+        if ($post->video) Storage::disk('public')->delete($post->video);
 
         $this->postRepository->delete($id);
     }

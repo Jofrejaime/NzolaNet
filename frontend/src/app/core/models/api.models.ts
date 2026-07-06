@@ -32,12 +32,18 @@ export interface AuthPayload {
   token_type: string;
 }
 
+export interface PostMedia {
+  type: 'image' | 'video';
+  path: string;
+}
+
 export interface Post {
   id: number;
   user_id: number;
   content?: string | null;
   image?: string | null;
   video?: string | null;
+  media?: PostMedia[] | null;
   comments_count?: number;
   bazes_count?: number;
   has_bazed?: boolean;

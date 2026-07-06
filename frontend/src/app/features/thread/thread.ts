@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, Subscription } from 'rxjs';
-import { Comment, Post } from '../../core/models/api.models';
+import { Comment, Post, PostMedia } from '../../core/models/api.models';
 import { ApiUrlService } from '../../core/services/api-url.service';
 import { AuthService } from '../../core/services/auth.service';
 import { CommentService } from '../../core/services/comment.service';
@@ -12,11 +12,22 @@ import { RealtimeService } from '../../core/services/realtime.service';
 import { ReportService } from '../../core/services/report.service';
 import { ToastService } from '../../core/services/toast.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton';
+import { MediaGalleryComponent } from '../../shared/components/media-gallery/media-gallery';
+
+interface EditMediaFile { type: 'image' | 'video'; file: File; preview: string; }
+
+function getPostMedia(post: Post): PostMedia[] {
+  if (post.media?.length) return post.media;
+  const items: PostMedia[] = [];
+  if (post.image) items.push({ type: 'image', path: post.image });
+  if (post.video) items.push({ type: 'video', path: post.video });
+  return items;
+}
 
 @Component({
   selector: 'nzola-thread',
   standalone: true,
-  imports: [CommonModule, FormsModule, SkeletonComponent],
+  imports: [CommonModule, FormsModule, SkeletonComponent, MediaGalleryComponent],
   templateUrl: './thread.html',
   styleUrls: ['./thread.scss'],
   host: { class: 'block w-full' }
@@ -35,10 +46,15 @@ export class ThreadComponent implements OnInit, OnDestroy {
   errorMessage = '';
   editingPost = false;
   editPostContent = '';
-  editPostNewImageFile: File | null = null;
-  editPostNewVideoFile: File | null = null;
-  editPostRemoveImage = false;
-  editPostRemoveVideo = false;
+  editPostMediaItems: PostMedia[] = [];
+  editPostNewFiles: EditMediaFile[] = [];
+  readonly MAX_EDIT_MEDIA = 4;
+
+  get editPostTotalMedia(): number { return this.editPostMediaItems.length + this.editPostNewFiles.length; }
+  get canAddPostEditMedia(): boolean { return this.editPostTotalMedia < this.MAX_EDIT_MEDIA; }
+
+  getPostMedia = getPostMedia;
+
   editingCommentId: number | null = null;
   editCommentContent = '';
 
@@ -308,45 +324,52 @@ export class ThreadComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.editingPost = true;
     this.editPostContent = this.post.content || '';
-    this.editPostNewImageFile = null;
-    this.editPostNewVideoFile = null;
-    this.editPostRemoveImage = false;
-    this.editPostRemoveVideo = false;
+    this.editPostMediaItems = getPostMedia(this.post);
+    this.editPostNewFiles = [];
     this.showPostMenu = false;
   }
 
   cancelPostEdit(): void {
     this.editingPost = false;
     this.editPostContent = '';
-    this.editPostNewImageFile = null;
-    this.editPostNewVideoFile = null;
-    this.editPostRemoveImage = false;
-    this.editPostRemoveVideo = false;
+    this.editPostMediaItems = [];
+    this.editPostNewFiles = [];
   }
 
-  onPostEditImageSelected(event: Event): void {
-    this.editPostNewImageFile = (event.target as HTMLInputElement).files?.[0] ?? null;
+  removePostEditMedia(index: number): void {
+    this.editPostMediaItems = this.editPostMediaItems.filter((_, i) => i !== index);
   }
 
-  onPostEditVideoSelected(event: Event): void {
-    this.editPostNewVideoFile = (event.target as HTMLInputElement).files?.[0] ?? null;
+  removePostEditNewFile(index: number): void {
+    this.editPostNewFiles = this.editPostNewFiles.filter((_, i) => i !== index);
+  }
+
+  onPostEditMediaSelected(event: Event, type: 'image' | 'video'): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    const remaining = this.MAX_EDIT_MEDIA - this.editPostTotalMedia;
+    files.slice(0, remaining).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.editPostNewFiles = [...this.editPostNewFiles, { type, file, preview: e.target?.result as string }];
+        this.cdr.detectChanges();
+      };
+      reader.readAsDataURL(file);
+    });
+    input.value = '';
   }
 
   savePost(): void {
     if (!this.post) return;
-    const hasMedia = (this.post.image && !this.editPostRemoveImage) || this.editPostNewImageFile ||
-                     (this.post.video && !this.editPostRemoveVideo) || this.editPostNewVideoFile;
-    if (!this.editPostContent.trim() && !hasMedia) {
+    if (!this.editPostContent.trim() && this.editPostTotalMedia === 0) {
       this.toastService.warning('Atenção', 'A publicação precisa de texto ou média.');
       return;
     }
 
     this.postService.update(this.post.id, {
       content: this.editPostContent,
-      image: this.editPostNewImageFile,
-      video: this.editPostNewVideoFile,
-      removeImage: this.editPostRemoveImage,
-      removeVideo: this.editPostRemoveVideo,
+      keepMedia: this.editPostMediaItems,
+      newFiles: this.editPostNewFiles.map(f => f.file),
     }).subscribe({
       next: (post) => {
         this.ngZone.run(() => {

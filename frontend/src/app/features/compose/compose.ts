@@ -7,6 +7,12 @@ import { AuthService } from '../../core/services/auth.service';
 import { ApiUrlService } from '../../core/services/api-url.service';
 import { ToastService } from '../../core/services/toast.service';
 
+interface MediaItem {
+  type: 'image' | 'video';
+  file: File;
+  preview: string;
+}
+
 @Component({
   selector: 'nzola-compose',
   standalone: true,
@@ -18,17 +24,11 @@ import { ToastService } from '../../core/services/toast.service';
 export class ComposeComponent {
   charCount = 0;
   content = '';
-  
-  images: File[] = [];
-  imagePreviews: string[] = [];
-  maxImages = 4;
-  
-  videos: File[] = [];
-  videoPreviews: string[] = [];
-  maxVideos = 2;
-  
+  mediaFiles: MediaItem[] = [];
+  readonly MAX_MEDIA = 4;
   isPublishing = false;
   errorMessage = '';
+  showDiscardModal = false;
 
   private router = inject(Router);
   private postService = inject(PostService);
@@ -37,98 +37,41 @@ export class ComposeComponent {
   private cdr = inject(ChangeDetectorRef);
   private toastService = inject(ToastService);
 
+  get canAddMore(): boolean {
+    return this.mediaFiles.length < this.MAX_MEDIA;
+  }
+
   onInput(event: Event): void {
     const textarea = event.target as HTMLTextAreaElement;
     this.charCount = textarea.value.length;
   }
 
-  onImageSelected(event: Event): void {
+  onMediaSelected(event: Event, type: 'image' | 'video'): void {
     const input = event.target as HTMLInputElement;
-    const files = input.files;
-    
-    if (!files || files.length === 0) return;
-    
-    const remainingSlots = this.maxImages - this.images.length;
-    const filesToAdd = Array.from(files).slice(0, remainingSlots);
-    
-    filesToAdd.forEach(file => {
-      if (file.type.startsWith('image/')) {
-        this.images.push(file);
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          this.imagePreviews = [...this.imagePreviews, e.target?.result as string];
-          this.cdr.detectChanges();
-        };
-        reader.readAsDataURL(file);
-      }
+    const files = Array.from(input.files ?? []);
+    const remaining = this.MAX_MEDIA - this.mediaFiles.length;
+
+    files.slice(0, remaining).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.mediaFiles = [...this.mediaFiles, { type, file, preview: e.target?.result as string }];
+        this.cdr.detectChanges();
+      };
+      reader.readAsDataURL(file);
     });
-    
+
     input.value = '';
-    
-    if (filesToAdd.length > 0) {
-      this.toastService.success('Imagens adicionadas!', `${filesToAdd.length} imagem(ns) selecionada(s).`);
-    }
   }
 
-  onVideoSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const files = input.files;
-    
-    if (!files || files.length === 0) return;
-    
-    const remainingSlots = this.maxVideos - this.videos.length;
-    const filesToAdd = Array.from(files).slice(0, remainingSlots);
-    
-    filesToAdd.forEach(file => {
-      if (file.type.startsWith('video/')) {
-        this.videos.push(file);
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-          this.videoPreviews = [...this.videoPreviews, e.target?.result as string];
-          this.cdr.detectChanges();
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-    
-    input.value = '';
-    
-    if (filesToAdd.length > 0) {
-      this.toastService.success('Vídeos adicionados!', `${filesToAdd.length} vídeo(s) selecionado(s).`);
-    }
-  }
-
-  removeImage(index: number): void {
-    this.images.splice(index, 1);
-    this.imagePreviews.splice(index, 1);
+  removeMedia(index: number): void {
+    this.mediaFiles = this.mediaFiles.filter((_, i) => i !== index);
     this.cdr.detectChanges();
-  }
-
-  removeVideo(index: number): void {
-    this.videos.splice(index, 1);
-    this.videoPreviews.splice(index, 1);
-    this.cdr.detectChanges();
-  }
-
-  clearAllMedia(): void {
-    const imageCount = this.images.length;
-    const videoCount = this.videos.length;
-    
-    this.images = [];
-    this.imagePreviews = [];
-    this.videos = [];
-    this.videoPreviews = [];
-    this.cdr.detectChanges();
-    
-    if (imageCount > 0 || videoCount > 0) {
-      this.toastService.info('Limpo!', 'Todos os media foram removidos.');
-    }
   }
 
   publish(): void {
     this.errorMessage = '';
 
-    if (!this.content.trim() && this.images.length === 0 && this.videos.length === 0) {
+    if (!this.content.trim() && this.mediaFiles.length === 0) {
       this.toastService.warning('Atenção', 'Escreve algo ou adiciona imagens/vídeos para publicar.');
       return;
     }
@@ -137,53 +80,41 @@ export class ComposeComponent {
 
     this.postService.create({
       content: this.content,
-      image: this.images[0] ?? null,
-      video: this.videos[0] ?? null,
+      media: this.mediaFiles.map(m => m.file),
     }).subscribe({
-      next: (response: any) => {
-        console.log('Publicado com sucesso:', response);
+      next: () => {
         this.toastService.success('Publicado!', 'A tua publicação está no feed.');
         this.router.navigate(['/home']);
       },
       error: (err: any) => {
-      console.error('Erro ao publicar:', err);
         const validation = err?.error?.errors;
-        const firstValidationMsg =
-          validation && typeof validation === 'object'
-            ? Object.values(validation).flat()[0]
-            : null;
-        this.errorMessage =
-          firstValidationMsg ||
-          err?.error?.message ||
-          'Não foi possível publicar. Verifica se tens sessão iniciada.';
+        const firstMsg = validation && typeof validation === 'object'
+          ? (Object.values(validation).flat()[0] as string)
+          : null;
+        this.errorMessage = firstMsg || err?.error?.message || 'Não foi possível publicar.';
         this.isPublishing = false;
-        // Força a deteção de mudanças em caso de falha
         this.cdr.detectChanges();
       },
-      complete: () => {
-        this.isPublishing = false;
-      }
+      complete: () => { this.isPublishing = false; }
     });
   }
 
-  showDiscardModal = false;
+  close(): void {
+    if (this.content.trim() || this.mediaFiles.length > 0) {
+      this.showDiscardModal = true;
+    } else {
+      this.router.navigate(['/home']);
+    }
+  }
 
-close(): void {
-  if (this.content.trim() || this.images.length > 0 || this.videos.length > 0) {
-    this.showDiscardModal = true;
-  } else {
+  confirmDiscard(): void {
+    this.showDiscardModal = false;
     this.router.navigate(['/home']);
   }
-}
 
-confirmDiscard(): void {
-  this.showDiscardModal = false;
-  this.router.navigate(['/home']);
-}
-
-cancelDiscard(): void {
-  this.showDiscardModal = false;
-}
+  cancelDiscard(): void {
+    this.showDiscardModal = false;
+  }
 
   photoUrl(path?: string | null): string | null {
     return this.apiUrl.storageUrl(path);

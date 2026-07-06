@@ -1,0 +1,13 @@
+@if (items.length > 0) {
+  <div class="post-gallery" [attr.data-count]="count">
+    @for (item of items.slice(0, 4); track $index) {
+      <div class="gallery-cell">
+        @if (item.type === 'image') {
+          <img [src]="url(item.path)" [alt]="'Imagem ' + ($index + 1)" class="gallery-media" loading="lazy">
+        } @else {
+          <video [src]="url(item.path)" controls class="gallery-media" preload="metadata"></video>
+        }
+      </div>
+    }
+  </div>
+}
