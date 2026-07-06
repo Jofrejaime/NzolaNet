@@ -54,16 +54,16 @@ export class PostService {
       formData.append('content', payload.content.trim());
     }
 
-    if (payload.removeImage) {
-      formData.append('remove_image', '1');
-    } else if (payload.image) {
+    if (payload.image) {
       formData.append('image', payload.image);
+    } else if (payload.removeImage) {
+      formData.append('remove_image', '1');
     }
 
-    if (payload.removeVideo) {
-      formData.append('remove_video', '1');
-    } else if (payload.video) {
+    if (payload.video) {
       formData.append('video', payload.video);
+    } else if (payload.removeVideo) {
+      formData.append('remove_video', '1');
     }
 
     formData.append('_method', 'PUT');

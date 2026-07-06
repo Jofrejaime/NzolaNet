@@ -127,7 +127,8 @@ class PostService
             Storage::disk('public')->delete($oldVideo);
         }
 
-        return $updated;
+        // Recarregar com relações para a resposta ser completa
+        return $updated->load('user')->loadCount(['comments', 'bazes']);
     }
 
     /**
